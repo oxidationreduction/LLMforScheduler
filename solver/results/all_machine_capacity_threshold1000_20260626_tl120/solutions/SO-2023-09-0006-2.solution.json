@@ -1,0 +1,224 @@
+{
+  "case_id": "SO-2023-09-0006-2",
+  "input_path": "/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-09-0006-2.json",
+  "status": "time_limit",
+  "solve_seconds": 120.05047402501805,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2023-09-0006-2",
+    "path": "/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-09-0006-2.json",
+    "product_count": 3,
+    "net_required_total": 384,
+    "step_count": 18,
+    "total_work_minutes": 16675.92,
+    "max_due_day": 13,
+    "worker_count": 12,
+    "worker_day_count": 144,
+    "complexity_score": 21475.92
+  },
+  "errors": [
+    "CP-SAT batched minute model status: UNKNOWN"
+  ],
+  "plan": [],
+  "solver_method": "timed_cpsat_batched",
+  "cp_sat_status": "UNKNOWN",
+  "operation_count": 2490,
+  "batched_operation_count": 629,
+  "batch_count": 97,
+  "target_operations": 800,
+  "batched_model_exact": false,
+  "batched_attempts": [
+    {
+      "target_operations": 300,
+      "status": "time_limit",
+      "cp_sat_status": "UNKNOWN",
+      "batched_operation_count": 285,
+      "batch_count": 44,
+      "solve_seconds": 99.26253428205382,
+      "errors": [
+        "CP-SAT batched minute model status: UNKNOWN"
+      ]
+    },
+    {
+      "target_operations": 800,
+      "status": "time_limit",
+      "cp_sat_status": "UNKNOWN",
+      "batched_operation_count": 629,
+      "batch_count": 97,
+      "solve_seconds": 120.05047402501805,
+      "errors": [
+        "CP-SAT batched minute model status: UNKNOWN"
+      ]
+    }
+  ],
+  "greedy_failed_attempts": [
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1393
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 2252
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1317
+    },
+    {
+      "strategy": {
+        "unit_strategy": "smallest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 2279
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1393
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 2252
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1317
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "most_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1393
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_slack",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1310
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_ready",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 6541789 第 5 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 2478
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_depth",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1393
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_slack",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1310
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_ready",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 6541789 第 5 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 2478
+    },
+    {
+      "strategy": {
+        "unit_strategy": "interleaved_slack",
+        "worker_strategy": "most_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 23158124 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1310
+    }
+  ]
+}

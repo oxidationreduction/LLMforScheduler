@@ -1,0 +1,324 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import bisect
+import json
+import math
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SOLVER_DIR = REPO_ROOT / "solver"
+if str(SOLVER_DIR) not in sys.path:
+    sys.path.insert(0, str(SOLVER_DIR))
+
+from schedule_solver import (  # noqa: E402
+    CP_SAT_DURATION_SCALE,
+    clean_text,
+    is_no_machine,
+    load_order,
+)
+from verify_schedule import verify_solution  # noqa: E402
+
+
+FAIL_SOLVE_STATUSES = {
+    "infeasible",
+    "invalid_input",
+    "model_invalid",
+    "time_limit",
+    "solver_unavailable",
+    "failed",
+}
+
+
+def _read_json(path: Path) -> Any:
+    with path.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _task_count(plan: Any) -> int:
+    if not isinstance(plan, list):
+        return 0
+    total = 0
+    for day_block in plan:
+        if isinstance(day_block, dict) and isinstance(day_block.get("tasks"), list):
+            total += len(day_block["tasks"])
+    return total
+
+
+def _plan_day_span(plan: Any) -> tuple[int | None, int | None]:
+    if not isinstance(plan, list):
+        return None, None
+    days: list[int] = []
+    for day_block in plan:
+        if not isinstance(day_block, dict):
+            continue
+        try:
+            days.append(int(day_block.get("day")))
+        except (TypeError, ValueError):
+            continue
+    if not days:
+        return None, None
+    return min(days), max(days)
+
+
+def _minute_to_tick(value: Any) -> int | None:
+    try:
+        return int(round(float(value) * CP_SAT_DURATION_SCALE))
+    except (TypeError, ValueError):
+        return None
+
+
+def _machine_list(task: dict[str, Any]) -> list[str]:
+    if isinstance(task.get("machines"), list):
+        return [clean_text(machine) for machine in task["machines"] if clean_text(machine)]
+    machine_value = task.get("machine")
+    if machine_value is None:
+        return []
+    machine_text = clean_text(machine_value)
+    if not machine_text or is_no_machine(machine_text):
+        return []
+    if "+" in machine_text:
+        return [part.strip() for part in machine_text.split("+") if part.strip()]
+    return [machine_text]
+
+
+def _insert_interval_on_any_copy(
+    intervals_by_copy: list[list[tuple[int, int, str]]],
+    start_tick: int,
+    end_tick: int,
+    label: str,
+) -> str | None:
+    if start_tick >= end_tick:
+        return None
+    for intervals in intervals_by_copy:
+        probe = bisect.bisect_right(intervals, (start_tick, math.inf, "")) - 1
+        overlaps_previous = probe >= 0 and intervals[probe][1] > start_tick
+        overlaps_next = False
+        if not overlaps_previous:
+            next_index = probe + 1
+            overlaps_next = next_index < len(intervals) and intervals[next_index][0] < end_tick
+        if not overlaps_previous and not overlaps_next:
+            bisect.insort(intervals, (start_tick, end_tick, label))
+            return None
+    examples: list[str] = []
+    for intervals in intervals_by_copy[:2]:
+        for prev_start, prev_end, prev_label in intervals:
+            if prev_start < end_tick and start_tick < prev_end:
+                examples.append(f"{prev_label} [{prev_start / CP_SAT_DURATION_SCALE:.3f}, {prev_end / CP_SAT_DURATION_SCALE:.3f}]")
+                break
+    detail = "；".join(examples) if examples else "all copies busy"
+    return f"{label} [{start_tick / CP_SAT_DURATION_SCALE:.3f}, {end_tick / CP_SAT_DURATION_SCALE:.3f}] overlaps existing usage: {detail}"
+
+
+def strict_machine_concurrency_errors(order_path: Path, solution_path: Path) -> list[str]:
+    order = load_order(order_path)
+    solution = _read_json(solution_path)
+    plan = solution.get("plan", solution)
+    if not isinstance(plan, list):
+        return ["plan must be a list before strict machine concurrency can be checked"]
+
+    machine_counts = {
+        name: max(int(count), 0)
+        for name, count in order.machines.items()
+        if clean_text(name) and not is_no_machine(name)
+    }
+    calendars: dict[tuple[str, int], list[list[tuple[int, int, str]]]] = {}
+    errors: list[str] = []
+
+    for day_block in plan:
+        if not isinstance(day_block, dict):
+            continue
+        try:
+            day = int(day_block.get("day", 0))
+        except (TypeError, ValueError):
+            continue
+        tasks = day_block.get("tasks", [])
+        if not isinstance(tasks, list):
+            continue
+        for task_index, task in enumerate(tasks):
+            if not isinstance(task, dict):
+                continue
+            start_tick = _minute_to_tick(task.get("start_minute"))
+            end_tick = _minute_to_tick(task.get("end_minute"))
+            if start_tick is None or end_tick is None or start_tick >= end_tick:
+                continue
+            product = clean_text(task.get("material", task.get("product_id", "")))
+            process = clean_text(task.get("process", ""))
+            worker = clean_text(task.get("worker", ""))
+            label = f"day {day} task {task_index} {product}/{process}/{worker}"
+            for machine in _machine_list(task):
+                count = machine_counts.get(machine, 0)
+                if count <= 0:
+                    errors.append(f"{label}: machine {machine!r} is unavailable or has non-positive count")
+                    continue
+                key = (machine, day)
+                intervals_by_copy = calendars.setdefault(key, [[] for _ in range(count)])
+                overlap = _insert_interval_on_any_copy(intervals_by_copy, start_tick, end_tick, label)
+                if overlap is not None:
+                    errors.append(f"machine {machine!r} exceeds {count} concurrent copies on day {day}: {overlap}")
+    return errors
+
+
+def _resolve_order_path(solution: dict[str, Any], solution_path: Path, sample_dir: Path | None) -> Path:
+    raw = solution.get("input_path") or solution.get("order_path")
+    if raw:
+        path = Path(str(raw))
+        if path.is_absolute() and path.exists():
+            return path
+        candidates = [
+            REPO_ROOT / path,
+            solution_path.parent / path,
+            Path.cwd() / path,
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate.resolve()
+    if sample_dir is not None:
+        candidate = sample_dir / f"{solution_path.stem.replace('.solution', '')}.json"
+        if candidate.exists():
+            return candidate.resolve()
+    raise FileNotFoundError(f"cannot resolve input order for {solution_path}")
+
+
+def check_solution(
+    order_path: Path,
+    solution_path: Path,
+    *,
+    max_errors: int,
+    require_feasible_status: bool,
+    check_machine_concurrency: bool,
+) -> dict[str, Any]:
+    solution = _read_json(solution_path)
+    solve_status = solution.get("status")
+    plan = solution.get("plan", solution)
+    min_day, max_day = _plan_day_span(plan)
+
+    row: dict[str, Any] = {
+        "case_id": solution.get("case_id") or solution_path.stem.replace(".solution", ""),
+        "order_path": str(order_path),
+        "solution_path": str(solution_path),
+        "solve_status": solve_status,
+        "solver_method": solution.get("solver_method"),
+        "solve_seconds": solution.get("solve_seconds"),
+        "plan_day_min": min_day,
+        "plan_day_max": max_day,
+        "plan_task_count": _task_count(plan),
+    }
+
+    if require_feasible_status and solve_status in FAIL_SOLVE_STATUSES:
+        row.update(
+            {
+                "checker_status": "invalid",
+                "error_count": 1,
+                "errors": [f"solution status is not feasible: {solve_status}"],
+                "base_error_count": 0,
+                "machine_error_count": 0,
+            }
+        )
+        return row
+
+    verify = verify_solution(order_path, solution_path)
+    base_errors = list(verify.get("errors", []))
+    machine_errors = strict_machine_concurrency_errors(order_path, solution_path) if check_machine_concurrency else []
+    errors = [*base_errors, *machine_errors]
+    row.update(
+        {
+            "checker_status": "ok" if not errors else "invalid",
+            "error_count": len(errors),
+            "base_error_count": len(base_errors),
+            "machine_error_count": len(machine_errors),
+            "errors": errors[:max_errors],
+            "full_error_count": len(errors),
+        }
+    )
+    return row
+
+
+def _solution_files_from_results_dir(results_dir: Path) -> list[Path]:
+    solution_dir = results_dir / "solutions"
+    if solution_dir.exists():
+        files = sorted(solution_dir.glob("*.solution.json"))
+    else:
+        files = sorted(results_dir.glob("*.solution.json"))
+    if not files:
+        raise FileNotFoundError(f"no *.solution.json files under {results_dir}")
+    return files
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Validate TianjinLLM schedule solutions against docs/task.md business semantics."
+    )
+    parser.add_argument("order_json", nargs="?", type=Path, help="Single raw order JSON file")
+    parser.add_argument("solution_json", nargs="?", type=Path, help="Single solution JSON file")
+    parser.add_argument("--results-dir", type=Path, help="Benchmark result directory containing solutions/*.solution.json")
+    parser.add_argument("--sample-dir", type=Path, help="Fallback directory for raw order JSON files")
+    parser.add_argument("--summary-out", type=Path, help="Optional path to write JSON summary")
+    parser.add_argument("--max-errors", type=int, default=20)
+    parser.add_argument(
+        "--allow-non-feasible",
+        action="store_true",
+        help="Do not fail immediately when solution status is not feasible; attempt structural validation anyway.",
+    )
+    parser.add_argument(
+        "--ignore-machine-concurrency",
+        action="store_true",
+        help="Skip concurrent machine-copy checks. Machine existence and required machine names are still checked by the base verifier.",
+    )
+    args = parser.parse_args()
+
+    if args.results_dir:
+        solution_paths = _solution_files_from_results_dir(args.results_dir)
+        rows = []
+        for solution_path in solution_paths:
+            solution = _read_json(solution_path)
+            order_path = _resolve_order_path(solution, solution_path, args.sample_dir)
+            rows.append(
+                check_solution(
+                    order_path,
+                    solution_path,
+                    max_errors=args.max_errors,
+                    require_feasible_status=not args.allow_non_feasible,
+                    check_machine_concurrency=not args.ignore_machine_concurrency,
+                )
+            )
+    else:
+        if args.order_json is None or args.solution_json is None:
+            parser.error("provide order_json and solution_json, or --results-dir")
+        rows = [
+            check_solution(
+                args.order_json,
+                args.solution_json,
+                max_errors=args.max_errors,
+                require_feasible_status=not args.allow_non_feasible,
+                check_machine_concurrency=not args.ignore_machine_concurrency,
+            )
+        ]
+
+    status_counts: dict[str, int] = {}
+    for row in rows:
+        status = str(row.get("checker_status"))
+        status_counts[status] = status_counts.get(status, 0) + 1
+
+    summary = {
+        "case_count": len(rows),
+        "status_counts": status_counts,
+        "all_ok": all(row.get("checker_status") == "ok" for row in rows),
+        "machine_concurrency_checked": not args.ignore_machine_concurrency,
+        "cases": rows,
+    }
+    text = json.dumps(summary, ensure_ascii=False, indent=2)
+    if args.summary_out:
+        args.summary_out.parent.mkdir(parents=True, exist_ok=True)
+        args.summary_out.write_text(text + "\n", encoding="utf-8")
+    print(text)
+    raise SystemExit(0 if summary["all_ok"] else 1)
+
+
+if __name__ == "__main__":
+    main()

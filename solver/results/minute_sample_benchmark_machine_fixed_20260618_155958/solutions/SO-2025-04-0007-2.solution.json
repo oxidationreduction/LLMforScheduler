@@ -1,0 +1,122 @@
+{
+  "case_id": "SO-2025-04-0007-2",
+  "input_path": "/wenyu/media-wenyu-data/TianjinLLM/solver/sampled_order/SO-2025-04-0007-2.json",
+  "status": "solver_unavailable",
+  "solve_seconds": 1.4469711598940194,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2025-04-0007-2",
+    "path": "/wenyu/media-wenyu-data/TianjinLLM/solver/sampled_order/SO-2025-04-0007-2.json",
+    "product_count": 9,
+    "net_required_total": 794,
+    "step_count": 53,
+    "total_work_minutes": 28892.960000000006,
+    "max_due_day": 13,
+    "worker_count": 12,
+    "worker_day_count": 142,
+    "complexity_score": 43042.96000000001
+  },
+  "errors": [
+    "ortools is not installed; install it with `python -m pip install --user ortools`"
+  ],
+  "plan": [],
+  "solver_method": "timed_cpsat",
+  "greedy_failed_attempts": [
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1564
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 35155130 第 5 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1943
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 5 道工序 过程检测"
+      ],
+      "scheduled_operations": 1423
+    },
+    {
+      "strategy": {
+        "unit_strategy": "smallest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 5 道工序 过程检测"
+      ],
+      "scheduled_operations": 2638
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1564
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 35155130 第 5 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1943
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 5 道工序 过程检测"
+      ],
+      "scheduled_operations": 1423
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "most_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 13 天前安排产品 30151137 第 1 道工序 来料检"
+      ],
+      "scheduled_operations": 1564
+    }
+  ]
+}

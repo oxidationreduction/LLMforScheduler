@@ -1,0 +1,122 @@
+{
+  "case_id": "SO-2022-06-0002-2",
+  "input_path": "/wenyu/media-wenyu-data/TianjinLLM/solver/sampled_order/SO-2022-06-0002-2.json",
+  "status": "solver_unavailable",
+  "solve_seconds": 2.0508765091653913,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2022-06-0002-2",
+    "path": "/wenyu/media-wenyu-data/TianjinLLM/solver/sampled_order/SO-2022-06-0002-2.json",
+    "product_count": 7,
+    "net_required_total": 291,
+    "step_count": 50,
+    "total_work_minutes": 17225.27,
+    "max_due_day": 16,
+    "worker_count": 12,
+    "worker_day_count": 178,
+    "complexity_score": 30425.27
+  },
+  "errors": [
+    "ortools is not installed; install it with `python -m pip install --user ortools`"
+  ],
+  "plan": [],
+  "solver_method": "timed_cpsat",
+  "greedy_failed_attempts": [
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 6523376 第 5 道工序 后处理"
+      ],
+      "scheduled_operations": 1882
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 30151140 第 7 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1974
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 30151137 第 8 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1795
+    },
+    {
+      "strategy": {
+        "unit_strategy": "smallest_route_work",
+        "worker_strategy": "least_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 23165122 第 4 道工序 精加工"
+      ],
+      "scheduled_operations": 1682
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 6523376 第 5 道工序 后处理"
+      ],
+      "scheduled_operations": 1882
+    },
+    {
+      "strategy": {
+        "unit_strategy": "round_robin_product",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 30151140 第 7 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1974
+    },
+    {
+      "strategy": {
+        "unit_strategy": "largest_route_work",
+        "worker_strategy": "name",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 30151137 第 8 道工序 清洗&包装"
+      ],
+      "scheduled_operations": 1795
+    },
+    {
+      "strategy": {
+        "unit_strategy": "earliest_due",
+        "worker_strategy": "most_used",
+        "day_strategy": "forward"
+      },
+      "status": "no_solution_found",
+      "errors": [
+        "无法在第 16 天前安排产品 6523376 第 5 道工序 后处理"
+      ],
+      "scheduled_operations": 1882
+    }
+  ]
+}
