@@ -8,8 +8,9 @@
 
 - `docs/`：任务说明和业务约束文档。
 - `raw_orders/`：原始订单输入 JSON，当前全量数据共 670 条。
-- `solver/`：排班求解器代码，核心入口是 `schedule_solver.py`。
-- `solver/results/`：批量求解结果目录，包含每条 case 的 solution、verify 和 summary。
+- `solver/`：排班求解器和后处理代码，核心入口是 `schedule_solver.py`，可视化入口是 `visualize_solution.py`。
+- `results/raw_view/`：批量求解原始结果目录，包含每条 case 的 solution、verify 和 summary。
+- `results/html_view/`：由 solution 后处理生成的 HTML 甘特图目录。
 - `checker/`：排班验证程序，核心入口是 `check_schedule.py`。
 - `analysis/case_study/`：抽样 case 的排班可视化 HTML，用于人工检查方案。
 - `analysis/data_analysis/`：订单、工艺和资源数据分析脚本或中间结果。
@@ -44,7 +45,7 @@
 
 一个可解样例是 `SO-2025-05-0006-2`，对应结果文件：
 
-`solver/results/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2025-05-0006-2.solution.json`
+`results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2025-05-0006-2.solution.json`
 
 该 case 的关键输出如下：
 
@@ -121,7 +122,11 @@ Verifier 的验证思路：
 
 当前全量结果目录：
 
-`solver/results/all_machine_capacity_dynamic_chunk25_20260626_tl120/`
+`results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`
+
+对应的 HTML 可视化目录：
+
+`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`
 
 本轮覆盖 `raw_orders/` 下 670 条原始订单，批量求解总耗时 195.741 秒。结果摘要如下：
 
@@ -131,6 +136,7 @@ Verifier 的验证思路：
 - 容量下界证明不可行：94 条，状态为 `infeasible_proven`，因此没有生成可验证的排班方案，verify 记为 `not_applicable`。
 - 未求解完成或无结论：0 条，`not_solved_cases` 为空。
 - 当前结果中的 `solver_method` 均为 `timed_greedy`；CP-SAT fallback 保留在代码中，但本轮全量结果没有依赖它产出解。
+- 当前全量结果已转换为 670 个 HTML 文件，保存在 `results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`；可行 case 展示具体排班，不可行 case 展示状态和输入摘要。
 
 ## case_study
 

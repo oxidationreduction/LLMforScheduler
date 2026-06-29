@@ -1,0 +1,2798 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SO-2022-09-0003-2 排班可视化</title><style>
+:root{--bg:#f7f7f4;--paper:#fff;--ink:#222821;--muted:#667064;--line:#d9ded2;--strong:#b7c0b0;--ok:#25784a;--bad:#a23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:22px 28px 16px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+h1{margin:0 0 8px;font-size:24px;letter-spacing:0}
+h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+.meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+main{padding:20px 28px 34px}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:70px}
+.card span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
+.card b{display:block;font-size:18px;overflow-wrap:anywhere}
+.ok b{color:var(--ok)}
+section{margin:0 0 24px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:14px;overflow:hidden}
+.scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.timeline{display:grid;grid-template-columns:180px var(--chart-width);min-width:calc(180px + var(--chart-width))}
+.axis-label,.lane-label{position:sticky;left:0;z-index:5;background:#f1f3ed;border-right:1px solid var(--strong)}
+.axis-label{height:48px;padding:14px 12px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line)}
+.axis{position:relative;height:48px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+.tick{position:absolute;top:0;bottom:0;border-left:1px solid #edf0e8;color:#687064;font-size:11px}
+.tick.dayline{border-left-color:#aeb9a6}
+.tick span{position:absolute;top:6px;left:4px;white-space:nowrap}
+.lane-label{padding:7px 10px;border-bottom:1px solid var(--line);overflow:hidden}
+.lane-label b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane-label span{display:block;color:var(--muted);font-size:12px;white-space:nowrap}
+.lane{position:relative;border-bottom:1px solid var(--line);background-image:linear-gradient(to right,rgba(30,40,30,.06) 1px,transparent 1px);background-size:100px 100%}
+.task{position:absolute;height:28px;border-radius:6px;border:1px solid color-mix(in srgb,var(--proc),#222 28%);border-left:5px solid var(--proc);background:color-mix(in srgb,var(--proc),white 78%);padding:2px 5px;overflow:hidden;white-space:nowrap;box-shadow:0 1px 1px rgba(0,0,0,.08);cursor:default}
+.task:hover{outline:2px solid rgba(34,40,33,.28);outline-offset:2px;z-index:20}
+body[data-color="machine"] .task{border-color:color-mix(in srgb,var(--mach),#222 28%);border-left-color:var(--mach);background:color-mix(in srgb,var(--mach),white 78%)}
+.task span{display:block;font-size:11px;font-weight:700;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
+.task small{display:block;font-size:10px;color:#4f574d;overflow:hidden;text-overflow:ellipsis}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.toolbar label{color:var(--muted)}
+select{height:30px;border:1px solid var(--strong);border-radius:6px;background:white;padding:0 8px}
+.route{margin:0 0 6px 18px;padding:0}
+.route li{margin:4px 0}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;background:white}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:#eef1e9;color:#475044;font-size:12px}
+.source{display:grid;grid-template-columns:90px 1fr;gap:6px 10px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.task-tooltip{position:fixed;z-index:9999;display:none;max-width:360px;padding:10px 12px;border:1px solid #9ea995;border-radius:8px;background:rgba(255,255,252,.98);box-shadow:0 12px 30px rgba(32,40,28,.18);color:#222821;font-size:13px;line-height:1.45;white-space:pre-line;pointer-events:none}
+.task-tooltip b{display:block;margin-bottom:5px;font-size:14px}
+@media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}}
+</style></head>
+<body data-color="process"><header><h1>SO-2022-09-0003-2 排班可视化</h1><div class="meta"><span>生成时间：2026-06-29 20:28:16</span><span>solution：feasible</span><span>verify：ok</span><span>机器并发错误：0</span><span>排程：Day 1-1</span></div></header><main><section class="cards"><div class="card ok"><span>Verify</span><b>ok</b></div><div class="card ok"><span>机器并发错误</span><b>0</b></div><div class="card ok"><span>Solution</span><b>feasible</b></div><div class="card"><span>任务数</span><b>179</b></div><div class="card"><span>排程范围</span><b>Day 1-1</b></div><div class="card"><span>最大完成时间</span><b>Day 1 157.99 min</b></div><div class="card"><span>订单期限</span><b>Day 13</b></div><div class="card"><span>Solver</span><b>timed_greedy</b></div><div class="card"><span>耗时</span><b>0.032 s</b></div><div class="card"><span>产品/需求</span><b>6535571: 订单 30 / 净需求 30</b></div></section><section><h2>问题摘要</h2><div class="panel"><p><b>库存抵扣：</b>6535571: 库存 0，订单 30，净需求 30</p><h3>产品 6535571</h3><ol class="route"><li><b>1. 来料检</b>：4.73 min/件，设备 无，可选工人 杜青山、何金环</li><li><b>2. 下料</b>：0.24 min/件，设备 锯床，可选工人 尚剑侨、齐书旺</li><li><b>3. 粗加工</b>：1.31 min/件，设备 沈机TC500R，可选工人 尚剑侨、齐书旺、王树滨、王彪</li><li><b>4. 精加工</b>：9.86 min/件，设备 丽驰TX-500, 丽驰TX-1000，可选工人 尚剑侨、齐书旺、王树滨、王彪</li><li><b>5. 巡检</b>：2.03 min/件，设备 无，可选工人 何金环、王培培、杜青山</li><li><b>6. 刻号&amp;包装</b>：1.54 min/件，设备 无，可选工人 何金环、张福仙</li></ol></div></section><section><div class="toolbar"><h2>按工人看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:1200px"><div class="axis-label">工人</div><div class="axis" style="width:1200px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div></div><div class="lane-label" style="height:42px"><b>何金环</b><span>45 项 / 124.5 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #1
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 0-4.73 min
+总时长：4.73 min" style="left:0.00px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #4
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 4.73-9.46 min
+总时长：4.73 min" style="left:11.83px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #12
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 9.46-14.19 min
+总时长：4.73 min" style="left:23.65px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 16.38-18.41 min
+总时长：2.03 min" style="left:40.95px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 18.41-19.95 min
+总时长：1.54 min" style="left:46.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #27
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 19.95-24.68 min
+总时长：4.73 min" style="left:49.88px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #32
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 26-28.03 min
+总时长：2.03 min" style="left:65.00px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #37
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 28.27-29.81 min
+总时长：1.54 min" style="left:70.67px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #39
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 29.81-34.54 min
+总时长：4.73 min" style="left:74.52px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #44
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 35.86-37.89 min
+总时长：2.03 min" style="left:89.65px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #49
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 38.13-39.67 min
+总时长：1.54 min" style="left:95.33px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #51
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 39.67-44.4 min
+总时长：4.73 min" style="left:99.18px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #56
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 45.72-47.75 min
+总时长：2.03 min" style="left:114.30px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #61
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 47.99-49.53 min
+总时长：1.54 min" style="left:119.98px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #63
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 49.53-54.26 min
+总时长：4.73 min" style="left:123.83px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #70
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 55.82-57.85 min
+总时长：2.03 min" style="left:139.55px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #74
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 57.85-59.39 min
+总时长：1.54 min" style="left:144.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #75
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 59.39-64.12 min
+总时长：4.73 min" style="left:148.47px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #82
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 65.68-67.71 min
+总时长：2.03 min" style="left:164.20px;width:5.07px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #86
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 67.71-69.25 min
+总时长：1.54 min" style="left:169.27px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #87
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 69.25-73.98 min
+总时长：4.73 min" style="left:173.12px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #94
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 75.54-77.57 min
+总时长：2.03 min" style="left:188.85px;width:5.07px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #98
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 77.57-79.11 min
+总时长：1.54 min" style="left:193.92px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #99
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 79.11-83.84 min
+总时长：4.73 min" style="left:197.78px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #106
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 85.4-87.43 min
+总时长：2.03 min" style="left:213.50px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #110
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 87.43-88.97 min
+总时长：1.54 min" style="left:218.58px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #111
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 88.97-93.7 min
+总时长：4.73 min" style="left:222.43px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #118
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 95.26-97.29 min
+总时长：2.03 min" style="left:238.15px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #122
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 97.29-98.83 min
+总时长：1.54 min" style="left:243.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #123
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 98.83-103.56 min
+总时长：4.73 min" style="left:247.07px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #130
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 105.12-107.15 min
+总时长：2.03 min" style="left:262.80px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #134
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 107.15-108.69 min
+总时长：1.54 min" style="left:267.88px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #135
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 108.69-113.42 min
+总时长：4.73 min" style="left:271.73px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #142
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 114.98-117.01 min
+总时长：2.03 min" style="left:287.45px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #146
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 117.01-118.55 min
+总时长：1.54 min" style="left:292.53px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #147
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 118.55-123.28 min
+总时长：4.73 min" style="left:296.38px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #154
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 124.84-126.87 min
+总时长：2.03 min" style="left:312.10px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #158
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 126.87-128.41 min
+总时长：1.54 min" style="left:317.18px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #159
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 128.41-133.14 min
+总时长：4.73 min" style="left:321.02px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #166
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 134.7-136.73 min
+总时长：2.03 min" style="left:336.75px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #169
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 136.73-138.27 min
+总时长：1.54 min" style="left:341.82px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #172
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 144.56-146.59 min
+总时长：2.03 min" style="left:361.40px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #175
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 146.59-148.13 min
+总时长：1.54 min" style="left:366.48px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #177
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 154.42-156.45 min
+总时长：2.03 min" style="left:386.05px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #179
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 156.45-157.99 min
+总时长：1.54 min" style="left:391.12px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>单西强</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>孙淑敏</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>尚剑侨</b><span>32 项 / 84.89 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #3
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 4.73-4.97 min
+总时长：0.24 min" style="left:11.83px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #8
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 5.21-6.52 min
+总时长：1.31 min" style="left:13.03px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div><div class="task" data-tooltip="任务 #11
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 9.46-9.7 min
+总时长：0.24 min" style="left:23.65px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 9.7-9.94 min
+总时长：0.24 min" style="left:24.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #16
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 9.94-11.25 min
+总时长：1.31 min" style="left:24.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div><div class="task" data-tooltip="任务 #17
+产品：6535571
+工序：2. 下料
+数量：2
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 14.19-14.67 min
+总时长：0.48 min" style="left:35.48px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x2</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #19
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 14.67-15.98 min
+总时长：1.31 min" style="left:36.67px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div><div class="task" data-tooltip="任务 #21
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 16.14-26 min
+总时长：9.86 min" style="left:40.35px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #40
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 33-33.24 min
+总时长：0.24 min" style="left:82.50px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #42
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 34.54-34.78 min
+总时长：0.24 min" style="left:86.35px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #43
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 34.78-36.09 min
+总时长：1.31 min" style="left:86.95px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #47
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 36.1-45.96 min
+总时长：9.86 min" style="left:90.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #64
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 52.72-52.96 min
+总时长：0.24 min" style="left:131.80px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #66
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 54.26-54.5 min
+总时长：0.24 min" style="left:135.65px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 54.5-55.81 min
+总时长：1.31 min" style="left:136.25px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #71
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 55.82-65.68 min
+总时长：9.86 min" style="left:139.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #88
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 72.2-72.44 min
+总时长：0.24 min" style="left:180.50px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #90
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 73.98-74.22 min
+总时长：0.24 min" style="left:184.95px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #91
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 74.22-75.53 min
+总时长：1.31 min" style="left:185.55px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #95
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 75.54-85.4 min
+总时长：9.86 min" style="left:188.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #112
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 91.92-92.16 min
+总时长：0.24 min" style="left:229.80px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #114
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 93.7-93.94 min
+总时长：0.24 min" style="left:234.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #115
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 93.94-95.25 min
+总时长：1.31 min" style="left:234.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #119
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 95.26-105.12 min
+总时长：9.86 min" style="left:238.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #136
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 111.64-111.88 min
+总时长：0.24 min" style="left:279.10px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #138
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 113.42-113.66 min
+总时长：0.24 min" style="left:283.55px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #139
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 113.66-114.97 min
+总时长：1.31 min" style="left:284.15px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #143
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 114.98-124.84 min
+总时长：9.86 min" style="left:287.45px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #160
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 131.36-131.6 min
+总时长：0.24 min" style="left:328.40px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #162
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 133.14-133.38 min
+总时长：0.24 min" style="left:332.85px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #163
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 133.38-134.69 min
+总时长：1.31 min" style="left:333.45px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #167
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 134.7-144.56 min
+总时长：9.86 min" style="left:336.75px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div></div><div class="lane-label" style="height:42px"><b>张福仙</b><span>15 项 / 23.1 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #24
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 18.17-19.71 min
+总时长：1.54 min" style="left:45.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 28.03-29.57 min
+总时长：1.54 min" style="left:70.08px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #48
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 37.89-39.43 min
+总时长：1.54 min" style="left:94.72px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #60
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 47.75-49.29 min
+总时长：1.54 min" style="left:119.38px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #72
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 57.61-59.15 min
+总时长：1.54 min" style="left:144.03px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #84
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 67.47-69.01 min
+总时长：1.54 min" style="left:168.68px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 77.33-78.87 min
+总时长：1.54 min" style="left:193.32px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #108
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 87.19-88.73 min
+总时长：1.54 min" style="left:217.97px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #120
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 97.05-98.59 min
+总时长：1.54 min" style="left:242.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #132
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 106.91-108.45 min
+总时长：1.54 min" style="left:267.27px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #144
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 116.77-118.31 min
+总时长：1.54 min" style="left:291.93px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #156
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 126.63-128.17 min
+总时长：1.54 min" style="left:316.57px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #168
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 136.49-138.03 min
+总时长：1.54 min" style="left:341.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #174
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 146.35-147.89 min
+总时长：1.54 min" style="left:365.88px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #178
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 156.21-157.75 min
+总时长：1.54 min" style="left:390.53px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>杜青山</b><span>30 项 / 101.4 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #2
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 0-4.73 min
+总时长：4.73 min" style="left:0.00px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #5
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 4.73-9.46 min
+总时长：4.73 min" style="left:11.83px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #13
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 9.46-14.19 min
+总时长：4.73 min" style="left:23.65px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #20
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 16.14-18.17 min
+总时长：2.03 min" style="left:40.35px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #25
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.17-22.9 min
+总时长：4.73 min" style="left:45.43px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #34
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 26.24-28.27 min
+总时长：2.03 min" style="left:65.60px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #38
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 28.27-33 min
+总时长：4.73 min" style="left:70.67px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #46
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 36.1-38.13 min
+总时长：2.03 min" style="left:90.25px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #50
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 38.13-42.86 min
+总时长：4.73 min" style="left:95.33px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #58
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 45.96-47.99 min
+总时长：2.03 min" style="left:114.90px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #62
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 47.99-52.72 min
+总时长：4.73 min" style="left:119.98px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #68
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 55.58-57.61 min
+总时长：2.03 min" style="left:138.95px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #73
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 57.61-62.34 min
+总时长：4.73 min" style="left:144.03px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #80
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 65.44-67.47 min
+总时长：2.03 min" style="left:163.60px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #85
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 67.47-72.2 min
+总时长：4.73 min" style="left:168.68px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #92
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 75.3-77.33 min
+总时长：2.03 min" style="left:188.25px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #97
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 77.33-82.06 min
+总时长：4.73 min" style="left:193.32px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #104
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 85.16-87.19 min
+总时长：2.03 min" style="left:212.90px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #109
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 87.19-91.92 min
+总时长：4.73 min" style="left:217.97px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #116
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 95.02-97.05 min
+总时长：2.03 min" style="left:237.55px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #121
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 97.05-101.78 min
+总时长：4.73 min" style="left:242.62px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #128
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 104.88-106.91 min
+总时长：2.03 min" style="left:262.20px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #133
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 106.91-111.64 min
+总时长：4.73 min" style="left:267.27px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #140
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 114.74-116.77 min
+总时长：2.03 min" style="left:286.85px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #145
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 116.77-121.5 min
+总时长：4.73 min" style="left:291.93px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #152
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 124.6-126.63 min
+总时长：2.03 min" style="left:311.50px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #157
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 126.63-131.36 min
+总时长：4.73 min" style="left:316.57px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #164
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 134.46-136.49 min
+总时长：2.03 min" style="left:336.15px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #170
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 144.32-146.35 min
+总时长：2.03 min" style="left:360.80px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #176
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 154.18-156.21 min
+总时长：2.03 min" style="left:385.45px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>王凯</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>王培培</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>王彪</b><span>16 项 / 80.81 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #7
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 4.97-6.28 min
+总时长：1.31 min" style="left:12.42px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #15
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 9.7-11.01 min
+总时长：1.31 min" style="left:24.25px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #18
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 14.43-15.74 min
+总时长：1.31 min" style="left:36.08px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #23
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 16.38-26.24 min
+总时长：9.86 min" style="left:40.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #41
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 33.24-34.55 min
+总时长：1.31 min" style="left:83.10px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #45
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 35.86-45.72 min
+总时长：9.86 min" style="left:89.65px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #65
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 52.96-54.27 min
+总时长：1.31 min" style="left:132.40px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #69
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 55.58-65.44 min
+总时长：9.86 min" style="left:138.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #89
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 72.44-73.75 min
+总时长：1.31 min" style="left:181.10px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #93
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 75.3-85.16 min
+总时长：9.86 min" style="left:188.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #113
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 92.16-93.47 min
+总时长：1.31 min" style="left:230.40px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #117
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 95.02-104.88 min
+总时长：9.86 min" style="left:237.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 111.88-113.19 min
+总时长：1.31 min" style="left:279.70px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #141
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 114.74-124.6 min
+总时长：9.86 min" style="left:286.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #161
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 131.6-132.91 min
+总时长：1.31 min" style="left:329.00px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #165
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 134.46-144.32 min
+总时长：9.86 min" style="left:336.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div></div><div class="lane-label" style="height:42px"><b>王树滨</b><span>14 项 / 86.74 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 6.28-16.14 min
+总时长：9.86 min" style="left:15.70px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #29
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 23.14-24.45 min
+总时长：1.31 min" style="left:57.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 26-35.86 min
+总时长：9.86 min" style="left:65.00px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #53
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 43.1-44.41 min
+总时长：1.31 min" style="left:107.75px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 45.72-55.58 min
+总时长：9.86 min" style="left:114.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #77
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 62.58-63.89 min
+总时长：1.31 min" style="left:156.45px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #81
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 65.44-75.3 min
+总时长：9.86 min" style="left:163.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #101
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 82.3-83.61 min
+总时长：1.31 min" style="left:205.75px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #105
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 85.16-95.02 min
+总时长：9.86 min" style="left:212.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #125
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 102.02-103.33 min
+总时长：1.31 min" style="left:255.05px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #129
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 104.88-114.74 min
+总时长：9.86 min" style="left:262.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #149
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 121.74-123.05 min
+总时长：1.31 min" style="left:304.35px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #153
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 124.6-134.46 min
+总时长：9.86 min" style="left:311.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #171
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 144.32-154.18 min
+总时长：9.86 min" style="left:360.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div></div><div class="lane-label" style="height:42px"><b>袁希广</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>齐书旺</b><span>27 项 / 89.86 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #6
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 4.97-5.21 min
+总时长：0.24 min" style="left:12.42px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #10
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 6.52-16.38 min
+总时长：9.86 min" style="left:16.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #28
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 22.9-23.14 min
+总时长：0.24 min" style="left:57.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #30
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 24.68-24.92 min
+总时长：0.24 min" style="left:61.70px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #31
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 24.92-26.23 min
+总时长：1.31 min" style="left:62.30px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #35
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 26.24-36.1 min
+总时长：9.86 min" style="left:65.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #52
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 42.86-43.1 min
+总时长：0.24 min" style="left:107.15px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #54
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 44.4-44.64 min
+总时长：0.24 min" style="left:111.00px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #55
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 44.64-45.95 min
+总时长：1.31 min" style="left:111.60px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #59
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 45.96-55.82 min
+总时长：9.86 min" style="left:114.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #76
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 62.34-62.58 min
+总时长：0.24 min" style="left:155.85px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #78
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 64.12-64.36 min
+总时长：0.24 min" style="left:160.30px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #79
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 64.36-65.67 min
+总时长：1.31 min" style="left:160.90px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #83
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 65.68-75.54 min
+总时长：9.86 min" style="left:164.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #100
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 82.06-82.3 min
+总时长：0.24 min" style="left:205.15px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #102
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 83.84-84.08 min
+总时长：0.24 min" style="left:209.60px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #103
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 84.08-85.39 min
+总时长：1.31 min" style="left:210.20px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #107
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 85.4-95.26 min
+总时长：9.86 min" style="left:213.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #124
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 101.78-102.02 min
+总时长：0.24 min" style="left:254.45px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #126
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 103.56-103.8 min
+总时长：0.24 min" style="left:258.90px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 103.8-105.11 min
+总时长：1.31 min" style="left:259.50px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #131
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 105.12-114.98 min
+总时长：9.86 min" style="left:262.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #148
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 121.5-121.74 min
+总时长：0.24 min" style="left:303.75px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #150
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 123.28-123.52 min
+总时长：0.24 min" style="left:308.20px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #151
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 123.52-124.83 min
+总时长：1.31 min" style="left:308.80px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #155
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 124.84-134.7 min
+总时长：9.86 min" style="left:312.10px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #173
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 144.56-154.42 min
+总时长：9.86 min" style="left:361.40px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div></div></div></div></section><section><div class="toolbar"><h2>按机器看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:1200px"><div class="axis-label">机器</div><div class="axis" style="width:1200px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div></div><div class="lane-label" style="height:104px"><b>无设备</b><span>90 项 / 249 min</span></div><div class="lane" style="width:1200px;height:104px"><div class="task" data-tooltip="任务 #1
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 0-4.73 min
+总时长：4.73 min" style="left:0.00px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #2
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 0-4.73 min
+总时长：4.73 min" style="left:0.00px;width:11.83px;top:39.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #4
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 4.73-9.46 min
+总时长：4.73 min" style="left:11.83px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #5
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 4.73-9.46 min
+总时长：4.73 min" style="left:11.83px;width:11.83px;top:39.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #12
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 9.46-14.19 min
+总时长：4.73 min" style="left:23.65px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #13
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 9.46-14.19 min
+总时长：4.73 min" style="left:23.65px;width:11.82px;top:39.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #20
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 16.14-18.17 min
+总时长：2.03 min" style="left:40.35px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 16.38-18.41 min
+总时长：2.03 min" style="left:40.95px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #24
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 18.17-19.71 min
+总时长：1.54 min" style="left:45.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #25
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.17-22.9 min
+总时长：4.73 min" style="left:45.43px;width:11.82px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 18.41-19.95 min
+总时长：1.54 min" style="left:46.02px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #27
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 19.95-24.68 min
+总时长：4.73 min" style="left:49.88px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #32
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 26-28.03 min
+总时长：2.03 min" style="left:65.00px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #34
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 26.24-28.27 min
+总时长：2.03 min" style="left:65.60px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 28.03-29.57 min
+总时长：1.54 min" style="left:70.08px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #37
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 28.27-29.81 min
+总时长：1.54 min" style="left:70.67px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #38
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 28.27-33 min
+总时长：4.73 min" style="left:70.67px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #39
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 29.81-34.54 min
+总时长：4.73 min" style="left:74.52px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #44
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 35.86-37.89 min
+总时长：2.03 min" style="left:89.65px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #46
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 36.1-38.13 min
+总时长：2.03 min" style="left:90.25px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #48
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 37.89-39.43 min
+总时长：1.54 min" style="left:94.72px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #49
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 38.13-39.67 min
+总时长：1.54 min" style="left:95.33px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #50
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 38.13-42.86 min
+总时长：4.73 min" style="left:95.33px;width:11.82px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #51
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 39.67-44.4 min
+总时长：4.73 min" style="left:99.18px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #56
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 45.72-47.75 min
+总时长：2.03 min" style="left:114.30px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #58
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 45.96-47.99 min
+总时长：2.03 min" style="left:114.90px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #60
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 47.75-49.29 min
+总时长：1.54 min" style="left:119.38px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #61
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 47.99-49.53 min
+总时长：1.54 min" style="left:119.98px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #62
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 47.99-52.72 min
+总时长：4.73 min" style="left:119.98px;width:11.82px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #63
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 49.53-54.26 min
+总时长：4.73 min" style="left:123.83px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #68
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 55.58-57.61 min
+总时长：2.03 min" style="left:138.95px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #70
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 55.82-57.85 min
+总时长：2.03 min" style="left:139.55px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #72
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 57.61-59.15 min
+总时长：1.54 min" style="left:144.03px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #73
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 57.61-62.34 min
+总时长：4.73 min" style="left:144.03px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #74
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 57.85-59.39 min
+总时长：1.54 min" style="left:144.62px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #75
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 59.39-64.12 min
+总时长：4.73 min" style="left:148.47px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #80
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 65.44-67.47 min
+总时长：2.03 min" style="left:163.60px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #82
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 65.68-67.71 min
+总时长：2.03 min" style="left:164.20px;width:5.07px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #84
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 67.47-69.01 min
+总时长：1.54 min" style="left:168.68px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #85
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 67.47-72.2 min
+总时长：4.73 min" style="left:168.68px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #86
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 67.71-69.25 min
+总时长：1.54 min" style="left:169.27px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #87
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 69.25-73.98 min
+总时长：4.73 min" style="left:173.12px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #92
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 75.3-77.33 min
+总时长：2.03 min" style="left:188.25px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #94
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 75.54-77.57 min
+总时长：2.03 min" style="left:188.85px;width:5.07px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 77.33-78.87 min
+总时长：1.54 min" style="left:193.32px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #97
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 77.33-82.06 min
+总时长：4.73 min" style="left:193.32px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #98
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 77.57-79.11 min
+总时长：1.54 min" style="left:193.92px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #99
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 79.11-83.84 min
+总时长：4.73 min" style="left:197.78px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #104
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 85.16-87.19 min
+总时长：2.03 min" style="left:212.90px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #106
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 85.4-87.43 min
+总时长：2.03 min" style="left:213.50px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #108
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 87.19-88.73 min
+总时长：1.54 min" style="left:217.97px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #109
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 87.19-91.92 min
+总时长：4.73 min" style="left:217.97px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #110
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 87.43-88.97 min
+总时长：1.54 min" style="left:218.58px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #111
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 88.97-93.7 min
+总时长：4.73 min" style="left:222.43px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #116
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 95.02-97.05 min
+总时长：2.03 min" style="left:237.55px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #118
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 95.26-97.29 min
+总时长：2.03 min" style="left:238.15px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #120
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 97.05-98.59 min
+总时长：1.54 min" style="left:242.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #121
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 97.05-101.78 min
+总时长：4.73 min" style="left:242.62px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #122
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 97.29-98.83 min
+总时长：1.54 min" style="left:243.23px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #123
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 98.83-103.56 min
+总时长：4.73 min" style="left:247.07px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #128
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 104.88-106.91 min
+总时长：2.03 min" style="left:262.20px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #130
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 105.12-107.15 min
+总时长：2.03 min" style="left:262.80px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #132
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 106.91-108.45 min
+总时长：1.54 min" style="left:267.27px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #133
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 106.91-111.64 min
+总时长：4.73 min" style="left:267.27px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #134
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 107.15-108.69 min
+总时长：1.54 min" style="left:267.88px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #135
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 108.69-113.42 min
+总时长：4.73 min" style="left:271.73px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #140
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 114.74-116.77 min
+总时长：2.03 min" style="left:286.85px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #142
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 114.98-117.01 min
+总时长：2.03 min" style="left:287.45px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #144
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 116.77-118.31 min
+总时长：1.54 min" style="left:291.93px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #145
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 116.77-121.5 min
+总时长：4.73 min" style="left:291.93px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #146
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 117.01-118.55 min
+总时长：1.54 min" style="left:292.53px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #147
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 118.55-123.28 min
+总时长：4.73 min" style="left:296.38px;width:11.83px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #152
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 124.6-126.63 min
+总时长：2.03 min" style="left:311.50px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #154
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 124.84-126.87 min
+总时长：2.03 min" style="left:312.10px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #156
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 126.63-128.17 min
+总时长：1.54 min" style="left:316.57px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #157
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 126.63-131.36 min
+总时长：4.73 min" style="left:316.57px;width:11.83px;top:71.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #158
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 126.87-128.41 min
+总时长：1.54 min" style="left:317.18px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #159
+产品：6535571
+工序：1. 来料检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 128.41-133.14 min
+总时长：4.73 min" style="left:321.02px;width:11.82px;top:7.00px;--proc:#e15759;--mach:#59a14f;"><span>1. 来料检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #164
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 134.46-136.49 min
+总时长：2.03 min" style="left:336.15px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #166
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 134.7-136.73 min
+总时长：2.03 min" style="left:336.75px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #168
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 136.49-138.03 min
+总时长：1.54 min" style="left:341.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #169
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 136.73-138.27 min
+总时长：1.54 min" style="left:341.82px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #170
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 144.32-146.35 min
+总时长：2.03 min" style="left:360.80px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #172
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 144.56-146.59 min
+总时长：2.03 min" style="left:361.40px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #174
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 146.35-147.89 min
+总时长：1.54 min" style="left:365.88px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #175
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 146.59-148.13 min
+总时长：1.54 min" style="left:366.48px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #176
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 154.18-156.21 min
+总时长：2.03 min" style="left:385.45px;width:5.08px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #177
+产品：6535571
+工序：5. 巡检
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 154.42-156.45 min
+总时长：2.03 min" style="left:386.05px;width:5.08px;top:39.00px;--proc:#59a14f;--mach:#59a14f;"><span>5. 巡检 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #178
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：张福仙
+机器：无设备
+时间：Day 1 156.21-157.75 min
+总时长：1.54 min" style="left:390.53px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div><div class="task" data-tooltip="任务 #179
+产品：6535571
+工序：6. 刻号&amp;包装
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 1 156.45-157.99 min
+总时长：1.54 min" style="left:391.12px;width:5.00px;top:39.00px;--proc:#f28e2b;--mach:#59a14f;"><span>6. 刻号&amp;包装 x1</span><small>6535571 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>CMM CONTURA 10/16/6 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>CX-40Y车铣复合 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>KEHREN RW8C #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>KEHREN RW8C #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>临清 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #1</b><span>15 项 / 147.9 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 6.28-16.14 min
+总时长：9.86 min" style="left:15.70px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #21
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 16.14-26 min
+总时长：9.86 min" style="left:40.35px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 26-35.86 min
+总时长：9.86 min" style="left:65.00px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #45
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 35.86-45.72 min
+总时长：9.86 min" style="left:89.65px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 45.72-55.58 min
+总时长：9.86 min" style="left:114.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #69
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 55.58-65.44 min
+总时长：9.86 min" style="left:138.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #81
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 65.44-75.3 min
+总时长：9.86 min" style="left:163.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #93
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 75.3-85.16 min
+总时长：9.86 min" style="left:188.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #105
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 85.16-95.02 min
+总时长：9.86 min" style="left:212.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #117
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 95.02-104.88 min
+总时长：9.86 min" style="left:237.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #129
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 104.88-114.74 min
+总时长：9.86 min" style="left:262.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #141
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 114.74-124.6 min
+总时长：9.86 min" style="left:286.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #153
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 124.6-134.46 min
+总时长：9.86 min" style="left:311.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #165
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 134.46-144.32 min
+总时长：9.86 min" style="left:336.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #171
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 144.32-154.18 min
+总时长：9.86 min" style="left:360.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #2</b><span>15 项 / 147.9 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #10
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 6.52-16.38 min
+总时长：9.86 min" style="left:16.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #23
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 16.38-26.24 min
+总时长：9.86 min" style="left:40.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #35
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 26.24-36.1 min
+总时长：9.86 min" style="left:65.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #47
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 36.1-45.96 min
+总时长：9.86 min" style="left:90.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #59
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 45.96-55.82 min
+总时长：9.86 min" style="left:114.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #71
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 55.82-65.68 min
+总时长：9.86 min" style="left:139.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #83
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 65.68-75.54 min
+总时长：9.86 min" style="left:164.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #95
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 75.54-85.4 min
+总时长：9.86 min" style="left:188.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #107
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 85.4-95.26 min
+总时长：9.86 min" style="left:213.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #119
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 95.26-105.12 min
+总时长：9.86 min" style="left:238.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #131
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 105.12-114.98 min
+总时长：9.86 min" style="left:262.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #143
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 114.98-124.84 min
+总时长：9.86 min" style="left:287.45px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #155
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 124.84-134.7 min
+总时长：9.86 min" style="left:312.10px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #167
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 134.7-144.56 min
+总时长：9.86 min" style="left:336.75px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #173
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 144.56-154.42 min
+总时长：9.86 min" style="left:361.40px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #1</b><span>15 项 / 147.9 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 6.28-16.14 min
+总时长：9.86 min" style="left:15.70px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #21
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 16.14-26 min
+总时长：9.86 min" style="left:40.35px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 26-35.86 min
+总时长：9.86 min" style="left:65.00px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #45
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 35.86-45.72 min
+总时长：9.86 min" style="left:89.65px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 45.72-55.58 min
+总时长：9.86 min" style="left:114.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #69
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 55.58-65.44 min
+总时长：9.86 min" style="left:138.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #81
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 65.44-75.3 min
+总时长：9.86 min" style="left:163.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #93
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 75.3-85.16 min
+总时长：9.86 min" style="left:188.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #105
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 85.16-95.02 min
+总时长：9.86 min" style="left:212.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #117
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 95.02-104.88 min
+总时长：9.86 min" style="left:237.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #129
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 104.88-114.74 min
+总时长：9.86 min" style="left:262.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #141
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 114.74-124.6 min
+总时长：9.86 min" style="left:286.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #153
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 124.6-134.46 min
+总时长：9.86 min" style="left:311.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #165
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 134.46-144.32 min
+总时长：9.86 min" style="left:336.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div><div class="task" data-tooltip="任务 #171
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王树滨
+机器：丽驰TX-500 #1, 丽驰TX-1000 #1
+时间：Day 1 144.32-154.18 min
+总时长：9.86 min" style="left:360.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #1, 丽驰TX-1000 #1</small></div></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #2</b><span>15 项 / 147.9 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #10
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 6.52-16.38 min
+总时长：9.86 min" style="left:16.30px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #23
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：王彪
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 16.38-26.24 min
+总时长：9.86 min" style="left:40.95px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #35
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 26.24-36.1 min
+总时长：9.86 min" style="left:65.60px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #47
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 36.1-45.96 min
+总时长：9.86 min" style="left:90.25px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #59
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 45.96-55.82 min
+总时长：9.86 min" style="left:114.90px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #71
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 55.82-65.68 min
+总时长：9.86 min" style="left:139.55px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #83
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 65.68-75.54 min
+总时长：9.86 min" style="left:164.20px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #95
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 75.54-85.4 min
+总时长：9.86 min" style="left:188.85px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #107
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 85.4-95.26 min
+总时长：9.86 min" style="left:213.50px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #119
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 95.26-105.12 min
+总时长：9.86 min" style="left:238.15px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #131
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 105.12-114.98 min
+总时长：9.86 min" style="left:262.80px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #143
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 114.98-124.84 min
+总时长：9.86 min" style="left:287.45px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #155
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 124.84-134.7 min
+总时长：9.86 min" style="left:312.10px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #167
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 134.7-144.56 min
+总时长：9.86 min" style="left:336.75px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div><div class="task" data-tooltip="任务 #173
+产品：6535571
+工序：4. 精加工
+数量：1
+工人：齐书旺
+机器：丽驰TX-500 #2, 丽驰TX-1000 #2
+时间：Day 1 144.56-154.42 min
+总时长：9.86 min" style="left:361.40px;width:24.65px;top:7.00px;--proc:#edc948;--mach:#f28e2b;"><span>4. 精加工 x1</span><small>6535571 · 丽驰TX-500 #2, 丽驰TX-1000 #2</small></div></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>台钻 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>大侨VL1055 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>建德 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>沈机TC500R #1</b><span>27 项 / 35.37 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #7
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 4.97-6.28 min
+总时长：1.31 min" style="left:12.42px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #15
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 9.7-11.01 min
+总时长：1.31 min" style="left:24.25px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #18
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 14.43-15.74 min
+总时长：1.31 min" style="left:36.08px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #29
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 23.14-24.45 min
+总时长：1.31 min" style="left:57.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #31
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 24.92-26.23 min
+总时长：1.31 min" style="left:62.30px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #41
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 33.24-34.55 min
+总时长：1.31 min" style="left:83.10px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #43
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 34.78-36.09 min
+总时长：1.31 min" style="left:86.95px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #53
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 43.1-44.41 min
+总时长：1.31 min" style="left:107.75px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #55
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 44.64-45.95 min
+总时长：1.31 min" style="left:111.60px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #65
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 52.96-54.27 min
+总时长：1.31 min" style="left:132.40px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 54.5-55.81 min
+总时长：1.31 min" style="left:136.25px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #77
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 62.58-63.89 min
+总时长：1.31 min" style="left:156.45px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #79
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 64.36-65.67 min
+总时长：1.31 min" style="left:160.90px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #89
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 72.44-73.75 min
+总时长：1.31 min" style="left:181.10px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #91
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 74.22-75.53 min
+总时长：1.31 min" style="left:185.55px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #101
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 82.3-83.61 min
+总时长：1.31 min" style="left:205.75px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #103
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 84.08-85.39 min
+总时长：1.31 min" style="left:210.20px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #113
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 92.16-93.47 min
+总时长：1.31 min" style="left:230.40px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #115
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 93.94-95.25 min
+总时长：1.31 min" style="left:234.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #125
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 102.02-103.33 min
+总时长：1.31 min" style="left:255.05px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 103.8-105.11 min
+总时长：1.31 min" style="left:259.50px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 111.88-113.19 min
+总时长：1.31 min" style="left:279.70px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #139
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 113.66-114.97 min
+总时长：1.31 min" style="left:284.15px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #149
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王树滨
+机器：沈机TC500R #1
+时间：Day 1 121.74-123.05 min
+总时长：1.31 min" style="left:304.35px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #151
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：齐书旺
+机器：沈机TC500R #1
+时间：Day 1 123.52-124.83 min
+总时长：1.31 min" style="left:308.80px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #161
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：王彪
+机器：沈机TC500R #1
+时间：Day 1 131.6-132.91 min
+总时长：1.31 min" style="left:329.00px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div><div class="task" data-tooltip="任务 #163
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #1
+时间：Day 1 133.38-134.69 min
+总时长：1.31 min" style="left:333.45px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #1</small></div></div><div class="lane-label" style="height:42px"><b>沈机TC500R #2</b><span>3 项 / 3.93 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #8
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 5.21-6.52 min
+总时长：1.31 min" style="left:13.03px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div><div class="task" data-tooltip="任务 #16
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 9.94-11.25 min
+总时长：1.31 min" style="left:24.85px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div><div class="task" data-tooltip="任务 #19
+产品：6535571
+工序：3. 粗加工
+数量：1
+工人：尚剑侨
+机器：沈机TC500R #2
+时间：Day 1 14.67-15.98 min
+总时长：1.31 min" style="left:36.67px;width:5.00px;top:7.00px;--proc:#76b7b2;--mach:#e15759;"><span>3. 粗加工 x1</span><small>6535571 · 沈机TC500R #2</small></div></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海德曼T45 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>超声波清洗机 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>锯床 #1</b><span>29 项 / 7.2 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #3
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 4.73-4.97 min
+总时长：0.24 min" style="left:11.83px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #6
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 4.97-5.21 min
+总时长：0.24 min" style="left:12.42px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #11
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 9.46-9.7 min
+总时长：0.24 min" style="left:23.65px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 9.7-9.94 min
+总时长：0.24 min" style="left:24.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6535571
+工序：2. 下料
+数量：2
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 14.19-14.67 min
+总时长：0.48 min" style="left:35.48px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x2</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #28
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 22.9-23.14 min
+总时长：0.24 min" style="left:57.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #30
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 24.68-24.92 min
+总时长：0.24 min" style="left:61.70px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #40
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 33-33.24 min
+总时长：0.24 min" style="left:82.50px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #42
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 34.54-34.78 min
+总时长：0.24 min" style="left:86.35px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #52
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 42.86-43.1 min
+总时长：0.24 min" style="left:107.15px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #54
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 44.4-44.64 min
+总时长：0.24 min" style="left:111.00px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #64
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 52.72-52.96 min
+总时长：0.24 min" style="left:131.80px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #66
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 54.26-54.5 min
+总时长：0.24 min" style="left:135.65px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #76
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 62.34-62.58 min
+总时长：0.24 min" style="left:155.85px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #78
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 64.12-64.36 min
+总时长：0.24 min" style="left:160.30px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #88
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 72.2-72.44 min
+总时长：0.24 min" style="left:180.50px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #90
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 73.98-74.22 min
+总时长：0.24 min" style="left:184.95px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #100
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 82.06-82.3 min
+总时长：0.24 min" style="left:205.15px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #102
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 83.84-84.08 min
+总时长：0.24 min" style="left:209.60px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #112
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 91.92-92.16 min
+总时长：0.24 min" style="left:229.80px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #114
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 93.7-93.94 min
+总时长：0.24 min" style="left:234.25px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #124
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 101.78-102.02 min
+总时长：0.24 min" style="left:254.45px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #126
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 103.56-103.8 min
+总时长：0.24 min" style="left:258.90px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #136
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 111.64-111.88 min
+总时长：0.24 min" style="left:279.10px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #138
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 113.42-113.66 min
+总时长：0.24 min" style="left:283.55px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #148
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 121.5-121.74 min
+总时长：0.24 min" style="left:303.75px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #150
+产品：6535571
+工序：2. 下料
+数量：1
+工人：齐书旺
+机器：锯床 #1
+时间：Day 1 123.28-123.52 min
+总时长：0.24 min" style="left:308.20px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #160
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 131.36-131.6 min
+总时长：0.24 min" style="left:328.40px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div><div class="task" data-tooltip="任务 #162
+产品：6535571
+工序：2. 下料
+数量：1
+工人：尚剑侨
+机器：锯床 #1
+时间：Day 1 133.14-133.38 min
+总时长：0.24 min" style="left:332.85px;width:5.00px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>2. 下料 x1</span><small>6535571 · 锯床 #1</small></div></div><div class="lane-label" style="height:42px"><b>马扎克HCN-6000L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>马扎克VCN535L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div></div></div></section><section><h2>任务明细</h2><div class="table-wrap"><table><thead><tr><th>#</th><th>Day</th><th>时间</th><th>产品</th><th>Step</th><th>工序</th><th>数量</th><th>工人</th><th>机器</th><th>时长</th></tr></thead><tbody><tr><td>1</td><td>Day 1</td><td>0-4.73</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>2</td><td>Day 1</td><td>0-4.73</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>3</td><td>Day 1</td><td>4.73-4.97</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>4</td><td>Day 1</td><td>4.73-9.46</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>5</td><td>Day 1</td><td>4.73-9.46</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>6</td><td>Day 1</td><td>4.97-5.21</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>7</td><td>Day 1</td><td>4.97-6.28</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>8</td><td>Day 1</td><td>5.21-6.52</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #2</td><td>1.31</td></tr><tr><td>9</td><td>Day 1</td><td>6.28-16.14</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>10</td><td>Day 1</td><td>6.52-16.38</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>11</td><td>Day 1</td><td>9.46-9.7</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>12</td><td>Day 1</td><td>9.46-14.19</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>13</td><td>Day 1</td><td>9.46-14.19</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>14</td><td>Day 1</td><td>9.7-9.94</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>15</td><td>Day 1</td><td>9.7-11.01</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>16</td><td>Day 1</td><td>9.94-11.25</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #2</td><td>1.31</td></tr><tr><td>17</td><td>Day 1</td><td>14.19-14.67</td><td>6535571</td><td>2</td><td>下料</td><td>2</td><td>尚剑侨</td><td>锯床 #1</td><td>0.48</td></tr><tr><td>18</td><td>Day 1</td><td>14.43-15.74</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>19</td><td>Day 1</td><td>14.67-15.98</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #2</td><td>1.31</td></tr><tr><td>20</td><td>Day 1</td><td>16.14-18.17</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>21</td><td>Day 1</td><td>16.14-26</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>22</td><td>Day 1</td><td>16.38-18.41</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>23</td><td>Day 1</td><td>16.38-26.24</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>24</td><td>Day 1</td><td>18.17-19.71</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>25</td><td>Day 1</td><td>18.17-22.9</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>26</td><td>Day 1</td><td>18.41-19.95</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>27</td><td>Day 1</td><td>19.95-24.68</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>28</td><td>Day 1</td><td>22.9-23.14</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>29</td><td>Day 1</td><td>23.14-24.45</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>30</td><td>Day 1</td><td>24.68-24.92</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>31</td><td>Day 1</td><td>24.92-26.23</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>32</td><td>Day 1</td><td>26-28.03</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>33</td><td>Day 1</td><td>26-35.86</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>34</td><td>Day 1</td><td>26.24-28.27</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>35</td><td>Day 1</td><td>26.24-36.1</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>36</td><td>Day 1</td><td>28.03-29.57</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>37</td><td>Day 1</td><td>28.27-29.81</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>38</td><td>Day 1</td><td>28.27-33</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>39</td><td>Day 1</td><td>29.81-34.54</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>40</td><td>Day 1</td><td>33-33.24</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>41</td><td>Day 1</td><td>33.24-34.55</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>42</td><td>Day 1</td><td>34.54-34.78</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>43</td><td>Day 1</td><td>34.78-36.09</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>44</td><td>Day 1</td><td>35.86-37.89</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>45</td><td>Day 1</td><td>35.86-45.72</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>46</td><td>Day 1</td><td>36.1-38.13</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>47</td><td>Day 1</td><td>36.1-45.96</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>48</td><td>Day 1</td><td>37.89-39.43</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>49</td><td>Day 1</td><td>38.13-39.67</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>50</td><td>Day 1</td><td>38.13-42.86</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>51</td><td>Day 1</td><td>39.67-44.4</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>52</td><td>Day 1</td><td>42.86-43.1</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>53</td><td>Day 1</td><td>43.1-44.41</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>54</td><td>Day 1</td><td>44.4-44.64</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>55</td><td>Day 1</td><td>44.64-45.95</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>56</td><td>Day 1</td><td>45.72-47.75</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>57</td><td>Day 1</td><td>45.72-55.58</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>58</td><td>Day 1</td><td>45.96-47.99</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>59</td><td>Day 1</td><td>45.96-55.82</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>60</td><td>Day 1</td><td>47.75-49.29</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>61</td><td>Day 1</td><td>47.99-49.53</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>62</td><td>Day 1</td><td>47.99-52.72</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>63</td><td>Day 1</td><td>49.53-54.26</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>64</td><td>Day 1</td><td>52.72-52.96</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>65</td><td>Day 1</td><td>52.96-54.27</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>66</td><td>Day 1</td><td>54.26-54.5</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>67</td><td>Day 1</td><td>54.5-55.81</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>68</td><td>Day 1</td><td>55.58-57.61</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>69</td><td>Day 1</td><td>55.58-65.44</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>70</td><td>Day 1</td><td>55.82-57.85</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>71</td><td>Day 1</td><td>55.82-65.68</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>72</td><td>Day 1</td><td>57.61-59.15</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>73</td><td>Day 1</td><td>57.61-62.34</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>74</td><td>Day 1</td><td>57.85-59.39</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>75</td><td>Day 1</td><td>59.39-64.12</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>76</td><td>Day 1</td><td>62.34-62.58</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>77</td><td>Day 1</td><td>62.58-63.89</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>78</td><td>Day 1</td><td>64.12-64.36</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>79</td><td>Day 1</td><td>64.36-65.67</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>80</td><td>Day 1</td><td>65.44-67.47</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>81</td><td>Day 1</td><td>65.44-75.3</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>82</td><td>Day 1</td><td>65.68-67.71</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>83</td><td>Day 1</td><td>65.68-75.54</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>84</td><td>Day 1</td><td>67.47-69.01</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>85</td><td>Day 1</td><td>67.47-72.2</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>86</td><td>Day 1</td><td>67.71-69.25</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>87</td><td>Day 1</td><td>69.25-73.98</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>88</td><td>Day 1</td><td>72.2-72.44</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>89</td><td>Day 1</td><td>72.44-73.75</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>90</td><td>Day 1</td><td>73.98-74.22</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>91</td><td>Day 1</td><td>74.22-75.53</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>92</td><td>Day 1</td><td>75.3-77.33</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>93</td><td>Day 1</td><td>75.3-85.16</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>94</td><td>Day 1</td><td>75.54-77.57</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>95</td><td>Day 1</td><td>75.54-85.4</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>96</td><td>Day 1</td><td>77.33-78.87</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>97</td><td>Day 1</td><td>77.33-82.06</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>98</td><td>Day 1</td><td>77.57-79.11</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>99</td><td>Day 1</td><td>79.11-83.84</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>100</td><td>Day 1</td><td>82.06-82.3</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>101</td><td>Day 1</td><td>82.3-83.61</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>102</td><td>Day 1</td><td>83.84-84.08</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>103</td><td>Day 1</td><td>84.08-85.39</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>104</td><td>Day 1</td><td>85.16-87.19</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>105</td><td>Day 1</td><td>85.16-95.02</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>106</td><td>Day 1</td><td>85.4-87.43</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>107</td><td>Day 1</td><td>85.4-95.26</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>108</td><td>Day 1</td><td>87.19-88.73</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>109</td><td>Day 1</td><td>87.19-91.92</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>110</td><td>Day 1</td><td>87.43-88.97</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>111</td><td>Day 1</td><td>88.97-93.7</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>112</td><td>Day 1</td><td>91.92-92.16</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>113</td><td>Day 1</td><td>92.16-93.47</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>114</td><td>Day 1</td><td>93.7-93.94</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>115</td><td>Day 1</td><td>93.94-95.25</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>116</td><td>Day 1</td><td>95.02-97.05</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>117</td><td>Day 1</td><td>95.02-104.88</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>118</td><td>Day 1</td><td>95.26-97.29</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>119</td><td>Day 1</td><td>95.26-105.12</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>120</td><td>Day 1</td><td>97.05-98.59</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>121</td><td>Day 1</td><td>97.05-101.78</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>122</td><td>Day 1</td><td>97.29-98.83</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>123</td><td>Day 1</td><td>98.83-103.56</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>124</td><td>Day 1</td><td>101.78-102.02</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>125</td><td>Day 1</td><td>102.02-103.33</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>126</td><td>Day 1</td><td>103.56-103.8</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>127</td><td>Day 1</td><td>103.8-105.11</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>128</td><td>Day 1</td><td>104.88-106.91</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>129</td><td>Day 1</td><td>104.88-114.74</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>130</td><td>Day 1</td><td>105.12-107.15</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>131</td><td>Day 1</td><td>105.12-114.98</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>132</td><td>Day 1</td><td>106.91-108.45</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>133</td><td>Day 1</td><td>106.91-111.64</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>134</td><td>Day 1</td><td>107.15-108.69</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>135</td><td>Day 1</td><td>108.69-113.42</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>136</td><td>Day 1</td><td>111.64-111.88</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>137</td><td>Day 1</td><td>111.88-113.19</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>138</td><td>Day 1</td><td>113.42-113.66</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>139</td><td>Day 1</td><td>113.66-114.97</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>140</td><td>Day 1</td><td>114.74-116.77</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>141</td><td>Day 1</td><td>114.74-124.6</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>142</td><td>Day 1</td><td>114.98-117.01</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>143</td><td>Day 1</td><td>114.98-124.84</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>144</td><td>Day 1</td><td>116.77-118.31</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>145</td><td>Day 1</td><td>116.77-121.5</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>146</td><td>Day 1</td><td>117.01-118.55</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>147</td><td>Day 1</td><td>118.55-123.28</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>148</td><td>Day 1</td><td>121.5-121.74</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>149</td><td>Day 1</td><td>121.74-123.05</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王树滨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>150</td><td>Day 1</td><td>123.28-123.52</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>齐书旺</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>151</td><td>Day 1</td><td>123.52-124.83</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>齐书旺</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>152</td><td>Day 1</td><td>124.6-126.63</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>153</td><td>Day 1</td><td>124.6-134.46</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>154</td><td>Day 1</td><td>124.84-126.87</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>155</td><td>Day 1</td><td>124.84-134.7</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>156</td><td>Day 1</td><td>126.63-128.17</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>157</td><td>Day 1</td><td>126.63-131.36</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.73</td></tr><tr><td>158</td><td>Day 1</td><td>126.87-128.41</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>159</td><td>Day 1</td><td>128.41-133.14</td><td>6535571</td><td>1</td><td>来料检</td><td>1</td><td>何金环</td><td>无设备</td><td>4.73</td></tr><tr><td>160</td><td>Day 1</td><td>131.36-131.6</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>161</td><td>Day 1</td><td>131.6-132.91</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>王彪</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>162</td><td>Day 1</td><td>133.14-133.38</td><td>6535571</td><td>2</td><td>下料</td><td>1</td><td>尚剑侨</td><td>锯床 #1</td><td>0.24</td></tr><tr><td>163</td><td>Day 1</td><td>133.38-134.69</td><td>6535571</td><td>3</td><td>粗加工</td><td>1</td><td>尚剑侨</td><td>沈机TC500R #1</td><td>1.31</td></tr><tr><td>164</td><td>Day 1</td><td>134.46-136.49</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>165</td><td>Day 1</td><td>134.46-144.32</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>166</td><td>Day 1</td><td>134.7-136.73</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>167</td><td>Day 1</td><td>134.7-144.56</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>168</td><td>Day 1</td><td>136.49-138.03</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>169</td><td>Day 1</td><td>136.73-138.27</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>170</td><td>Day 1</td><td>144.32-146.35</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>171</td><td>Day 1</td><td>144.32-154.18</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰TX-500 #1, 丽驰TX-1000 #1</td><td>9.86</td></tr><tr><td>172</td><td>Day 1</td><td>144.56-146.59</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>173</td><td>Day 1</td><td>144.56-154.42</td><td>6535571</td><td>4</td><td>精加工</td><td>1</td><td>齐书旺</td><td>丽驰TX-500 #2, 丽驰TX-1000 #2</td><td>9.86</td></tr><tr><td>174</td><td>Day 1</td><td>146.35-147.89</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>175</td><td>Day 1</td><td>146.59-148.13</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr><tr><td>176</td><td>Day 1</td><td>154.18-156.21</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>2.03</td></tr><tr><td>177</td><td>Day 1</td><td>154.42-156.45</td><td>6535571</td><td>5</td><td>巡检</td><td>1</td><td>何金环</td><td>无设备</td><td>2.03</td></tr><tr><td>178</td><td>Day 1</td><td>156.21-157.75</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>张福仙</td><td>无设备</td><td>1.54</td></tr><tr><td>179</td><td>Day 1</td><td>156.45-157.99</td><td>6535571</td><td>6</td><td>刻号&amp;包装</td><td>1</td><td>何金环</td><td>无设备</td><td>1.54</td></tr></tbody></table></div></section><section><h2>文件来源</h2><div class="panel source"><b>问题</b><span>/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2022-09-0003-2.json</span><b>解</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2022-09-0003-2.solution.json</span><b>Verify</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2022-09-0003-2.verify.json</span></div></section></main><script>
+const body=document.body;
+document.querySelectorAll('.mode').forEach(select=>{
+  select.addEventListener('change',()=>{body.dataset.color=select.value;document.querySelectorAll('.mode').forEach(other=>{other.value=select.value;});});
+});
+const taskTooltip=document.createElement('div');
+taskTooltip.className='task-tooltip';
+document.body.appendChild(taskTooltip);
+function placeTaskTooltip(event){
+  const pad=14;
+  taskTooltip.style.display='block';
+  const rect=taskTooltip.getBoundingClientRect();
+  let left=event.clientX+pad;
+  let top=event.clientY+pad;
+  if(left+rect.width>window.innerWidth-8) left=event.clientX-rect.width-pad;
+  if(top+rect.height>window.innerHeight-8) top=event.clientY-rect.height-pad;
+  taskTooltip.style.left=Math.max(8,left)+'px';
+  taskTooltip.style.top=Math.max(8,top)+'px';
+}
+document.querySelectorAll('.task').forEach(task=>{
+  task.addEventListener('mouseenter',event=>{
+    const title=document.createElement('b');
+    title.textContent='任务详情';
+    const body=document.createElement('div');
+    body.textContent=task.dataset.tooltip||'';
+    taskTooltip.textContent='';
+    taskTooltip.append(title,body);
+    placeTaskTooltip(event);
+  });
+  task.addEventListener('mousemove',placeTaskTooltip);
+  task.addEventListener('mouseleave',()=>{taskTooltip.style.display='none';});
+});
+</script></body></html>

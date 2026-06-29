@@ -608,6 +608,12 @@ def _solution_files_from_results_dir(results_dir: Path) -> list[Path]:
     return sorted(results_dir.glob("*.solution.json"))
 
 
+def _default_output_dir(results_dir: Path) -> Path:
+    if results_dir.parent.name == "raw_view" and results_dir.parent.parent.name == "results":
+        return results_dir.parent.parent / "html_view" / results_dir.name
+    return results_dir / "visualizations"
+
+
 def _case_id_from_solution_path(path: Path) -> str:
     name = path.name
     if name.endswith(".solution.json"):
@@ -672,7 +678,7 @@ def main() -> None:
 
     if args.results_dir:
         results_dir = args.results_dir.resolve()
-        output_dir = args.output_dir or (results_dir / "visualizations")
+        output_dir = args.output_dir or _default_output_dir(results_dir)
         solution_paths = _solution_files_from_results_dir(results_dir)
         if not solution_paths:
             raise FileNotFoundError(f"no *.solution.json files under {results_dir}")

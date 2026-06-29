@@ -1,0 +1,2322 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SO-2022-12-0030-2 排班可视化</title><style>
+:root{--bg:#f7f7f4;--paper:#fff;--ink:#222821;--muted:#667064;--line:#d9ded2;--strong:#b7c0b0;--ok:#25784a;--bad:#a23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:22px 28px 16px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+h1{margin:0 0 8px;font-size:24px;letter-spacing:0}
+h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+.meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+main{padding:20px 28px 34px}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:70px}
+.card span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
+.card b{display:block;font-size:18px;overflow-wrap:anywhere}
+.ok b{color:var(--ok)}
+section{margin:0 0 24px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:14px;overflow:hidden}
+.scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.timeline{display:grid;grid-template-columns:180px var(--chart-width);min-width:calc(180px + var(--chart-width))}
+.axis-label,.lane-label{position:sticky;left:0;z-index:5;background:#f1f3ed;border-right:1px solid var(--strong)}
+.axis-label{height:48px;padding:14px 12px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line)}
+.axis{position:relative;height:48px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+.tick{position:absolute;top:0;bottom:0;border-left:1px solid #edf0e8;color:#687064;font-size:11px}
+.tick.dayline{border-left-color:#aeb9a6}
+.tick span{position:absolute;top:6px;left:4px;white-space:nowrap}
+.lane-label{padding:7px 10px;border-bottom:1px solid var(--line);overflow:hidden}
+.lane-label b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane-label span{display:block;color:var(--muted);font-size:12px;white-space:nowrap}
+.lane{position:relative;border-bottom:1px solid var(--line);background-image:linear-gradient(to right,rgba(30,40,30,.06) 1px,transparent 1px);background-size:100px 100%}
+.task{position:absolute;height:28px;border-radius:6px;border:1px solid color-mix(in srgb,var(--proc),#222 28%);border-left:5px solid var(--proc);background:color-mix(in srgb,var(--proc),white 78%);padding:2px 5px;overflow:hidden;white-space:nowrap;box-shadow:0 1px 1px rgba(0,0,0,.08);cursor:default}
+.task:hover{outline:2px solid rgba(34,40,33,.28);outline-offset:2px;z-index:20}
+body[data-color="machine"] .task{border-color:color-mix(in srgb,var(--mach),#222 28%);border-left-color:var(--mach);background:color-mix(in srgb,var(--mach),white 78%)}
+.task span{display:block;font-size:11px;font-weight:700;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
+.task small{display:block;font-size:10px;color:#4f574d;overflow:hidden;text-overflow:ellipsis}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.toolbar label{color:var(--muted)}
+select{height:30px;border:1px solid var(--strong);border-radius:6px;background:white;padding:0 8px}
+.route{margin:0 0 6px 18px;padding:0}
+.route li{margin:4px 0}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;background:white}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:#eef1e9;color:#475044;font-size:12px}
+.source{display:grid;grid-template-columns:90px 1fr;gap:6px 10px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.task-tooltip{position:fixed;z-index:9999;display:none;max-width:360px;padding:10px 12px;border:1px solid #9ea995;border-radius:8px;background:rgba(255,255,252,.98);box-shadow:0 12px 30px rgba(32,40,28,.18);color:#222821;font-size:13px;line-height:1.45;white-space:pre-line;pointer-events:none}
+.task-tooltip b{display:block;margin-bottom:5px;font-size:14px}
+@media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}}
+</style></head>
+<body data-color="process"><header><h1>SO-2022-12-0030-2 排班可视化</h1><div class="meta"><span>生成时间：2026-06-29 20:28:17</span><span>solution：feasible</span><span>verify：ok</span><span>机器并发错误：0</span><span>排程：Day 1-1</span></div></header><main><section class="cards"><div class="card ok"><span>Verify</span><b>ok</b></div><div class="card ok"><span>机器并发错误</span><b>0</b></div><div class="card ok"><span>Solution</span><b>feasible</b></div><div class="card"><span>任务数</span><b>160</b></div><div class="card"><span>排程范围</span><b>Day 1-1</b></div><div class="card"><span>最大完成时间</span><b>Day 1 227.98 min</b></div><div class="card"><span>订单期限</span><b>Day 22</b></div><div class="card"><span>Solver</span><b>timed_greedy</b></div><div class="card"><span>耗时</span><b>0.052 s</b></div><div class="card"><span>产品/需求</span><b>6521570: 订单 50 / 净需求 32</b></div></section><section><h2>问题摘要</h2><div class="panel"><p><b>库存抵扣：</b>6521570: 库存 18，订单 50，净需求 32</p><h3>产品 6521570</h3><ol class="route"><li><b>1. 下料</b>：2.99 min/件，设备 HCL360，可选工人 袁希广、尚剑侨</li><li><b>2. 精加工1</b>：4.89 min/件，设备 海德曼T45，可选工人 袁希广、尚剑侨</li><li><b>3. 精加工2</b>：5.56 min/件，设备 CX-40Y车铣复合，可选工人 袁希广、尚剑侨</li><li><b>4. 巡检</b>：4.65 min/件，设备 无，可选工人 杜青山</li><li><b>5. 包装</b>：1.82 min/件，设备 无，可选工人 杜青山</li></ol></div></section><section><div class="toolbar"><h2>按工人看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:1200px"><div class="axis-label">工人</div><div class="axis" style="width:1200px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div></div><div class="lane-label" style="height:42px"><b>何金环</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>单西强</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>孙淑敏</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>尚剑侨</b><span>48 项 / 215.04 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #1
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 0-2.99 min
+总时长：2.99 min" style="left:0.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #3
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 2.99-7.88 min
+总时长：4.89 min" style="left:7.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #5
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 7.88-13.44 min
+总时长：5.56 min" style="left:19.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #7
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 13.44-16.43 min
+总时长：2.99 min" style="left:33.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #10
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 16.43-21.32 min
+总时长：4.89 min" style="left:41.08px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 21.32-26.88 min
+总时长：5.56 min" style="left:53.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 26.88-29.87 min
+总时长：2.99 min" style="left:67.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #20
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 29.87-34.76 min
+总时长：4.89 min" style="left:74.67px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #24
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 34.76-40.32 min
+总时长：5.56 min" style="left:86.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #27
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 40.32-43.31 min
+总时长：2.99 min" style="left:100.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #30
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 43.31-48.2 min
+总时长：4.89 min" style="left:108.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #34
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 48.2-53.76 min
+总时长：5.56 min" style="left:120.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #37
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 53.76-56.75 min
+总时长：2.99 min" style="left:134.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #40
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 56.75-61.64 min
+总时长：4.89 min" style="left:141.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #44
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 61.64-67.2 min
+总时长：5.56 min" style="left:154.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #47
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 67.2-70.19 min
+总时长：2.99 min" style="left:168.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #50
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 70.19-75.08 min
+总时长：4.89 min" style="left:175.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #54
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 75.08-80.64 min
+总时长：5.56 min" style="left:187.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 80.64-83.63 min
+总时长：2.99 min" style="left:201.60px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #60
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 83.63-88.52 min
+总时长：4.89 min" style="left:209.07px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #64
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 88.52-94.08 min
+总时长：5.56 min" style="left:221.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 94.08-97.07 min
+总时长：2.99 min" style="left:235.20px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #70
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 97.07-101.96 min
+总时长：4.89 min" style="left:242.67px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #74
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 101.96-107.52 min
+总时长：5.56 min" style="left:254.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #77
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 107.52-110.51 min
+总时长：2.99 min" style="left:268.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #80
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 110.51-115.4 min
+总时长：4.89 min" style="left:276.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #84
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 115.4-120.96 min
+总时长：5.56 min" style="left:288.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #87
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 120.96-123.95 min
+总时长：2.99 min" style="left:302.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #90
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 123.95-128.84 min
+总时长：4.89 min" style="left:309.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #94
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 128.84-134.4 min
+总时长：5.56 min" style="left:322.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #97
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 134.4-137.39 min
+总时长：2.99 min" style="left:336.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #100
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 137.39-142.28 min
+总时长：4.89 min" style="left:343.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #104
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 142.28-147.84 min
+总时长：5.56 min" style="left:355.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #107
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 147.84-150.83 min
+总时长：2.99 min" style="left:369.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #110
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 150.83-155.72 min
+总时长：4.89 min" style="left:377.08px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #114
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 155.72-161.28 min
+总时长：5.56 min" style="left:389.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #117
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 161.28-164.27 min
+总时长：2.99 min" style="left:403.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #120
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 164.27-169.16 min
+总时长：4.89 min" style="left:410.68px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #124
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 169.16-174.72 min
+总时长：5.56 min" style="left:422.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 174.72-177.71 min
+总时长：2.99 min" style="left:436.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #130
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 177.71-182.6 min
+总时长：4.89 min" style="left:444.28px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #134
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 182.6-188.16 min
+总时长：5.56 min" style="left:456.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 188.16-191.15 min
+总时长：2.99 min" style="left:470.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #140
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 191.15-196.04 min
+总时长：4.89 min" style="left:477.88px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #144
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 196.04-201.6 min
+总时长：5.56 min" style="left:490.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #147
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 201.6-204.59 min
+总时长：2.99 min" style="left:504.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #150
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 204.59-209.48 min
+总时长：4.89 min" style="left:511.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #154
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 209.48-215.04 min
+总时长：5.56 min" style="left:523.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div></div><div class="lane-label" style="height:42px"><b>张福仙</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>杜青山</b><span>64 项 / 207.04 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 13.44-18.09 min
+总时长：4.65 min" style="left:33.60px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #12
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.09-19.91 min
+总时长：1.82 min" style="left:45.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #13
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 19.91-24.56 min
+总时长：4.65 min" style="left:49.77px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #16
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 24.56-26.38 min
+总时长：1.82 min" style="left:61.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #19
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 26.88-31.53 min
+总时长：4.65 min" style="left:67.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 31.53-33.35 min
+总时长：1.82 min" style="left:78.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #23
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 33.35-38 min
+总时长：4.65 min" style="left:83.38px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 38-39.82 min
+总时长：1.82 min" style="left:95.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #29
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 40.32-44.97 min
+总时长：4.65 min" style="left:100.80px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #32
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 44.97-46.79 min
+总时长：1.82 min" style="left:112.42px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #33
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 46.79-51.44 min
+总时长：4.65 min" style="left:116.97px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 51.44-53.26 min
+总时长：1.82 min" style="left:128.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #39
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 53.76-58.41 min
+总时长：4.65 min" style="left:134.40px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #42
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 58.41-60.23 min
+总时长：1.82 min" style="left:146.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #43
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 60.23-64.88 min
+总时长：4.65 min" style="left:150.57px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #46
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 64.88-66.7 min
+总时长：1.82 min" style="left:162.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #49
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 67.2-71.85 min
+总时长：4.65 min" style="left:168.00px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #52
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 71.85-73.67 min
+总时长：1.82 min" style="left:179.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #53
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 73.67-78.32 min
+总时长：4.65 min" style="left:184.18px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #56
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 78.32-80.14 min
+总时长：1.82 min" style="left:195.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #59
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 80.64-85.29 min
+总时长：4.65 min" style="left:201.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #62
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 85.29-87.11 min
+总时长：1.82 min" style="left:213.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #63
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 87.11-91.76 min
+总时长：4.65 min" style="left:217.78px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #66
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 91.76-93.58 min
+总时长：1.82 min" style="left:229.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #69
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 94.08-98.73 min
+总时长：4.65 min" style="left:235.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #72
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 98.73-100.55 min
+总时长：1.82 min" style="left:246.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #73
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 100.55-105.2 min
+总时长：4.65 min" style="left:251.38px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #76
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 105.2-107.02 min
+总时长：1.82 min" style="left:263.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #79
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 107.52-112.17 min
+总时长：4.65 min" style="left:268.80px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #82
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 112.17-113.99 min
+总时长：1.82 min" style="left:280.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #83
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 113.99-118.64 min
+总时长：4.65 min" style="left:284.97px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #86
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 118.64-120.46 min
+总时长：1.82 min" style="left:296.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #89
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 120.96-125.61 min
+总时长：4.65 min" style="left:302.40px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #92
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 125.61-127.43 min
+总时长：1.82 min" style="left:314.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #93
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 127.43-132.08 min
+总时长：4.65 min" style="left:318.58px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 132.08-133.9 min
+总时长：1.82 min" style="left:330.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #99
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 134.4-139.05 min
+总时长：4.65 min" style="left:336.00px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #102
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 139.05-140.87 min
+总时长：1.82 min" style="left:347.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #103
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 140.87-145.52 min
+总时长：4.65 min" style="left:352.18px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #106
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 145.52-147.34 min
+总时长：1.82 min" style="left:363.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #109
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 147.84-152.49 min
+总时长：4.65 min" style="left:369.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #112
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 152.49-154.31 min
+总时长：1.82 min" style="left:381.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #113
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 154.31-158.96 min
+总时长：4.65 min" style="left:385.77px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #116
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 158.96-160.78 min
+总时长：1.82 min" style="left:397.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #119
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 161.28-165.93 min
+总时长：4.65 min" style="left:403.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #122
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 165.93-167.75 min
+总时长：1.82 min" style="left:414.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #123
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 167.75-172.4 min
+总时长：4.65 min" style="left:419.38px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #126
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 172.4-174.22 min
+总时长：1.82 min" style="left:431.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #129
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 174.72-179.37 min
+总时长：4.65 min" style="left:436.80px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #132
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 179.37-181.19 min
+总时长：1.82 min" style="left:448.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #133
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 181.19-185.84 min
+总时长：4.65 min" style="left:452.98px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #136
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 185.84-187.66 min
+总时长：1.82 min" style="left:464.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #139
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 188.16-192.81 min
+总时长：4.65 min" style="left:470.40px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #142
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 192.81-194.63 min
+总时长：1.82 min" style="left:482.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #143
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 194.63-199.28 min
+总时长：4.65 min" style="left:486.57px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #146
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 199.28-201.1 min
+总时长：1.82 min" style="left:498.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #149
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 201.6-206.25 min
+总时长：4.65 min" style="left:504.00px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #152
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 206.25-208.07 min
+总时长：1.82 min" style="left:515.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #153
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 208.07-212.72 min
+总时长：4.65 min" style="left:520.17px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #156
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 212.72-214.54 min
+总时长：1.82 min" style="left:531.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #157
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 215.04-219.69 min
+总时长：4.65 min" style="left:537.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #158
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 219.69-221.51 min
+总时长：1.82 min" style="left:549.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #159
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 221.51-226.16 min
+总时长：4.65 min" style="left:553.77px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #160
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 226.16-227.98 min
+总时长：1.82 min" style="left:565.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>王凯</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>王培培</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>王彪</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>王树滨</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>袁希广</b><span>48 项 / 215.04 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #2
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 0-2.99 min
+总时长：2.99 min" style="left:0.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #4
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 2.99-7.88 min
+总时长：4.89 min" style="left:7.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #6
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 7.88-13.44 min
+总时长：5.56 min" style="left:19.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #8
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 13.44-16.43 min
+总时长：2.99 min" style="left:33.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #11
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 16.43-21.32 min
+总时长：4.89 min" style="left:41.08px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #15
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 21.32-26.88 min
+总时长：5.56 min" style="left:53.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #18
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 26.88-29.87 min
+总时长：2.99 min" style="left:67.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #21
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 29.87-34.76 min
+总时长：4.89 min" style="left:74.67px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #25
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 34.76-40.32 min
+总时长：5.56 min" style="left:86.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #28
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 40.32-43.31 min
+总时长：2.99 min" style="left:100.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #31
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 43.31-48.2 min
+总时长：4.89 min" style="left:108.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #35
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 48.2-53.76 min
+总时长：5.56 min" style="left:120.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #38
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 53.76-56.75 min
+总时长：2.99 min" style="left:134.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #41
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 56.75-61.64 min
+总时长：4.89 min" style="left:141.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #45
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 61.64-67.2 min
+总时长：5.56 min" style="left:154.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #48
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 67.2-70.19 min
+总时长：2.99 min" style="left:168.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #51
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 70.19-75.08 min
+总时长：4.89 min" style="left:175.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #55
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 75.08-80.64 min
+总时长：5.56 min" style="left:187.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #58
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 80.64-83.63 min
+总时长：2.99 min" style="left:201.60px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #61
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 83.63-88.52 min
+总时长：4.89 min" style="left:209.07px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #65
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 88.52-94.08 min
+总时长：5.56 min" style="left:221.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #68
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 94.08-97.07 min
+总时长：2.99 min" style="left:235.20px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #71
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 97.07-101.96 min
+总时长：4.89 min" style="left:242.67px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #75
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 101.96-107.52 min
+总时长：5.56 min" style="left:254.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #78
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 107.52-110.51 min
+总时长：2.99 min" style="left:268.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #81
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 110.51-115.4 min
+总时长：4.89 min" style="left:276.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #85
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 115.4-120.96 min
+总时长：5.56 min" style="left:288.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #88
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 120.96-123.95 min
+总时长：2.99 min" style="left:302.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #91
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 123.95-128.84 min
+总时长：4.89 min" style="left:309.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #95
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 128.84-134.4 min
+总时长：5.56 min" style="left:322.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #98
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 134.4-137.39 min
+总时长：2.99 min" style="left:336.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #101
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 137.39-142.28 min
+总时长：4.89 min" style="left:343.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #105
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 142.28-147.84 min
+总时长：5.56 min" style="left:355.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #108
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 147.84-150.83 min
+总时长：2.99 min" style="left:369.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #111
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 150.83-155.72 min
+总时长：4.89 min" style="left:377.08px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #115
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 155.72-161.28 min
+总时长：5.56 min" style="left:389.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #118
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 161.28-164.27 min
+总时长：2.99 min" style="left:403.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #121
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 164.27-169.16 min
+总时长：4.89 min" style="left:410.68px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #125
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 169.16-174.72 min
+总时长：5.56 min" style="left:422.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #128
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 174.72-177.71 min
+总时长：2.99 min" style="left:436.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #131
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 177.71-182.6 min
+总时长：4.89 min" style="left:444.28px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #135
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 182.6-188.16 min
+总时长：5.56 min" style="left:456.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #138
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 188.16-191.15 min
+总时长：2.99 min" style="left:470.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #141
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 191.15-196.04 min
+总时长：4.89 min" style="left:477.88px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #145
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 196.04-201.6 min
+总时长：5.56 min" style="left:490.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #148
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 201.6-204.59 min
+总时长：2.99 min" style="left:504.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #151
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 204.59-209.48 min
+总时长：4.89 min" style="left:511.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #155
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 209.48-215.04 min
+总时长：5.56 min" style="left:523.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div></div><div class="lane-label" style="height:42px"><b>齐书旺</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div></div></div></section><section><div class="toolbar"><h2>按机器看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:1200px"><div class="axis-label">机器</div><div class="axis" style="width:1200px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div></div><div class="lane-label" style="height:42px"><b>无设备</b><span>64 项 / 207.04 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 13.44-18.09 min
+总时长：4.65 min" style="left:33.60px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #12
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.09-19.91 min
+总时长：1.82 min" style="left:45.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #13
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 19.91-24.56 min
+总时长：4.65 min" style="left:49.77px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #16
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 24.56-26.38 min
+总时长：1.82 min" style="left:61.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #19
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 26.88-31.53 min
+总时长：4.65 min" style="left:67.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 31.53-33.35 min
+总时长：1.82 min" style="left:78.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #23
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 33.35-38 min
+总时长：4.65 min" style="left:83.38px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 38-39.82 min
+总时长：1.82 min" style="left:95.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #29
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 40.32-44.97 min
+总时长：4.65 min" style="left:100.80px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #32
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 44.97-46.79 min
+总时长：1.82 min" style="left:112.42px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #33
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 46.79-51.44 min
+总时长：4.65 min" style="left:116.97px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 51.44-53.26 min
+总时长：1.82 min" style="left:128.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #39
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 53.76-58.41 min
+总时长：4.65 min" style="left:134.40px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #42
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 58.41-60.23 min
+总时长：1.82 min" style="left:146.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #43
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 60.23-64.88 min
+总时长：4.65 min" style="left:150.57px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #46
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 64.88-66.7 min
+总时长：1.82 min" style="left:162.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #49
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 67.2-71.85 min
+总时长：4.65 min" style="left:168.00px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #52
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 71.85-73.67 min
+总时长：1.82 min" style="left:179.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #53
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 73.67-78.32 min
+总时长：4.65 min" style="left:184.18px;width:11.62px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #56
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 78.32-80.14 min
+总时长：1.82 min" style="left:195.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #59
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 80.64-85.29 min
+总时长：4.65 min" style="left:201.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #62
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 85.29-87.11 min
+总时长：1.82 min" style="left:213.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #63
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 87.11-91.76 min
+总时长：4.65 min" style="left:217.78px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #66
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 91.76-93.58 min
+总时长：1.82 min" style="left:229.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #69
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 94.08-98.73 min
+总时长：4.65 min" style="left:235.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #72
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 98.73-100.55 min
+总时长：1.82 min" style="left:246.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #73
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 100.55-105.2 min
+总时长：4.65 min" style="left:251.38px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #76
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 105.2-107.02 min
+总时长：1.82 min" style="left:263.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #79
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 107.52-112.17 min
+总时长：4.65 min" style="left:268.80px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #82
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 112.17-113.99 min
+总时长：1.82 min" style="left:280.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #83
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 113.99-118.64 min
+总时长：4.65 min" style="left:284.97px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #86
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 118.64-120.46 min
+总时长：1.82 min" style="left:296.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #89
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 120.96-125.61 min
+总时长：4.65 min" style="left:302.40px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #92
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 125.61-127.43 min
+总时长：1.82 min" style="left:314.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #93
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 127.43-132.08 min
+总时长：4.65 min" style="left:318.58px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 132.08-133.9 min
+总时长：1.82 min" style="left:330.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #99
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 134.4-139.05 min
+总时长：4.65 min" style="left:336.00px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #102
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 139.05-140.87 min
+总时长：1.82 min" style="left:347.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #103
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 140.87-145.52 min
+总时长：4.65 min" style="left:352.18px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #106
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 145.52-147.34 min
+总时长：1.82 min" style="left:363.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #109
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 147.84-152.49 min
+总时长：4.65 min" style="left:369.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #112
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 152.49-154.31 min
+总时长：1.82 min" style="left:381.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #113
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 154.31-158.96 min
+总时长：4.65 min" style="left:385.77px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #116
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 158.96-160.78 min
+总时长：1.82 min" style="left:397.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #119
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 161.28-165.93 min
+总时长：4.65 min" style="left:403.20px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #122
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 165.93-167.75 min
+总时长：1.82 min" style="left:414.83px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #123
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 167.75-172.4 min
+总时长：4.65 min" style="left:419.38px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #126
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 172.4-174.22 min
+总时长：1.82 min" style="left:431.00px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #129
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 174.72-179.37 min
+总时长：4.65 min" style="left:436.80px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #132
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 179.37-181.19 min
+总时长：1.82 min" style="left:448.43px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #133
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 181.19-185.84 min
+总时长：4.65 min" style="left:452.98px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #136
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 185.84-187.66 min
+总时长：1.82 min" style="left:464.60px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #139
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 188.16-192.81 min
+总时长：4.65 min" style="left:470.40px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #142
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 192.81-194.63 min
+总时长：1.82 min" style="left:482.02px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #143
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 194.63-199.28 min
+总时长：4.65 min" style="left:486.57px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #146
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 199.28-201.1 min
+总时长：1.82 min" style="left:498.20px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #149
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 201.6-206.25 min
+总时长：4.65 min" style="left:504.00px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #152
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 206.25-208.07 min
+总时长：1.82 min" style="left:515.62px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #153
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 208.07-212.72 min
+总时长：4.65 min" style="left:520.17px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #156
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 212.72-214.54 min
+总时长：1.82 min" style="left:531.80px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #157
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 215.04-219.69 min
+总时长：4.65 min" style="left:537.60px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #158
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 219.69-221.51 min
+总时长：1.82 min" style="left:549.23px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #159
+产品：6521570
+工序：4. 巡检
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 221.51-226.16 min
+总时长：4.65 min" style="left:553.77px;width:11.63px;top:7.00px;--proc:#59a14f;--mach:#59a14f;"><span>4. 巡检 x1</span><small>6521570 · 无设备</small></div><div class="task" data-tooltip="任务 #160
+产品：6521570
+工序：5. 包装
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 226.16-227.98 min
+总时长：1.82 min" style="left:565.40px;width:5.00px;top:7.00px;--proc:#f28e2b;--mach:#59a14f;"><span>5. 包装 x1</span><small>6521570 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>CMM CONTURA 10/16/6 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>CX-40Y车铣复合 #1</b><span>16 项 / 88.96 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #5
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 7.88-13.44 min
+总时长：5.56 min" style="left:19.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 21.32-26.88 min
+总时长：5.56 min" style="left:53.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #24
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 34.76-40.32 min
+总时长：5.56 min" style="left:86.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #34
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 48.2-53.76 min
+总时长：5.56 min" style="left:120.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #44
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 61.64-67.2 min
+总时长：5.56 min" style="left:154.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #54
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 75.08-80.64 min
+总时长：5.56 min" style="left:187.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #64
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 88.52-94.08 min
+总时长：5.56 min" style="left:221.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #74
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 101.96-107.52 min
+总时长：5.56 min" style="left:254.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #84
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 115.4-120.96 min
+总时长：5.56 min" style="left:288.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #94
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 128.84-134.4 min
+总时长：5.56 min" style="left:322.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #104
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 142.28-147.84 min
+总时长：5.56 min" style="left:355.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #114
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 155.72-161.28 min
+总时长：5.56 min" style="left:389.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #124
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 169.16-174.72 min
+总时长：5.56 min" style="left:422.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #134
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 182.6-188.16 min
+总时长：5.56 min" style="left:456.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #144
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 196.04-201.6 min
+总时长：5.56 min" style="left:490.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div><div class="task" data-tooltip="任务 #154
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：尚剑侨
+机器：CX-40Y车铣复合 #1
+时间：Day 1 209.48-215.04 min
+总时长：5.56 min" style="left:523.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #1</small></div></div><div class="lane-label" style="height:42px"><b>CX-40Y车铣复合 #2</b><span>16 项 / 88.96 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #6
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 7.88-13.44 min
+总时长：5.56 min" style="left:19.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #15
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 21.32-26.88 min
+总时长：5.56 min" style="left:53.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #25
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 34.76-40.32 min
+总时长：5.56 min" style="left:86.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #35
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 48.2-53.76 min
+总时长：5.56 min" style="left:120.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #45
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 61.64-67.2 min
+总时长：5.56 min" style="left:154.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #55
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 75.08-80.64 min
+总时长：5.56 min" style="left:187.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #65
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 88.52-94.08 min
+总时长：5.56 min" style="left:221.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #75
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 101.96-107.52 min
+总时长：5.56 min" style="left:254.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #85
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 115.4-120.96 min
+总时长：5.56 min" style="left:288.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #95
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 128.84-134.4 min
+总时长：5.56 min" style="left:322.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #105
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 142.28-147.84 min
+总时长：5.56 min" style="left:355.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #115
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 155.72-161.28 min
+总时长：5.56 min" style="left:389.30px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #125
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 169.16-174.72 min
+总时长：5.56 min" style="left:422.90px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #135
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 182.6-188.16 min
+总时长：5.56 min" style="left:456.50px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #145
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 196.04-201.6 min
+总时长：5.56 min" style="left:490.10px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div><div class="task" data-tooltip="任务 #155
+产品：6521570
+工序：3. 精加工2
+数量：1
+工人：袁希广
+机器：CX-40Y车铣复合 #2
+时间：Day 1 209.48-215.04 min
+总时长：5.56 min" style="left:523.70px;width:13.90px;top:7.00px;--proc:#76b7b2;--mach:#4e79a7;"><span>3. 精加工2 x1</span><small>6521570 · CX-40Y车铣复合 #2</small></div></div><div class="lane-label" style="height:42px"><b>HCL360 #1</b><span>16 项 / 47.84 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #1
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 0-2.99 min
+总时长：2.99 min" style="left:0.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #7
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 13.44-16.43 min
+总时长：2.99 min" style="left:33.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 26.88-29.87 min
+总时长：2.99 min" style="left:67.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #27
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 40.32-43.31 min
+总时长：2.99 min" style="left:100.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #37
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 53.76-56.75 min
+总时长：2.99 min" style="left:134.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #47
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 67.2-70.19 min
+总时长：2.99 min" style="left:168.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 80.64-83.63 min
+总时长：2.99 min" style="left:201.60px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 94.08-97.07 min
+总时长：2.99 min" style="left:235.20px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #77
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 107.52-110.51 min
+总时长：2.99 min" style="left:268.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #87
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 120.96-123.95 min
+总时长：2.99 min" style="left:302.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #97
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 134.4-137.39 min
+总时长：2.99 min" style="left:336.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #107
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 147.84-150.83 min
+总时长：2.99 min" style="left:369.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #117
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 161.28-164.27 min
+总时长：2.99 min" style="left:403.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 174.72-177.71 min
+总时长：2.99 min" style="left:436.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 188.16-191.15 min
+总时长：2.99 min" style="left:470.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div><div class="task" data-tooltip="任务 #147
+产品：6521570
+工序：1. 下料
+数量：1
+工人：尚剑侨
+机器：HCL360 #1
+时间：Day 1 201.6-204.59 min
+总时长：2.99 min" style="left:504.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #1</small></div></div><div class="lane-label" style="height:42px"><b>HCL360 #2</b><span>16 项 / 47.84 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #2
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 0-2.99 min
+总时长：2.99 min" style="left:0.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #8
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 13.44-16.43 min
+总时长：2.99 min" style="left:33.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #18
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 26.88-29.87 min
+总时长：2.99 min" style="left:67.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #28
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 40.32-43.31 min
+总时长：2.99 min" style="left:100.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #38
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 53.76-56.75 min
+总时长：2.99 min" style="left:134.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #48
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 67.2-70.19 min
+总时长：2.99 min" style="left:168.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #58
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 80.64-83.63 min
+总时长：2.99 min" style="left:201.60px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #68
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 94.08-97.07 min
+总时长：2.99 min" style="left:235.20px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #78
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 107.52-110.51 min
+总时长：2.99 min" style="left:268.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #88
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 120.96-123.95 min
+总时长：2.99 min" style="left:302.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #98
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 134.4-137.39 min
+总时长：2.99 min" style="left:336.00px;width:7.47px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #108
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 147.84-150.83 min
+总时长：2.99 min" style="left:369.60px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #118
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 161.28-164.27 min
+总时长：2.99 min" style="left:403.20px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #128
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 174.72-177.71 min
+总时长：2.99 min" style="left:436.80px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #138
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 188.16-191.15 min
+总时长：2.99 min" style="left:470.40px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div><div class="task" data-tooltip="任务 #148
+产品：6521570
+工序：1. 下料
+数量：1
+工人：袁希广
+机器：HCL360 #2
+时间：Day 1 201.6-204.59 min
+总时长：2.99 min" style="left:504.00px;width:7.48px;top:7.00px;--proc:#4e79a7;--mach:#f28e2b;"><span>1. 下料 x1</span><small>6521570 · HCL360 #2</small></div></div><div class="lane-label" style="height:42px"><b>HCL360 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>KEHREN RW8C #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>临清 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>台钻 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>大侨VL1055 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>建德 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>沈机TC500R #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>海德曼T45 #1</b><span>16 项 / 78.24 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #3
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 2.99-7.88 min
+总时长：4.89 min" style="left:7.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #10
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 16.43-21.32 min
+总时长：4.89 min" style="left:41.08px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #20
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 29.87-34.76 min
+总时长：4.89 min" style="left:74.67px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #30
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 43.31-48.2 min
+总时长：4.89 min" style="left:108.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #40
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 56.75-61.64 min
+总时长：4.89 min" style="left:141.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #50
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 70.19-75.08 min
+总时长：4.89 min" style="left:175.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #60
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 83.63-88.52 min
+总时长：4.89 min" style="left:209.07px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #70
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 97.07-101.96 min
+总时长：4.89 min" style="left:242.67px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #80
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 110.51-115.4 min
+总时长：4.89 min" style="left:276.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #90
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 123.95-128.84 min
+总时长：4.89 min" style="left:309.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #100
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 137.39-142.28 min
+总时长：4.89 min" style="left:343.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #110
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 150.83-155.72 min
+总时长：4.89 min" style="left:377.08px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #120
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 164.27-169.16 min
+总时长：4.89 min" style="left:410.68px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #130
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 177.71-182.6 min
+总时长：4.89 min" style="left:444.28px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #140
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 191.15-196.04 min
+总时长：4.89 min" style="left:477.88px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div><div class="task" data-tooltip="任务 #150
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：尚剑侨
+机器：海德曼T45 #1
+时间：Day 1 204.59-209.48 min
+总时长：4.89 min" style="left:511.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #1</small></div></div><div class="lane-label" style="height:42px"><b>海德曼T45 #2</b><span>16 项 / 78.24 min</span></div><div class="lane" style="width:1200px;height:42px"><div class="task" data-tooltip="任务 #4
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 2.99-7.88 min
+总时长：4.89 min" style="left:7.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #11
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 16.43-21.32 min
+总时长：4.89 min" style="left:41.08px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #21
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 29.87-34.76 min
+总时长：4.89 min" style="left:74.67px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #31
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 43.31-48.2 min
+总时长：4.89 min" style="left:108.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #41
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 56.75-61.64 min
+总时长：4.89 min" style="left:141.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #51
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 70.19-75.08 min
+总时长：4.89 min" style="left:175.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #61
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 83.63-88.52 min
+总时长：4.89 min" style="left:209.07px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #71
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 97.07-101.96 min
+总时长：4.89 min" style="left:242.67px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #81
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 110.51-115.4 min
+总时长：4.89 min" style="left:276.28px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #91
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 123.95-128.84 min
+总时长：4.89 min" style="left:309.88px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #101
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 137.39-142.28 min
+总时长：4.89 min" style="left:343.47px;width:12.23px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #111
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 150.83-155.72 min
+总时长：4.89 min" style="left:377.08px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #121
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 164.27-169.16 min
+总时长：4.89 min" style="left:410.68px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #131
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 177.71-182.6 min
+总时长：4.89 min" style="left:444.28px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #141
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 191.15-196.04 min
+总时长：4.89 min" style="left:477.88px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div><div class="task" data-tooltip="任务 #151
+产品：6521570
+工序：2. 精加工1
+数量：1
+工人：袁希广
+机器：海德曼T45 #2
+时间：Day 1 204.59-209.48 min
+总时长：4.89 min" style="left:511.48px;width:12.22px;top:7.00px;--proc:#e15759;--mach:#e15759;"><span>2. 精加工1 x1</span><small>6521570 · 海德曼T45 #2</small></div></div><div class="lane-label" style="height:42px"><b>超声波清洗机 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>锯床 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>马扎克HCN-6000L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div><div class="lane-label" style="height:42px"><b>马扎克VCN535L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:1200px;height:42px"></div></div></div></section><section><h2>任务明细</h2><div class="table-wrap"><table><thead><tr><th>#</th><th>Day</th><th>时间</th><th>产品</th><th>Step</th><th>工序</th><th>数量</th><th>工人</th><th>机器</th><th>时长</th></tr></thead><tbody><tr><td>1</td><td>Day 1</td><td>0-2.99</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>2</td><td>Day 1</td><td>0-2.99</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>3</td><td>Day 1</td><td>2.99-7.88</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>4</td><td>Day 1</td><td>2.99-7.88</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>5</td><td>Day 1</td><td>7.88-13.44</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>6</td><td>Day 1</td><td>7.88-13.44</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>7</td><td>Day 1</td><td>13.44-16.43</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>8</td><td>Day 1</td><td>13.44-16.43</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>9</td><td>Day 1</td><td>13.44-18.09</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>10</td><td>Day 1</td><td>16.43-21.32</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>11</td><td>Day 1</td><td>16.43-21.32</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>12</td><td>Day 1</td><td>18.09-19.91</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>13</td><td>Day 1</td><td>19.91-24.56</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>14</td><td>Day 1</td><td>21.32-26.88</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>15</td><td>Day 1</td><td>21.32-26.88</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>16</td><td>Day 1</td><td>24.56-26.38</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>17</td><td>Day 1</td><td>26.88-29.87</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>18</td><td>Day 1</td><td>26.88-29.87</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>19</td><td>Day 1</td><td>26.88-31.53</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>20</td><td>Day 1</td><td>29.87-34.76</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>21</td><td>Day 1</td><td>29.87-34.76</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>22</td><td>Day 1</td><td>31.53-33.35</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>23</td><td>Day 1</td><td>33.35-38</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>24</td><td>Day 1</td><td>34.76-40.32</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>25</td><td>Day 1</td><td>34.76-40.32</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>26</td><td>Day 1</td><td>38-39.82</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>27</td><td>Day 1</td><td>40.32-43.31</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>28</td><td>Day 1</td><td>40.32-43.31</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>29</td><td>Day 1</td><td>40.32-44.97</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>30</td><td>Day 1</td><td>43.31-48.2</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>31</td><td>Day 1</td><td>43.31-48.2</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>32</td><td>Day 1</td><td>44.97-46.79</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>33</td><td>Day 1</td><td>46.79-51.44</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>34</td><td>Day 1</td><td>48.2-53.76</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>35</td><td>Day 1</td><td>48.2-53.76</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>36</td><td>Day 1</td><td>51.44-53.26</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>37</td><td>Day 1</td><td>53.76-56.75</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>38</td><td>Day 1</td><td>53.76-56.75</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>39</td><td>Day 1</td><td>53.76-58.41</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>40</td><td>Day 1</td><td>56.75-61.64</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>41</td><td>Day 1</td><td>56.75-61.64</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>42</td><td>Day 1</td><td>58.41-60.23</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>43</td><td>Day 1</td><td>60.23-64.88</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>44</td><td>Day 1</td><td>61.64-67.2</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>45</td><td>Day 1</td><td>61.64-67.2</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>46</td><td>Day 1</td><td>64.88-66.7</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>47</td><td>Day 1</td><td>67.2-70.19</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>48</td><td>Day 1</td><td>67.2-70.19</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>49</td><td>Day 1</td><td>67.2-71.85</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>50</td><td>Day 1</td><td>70.19-75.08</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>51</td><td>Day 1</td><td>70.19-75.08</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>52</td><td>Day 1</td><td>71.85-73.67</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>53</td><td>Day 1</td><td>73.67-78.32</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>54</td><td>Day 1</td><td>75.08-80.64</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>55</td><td>Day 1</td><td>75.08-80.64</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>56</td><td>Day 1</td><td>78.32-80.14</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>57</td><td>Day 1</td><td>80.64-83.63</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>58</td><td>Day 1</td><td>80.64-83.63</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>59</td><td>Day 1</td><td>80.64-85.29</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>60</td><td>Day 1</td><td>83.63-88.52</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>61</td><td>Day 1</td><td>83.63-88.52</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>62</td><td>Day 1</td><td>85.29-87.11</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>63</td><td>Day 1</td><td>87.11-91.76</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>64</td><td>Day 1</td><td>88.52-94.08</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>65</td><td>Day 1</td><td>88.52-94.08</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>66</td><td>Day 1</td><td>91.76-93.58</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>67</td><td>Day 1</td><td>94.08-97.07</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>68</td><td>Day 1</td><td>94.08-97.07</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>69</td><td>Day 1</td><td>94.08-98.73</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>70</td><td>Day 1</td><td>97.07-101.96</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>71</td><td>Day 1</td><td>97.07-101.96</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>72</td><td>Day 1</td><td>98.73-100.55</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>73</td><td>Day 1</td><td>100.55-105.2</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>74</td><td>Day 1</td><td>101.96-107.52</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>75</td><td>Day 1</td><td>101.96-107.52</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>76</td><td>Day 1</td><td>105.2-107.02</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>77</td><td>Day 1</td><td>107.52-110.51</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>78</td><td>Day 1</td><td>107.52-110.51</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>79</td><td>Day 1</td><td>107.52-112.17</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>80</td><td>Day 1</td><td>110.51-115.4</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>81</td><td>Day 1</td><td>110.51-115.4</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>82</td><td>Day 1</td><td>112.17-113.99</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>83</td><td>Day 1</td><td>113.99-118.64</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>84</td><td>Day 1</td><td>115.4-120.96</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>85</td><td>Day 1</td><td>115.4-120.96</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>86</td><td>Day 1</td><td>118.64-120.46</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>87</td><td>Day 1</td><td>120.96-123.95</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>88</td><td>Day 1</td><td>120.96-123.95</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>89</td><td>Day 1</td><td>120.96-125.61</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>90</td><td>Day 1</td><td>123.95-128.84</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>91</td><td>Day 1</td><td>123.95-128.84</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>92</td><td>Day 1</td><td>125.61-127.43</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>93</td><td>Day 1</td><td>127.43-132.08</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>94</td><td>Day 1</td><td>128.84-134.4</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>95</td><td>Day 1</td><td>128.84-134.4</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>96</td><td>Day 1</td><td>132.08-133.9</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>97</td><td>Day 1</td><td>134.4-137.39</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>98</td><td>Day 1</td><td>134.4-137.39</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>99</td><td>Day 1</td><td>134.4-139.05</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>100</td><td>Day 1</td><td>137.39-142.28</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>101</td><td>Day 1</td><td>137.39-142.28</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>102</td><td>Day 1</td><td>139.05-140.87</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>103</td><td>Day 1</td><td>140.87-145.52</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>104</td><td>Day 1</td><td>142.28-147.84</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>105</td><td>Day 1</td><td>142.28-147.84</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>106</td><td>Day 1</td><td>145.52-147.34</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>107</td><td>Day 1</td><td>147.84-150.83</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>108</td><td>Day 1</td><td>147.84-150.83</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>109</td><td>Day 1</td><td>147.84-152.49</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>110</td><td>Day 1</td><td>150.83-155.72</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>111</td><td>Day 1</td><td>150.83-155.72</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>112</td><td>Day 1</td><td>152.49-154.31</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>113</td><td>Day 1</td><td>154.31-158.96</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>114</td><td>Day 1</td><td>155.72-161.28</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>115</td><td>Day 1</td><td>155.72-161.28</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>116</td><td>Day 1</td><td>158.96-160.78</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>117</td><td>Day 1</td><td>161.28-164.27</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>118</td><td>Day 1</td><td>161.28-164.27</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>119</td><td>Day 1</td><td>161.28-165.93</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>120</td><td>Day 1</td><td>164.27-169.16</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>121</td><td>Day 1</td><td>164.27-169.16</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>122</td><td>Day 1</td><td>165.93-167.75</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>123</td><td>Day 1</td><td>167.75-172.4</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>124</td><td>Day 1</td><td>169.16-174.72</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>125</td><td>Day 1</td><td>169.16-174.72</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>126</td><td>Day 1</td><td>172.4-174.22</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>127</td><td>Day 1</td><td>174.72-177.71</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>128</td><td>Day 1</td><td>174.72-177.71</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>129</td><td>Day 1</td><td>174.72-179.37</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>130</td><td>Day 1</td><td>177.71-182.6</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>131</td><td>Day 1</td><td>177.71-182.6</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>132</td><td>Day 1</td><td>179.37-181.19</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>133</td><td>Day 1</td><td>181.19-185.84</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>134</td><td>Day 1</td><td>182.6-188.16</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>135</td><td>Day 1</td><td>182.6-188.16</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>136</td><td>Day 1</td><td>185.84-187.66</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>137</td><td>Day 1</td><td>188.16-191.15</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>138</td><td>Day 1</td><td>188.16-191.15</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>139</td><td>Day 1</td><td>188.16-192.81</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>140</td><td>Day 1</td><td>191.15-196.04</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>141</td><td>Day 1</td><td>191.15-196.04</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>142</td><td>Day 1</td><td>192.81-194.63</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>143</td><td>Day 1</td><td>194.63-199.28</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>144</td><td>Day 1</td><td>196.04-201.6</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>145</td><td>Day 1</td><td>196.04-201.6</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>146</td><td>Day 1</td><td>199.28-201.1</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>147</td><td>Day 1</td><td>201.6-204.59</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>尚剑侨</td><td>HCL360 #1</td><td>2.99</td></tr><tr><td>148</td><td>Day 1</td><td>201.6-204.59</td><td>6521570</td><td>1</td><td>下料</td><td>1</td><td>袁希广</td><td>HCL360 #2</td><td>2.99</td></tr><tr><td>149</td><td>Day 1</td><td>201.6-206.25</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>150</td><td>Day 1</td><td>204.59-209.48</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>尚剑侨</td><td>海德曼T45 #1</td><td>4.89</td></tr><tr><td>151</td><td>Day 1</td><td>204.59-209.48</td><td>6521570</td><td>2</td><td>精加工1</td><td>1</td><td>袁希广</td><td>海德曼T45 #2</td><td>4.89</td></tr><tr><td>152</td><td>Day 1</td><td>206.25-208.07</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>153</td><td>Day 1</td><td>208.07-212.72</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>154</td><td>Day 1</td><td>209.48-215.04</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>尚剑侨</td><td>CX-40Y车铣复合 #1</td><td>5.56</td></tr><tr><td>155</td><td>Day 1</td><td>209.48-215.04</td><td>6521570</td><td>3</td><td>精加工2</td><td>1</td><td>袁希广</td><td>CX-40Y车铣复合 #2</td><td>5.56</td></tr><tr><td>156</td><td>Day 1</td><td>212.72-214.54</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>157</td><td>Day 1</td><td>215.04-219.69</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>158</td><td>Day 1</td><td>219.69-221.51</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr><tr><td>159</td><td>Day 1</td><td>221.51-226.16</td><td>6521570</td><td>4</td><td>巡检</td><td>1</td><td>杜青山</td><td>无设备</td><td>4.65</td></tr><tr><td>160</td><td>Day 1</td><td>226.16-227.98</td><td>6521570</td><td>5</td><td>包装</td><td>1</td><td>杜青山</td><td>无设备</td><td>1.82</td></tr></tbody></table></div></section><section><h2>文件来源</h2><div class="panel source"><b>问题</b><span>/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2022-12-0030-2.json</span><b>解</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2022-12-0030-2.solution.json</span><b>Verify</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2022-12-0030-2.verify.json</span></div></section></main><script>
+const body=document.body;
+document.querySelectorAll('.mode').forEach(select=>{
+  select.addEventListener('change',()=>{body.dataset.color=select.value;document.querySelectorAll('.mode').forEach(other=>{other.value=select.value;});});
+});
+const taskTooltip=document.createElement('div');
+taskTooltip.className='task-tooltip';
+document.body.appendChild(taskTooltip);
+function placeTaskTooltip(event){
+  const pad=14;
+  taskTooltip.style.display='block';
+  const rect=taskTooltip.getBoundingClientRect();
+  let left=event.clientX+pad;
+  let top=event.clientY+pad;
+  if(left+rect.width>window.innerWidth-8) left=event.clientX-rect.width-pad;
+  if(top+rect.height>window.innerHeight-8) top=event.clientY-rect.height-pad;
+  taskTooltip.style.left=Math.max(8,left)+'px';
+  taskTooltip.style.top=Math.max(8,top)+'px';
+}
+document.querySelectorAll('.task').forEach(task=>{
+  task.addEventListener('mouseenter',event=>{
+    const title=document.createElement('b');
+    title.textContent='任务详情';
+    const body=document.createElement('div');
+    body.textContent=task.dataset.tooltip||'';
+    taskTooltip.textContent='';
+    taskTooltip.append(title,body);
+    placeTaskTooltip(event);
+  });
+  task.addEventListener('mousemove',placeTaskTooltip);
+  task.addEventListener('mouseleave',()=>{taskTooltip.style.display='none';});
+});
+</script></body></html>

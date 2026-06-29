@@ -1,0 +1,3190 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SO-2024-05-0025-2 排班可视化</title><style>
+:root{--bg:#f7f7f4;--paper:#fff;--ink:#222821;--muted:#667064;--line:#d9ded2;--strong:#b7c0b0;--ok:#25784a;--bad:#a23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:22px 28px 16px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+h1{margin:0 0 8px;font-size:24px;letter-spacing:0}
+h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+.meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+main{padding:20px 28px 34px}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:70px}
+.card span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
+.card b{display:block;font-size:18px;overflow-wrap:anywhere}
+.ok b{color:var(--ok)}
+section{margin:0 0 24px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:14px;overflow:hidden}
+.scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.timeline{display:grid;grid-template-columns:180px var(--chart-width);min-width:calc(180px + var(--chart-width))}
+.axis-label,.lane-label{position:sticky;left:0;z-index:5;background:#f1f3ed;border-right:1px solid var(--strong)}
+.axis-label{height:48px;padding:14px 12px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line)}
+.axis{position:relative;height:48px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+.tick{position:absolute;top:0;bottom:0;border-left:1px solid #edf0e8;color:#687064;font-size:11px}
+.tick.dayline{border-left-color:#aeb9a6}
+.tick span{position:absolute;top:6px;left:4px;white-space:nowrap}
+.lane-label{padding:7px 10px;border-bottom:1px solid var(--line);overflow:hidden}
+.lane-label b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane-label span{display:block;color:var(--muted);font-size:12px;white-space:nowrap}
+.lane{position:relative;border-bottom:1px solid var(--line);background-image:linear-gradient(to right,rgba(30,40,30,.06) 1px,transparent 1px);background-size:100px 100%}
+.task{position:absolute;height:28px;border-radius:6px;border:1px solid color-mix(in srgb,var(--proc),#222 28%);border-left:5px solid var(--proc);background:color-mix(in srgb,var(--proc),white 78%);padding:2px 5px;overflow:hidden;white-space:nowrap;box-shadow:0 1px 1px rgba(0,0,0,.08);cursor:default}
+.task:hover{outline:2px solid rgba(34,40,33,.28);outline-offset:2px;z-index:20}
+body[data-color="machine"] .task{border-color:color-mix(in srgb,var(--mach),#222 28%);border-left-color:var(--mach);background:color-mix(in srgb,var(--mach),white 78%)}
+.task span{display:block;font-size:11px;font-weight:700;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
+.task small{display:block;font-size:10px;color:#4f574d;overflow:hidden;text-overflow:ellipsis}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.toolbar label{color:var(--muted)}
+select{height:30px;border:1px solid var(--strong);border-radius:6px;background:white;padding:0 8px}
+.route{margin:0 0 6px 18px;padding:0}
+.route li{margin:4px 0}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;background:white}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:#eef1e9;color:#475044;font-size:12px}
+.source{display:grid;grid-template-columns:90px 1fr;gap:6px 10px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.task-tooltip{position:fixed;z-index:9999;display:none;max-width:360px;padding:10px 12px;border:1px solid #9ea995;border-radius:8px;background:rgba(255,255,252,.98);box-shadow:0 12px 30px rgba(32,40,28,.18);color:#222821;font-size:13px;line-height:1.45;white-space:pre-line;pointer-events:none}
+.task-tooltip b{display:block;margin-bottom:5px;font-size:14px}
+@media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}}
+</style></head>
+<body data-color="process"><header><h1>SO-2024-05-0025-2 排班可视化</h1><div class="meta"><span>生成时间：2026-06-29 20:28:25</span><span>solution：feasible</span><span>verify：ok</span><span>机器并发错误：0</span><span>排程：Day 1-2</span></div></header><main><section class="cards"><div class="card ok"><span>Verify</span><b>ok</b></div><div class="card ok"><span>机器并发错误</span><b>0</b></div><div class="card ok"><span>Solution</span><b>feasible</b></div><div class="card"><span>任务数</span><b>214</b></div><div class="card"><span>排程范围</span><b>Day 1-2</b></div><div class="card"><span>最大完成时间</span><b>Day 2 446.07 min</b></div><div class="card"><span>订单期限</span><b>Day 19</b></div><div class="card"><span>Solver</span><b>timed_greedy</b></div><div class="card"><span>耗时</span><b>0.043 s</b></div><div class="card"><span>产品/需求</span><b>6521523: 订单 18 / 净需求 18；6521532: 订单 18 / 净需求 18</b></div></section><section><h2>问题摘要</h2><div class="panel"><p><b>库存抵扣：</b>6521523: 库存 0，订单 18，净需求 18；6521532: 库存 0，订单 18，净需求 18</p><h3>产品 6521523</h3><ol class="route"><li><b>1. 来料检</b>：18.39 min/件，设备 CMM CONTURA 10/16/6，可选工人 张福仙、王培培、孙淑敏</li><li><b>2. 外观验收</b>：5.62 min/件，设备 无，可选工人 袁希广、杜青山、王凯、王培培、孙淑敏</li><li><b>3. 精加工</b>：23.48 min/件，设备 丽驰MV1400B，可选工人 王凯、王彪、王树滨、尚剑侨</li><li><b>4. 过程检测</b>：4.03 min/件，设备 CMM CONTURA 10/16/6，可选工人 张福仙、王凯、王彪、王树滨、尚剑侨</li><li><b>5. 后处理</b>：15.07 min/件，设备 无，可选工人 王培培、孙淑敏</li><li><b>6. 清洗&amp;包装</b>：11.49 min/件，设备 超声波清洗机，可选工人 杜青山、单西强、王凯、王彪、袁希广</li></ol><h3>产品 6521532</h3><ol class="route"><li><b>1. 外观验收</b>：8.49 min/件，设备 无，可选工人 袁希广、杜青山、王凯、王培培、孙淑敏</li><li><b>2. 磨序</b>：5.63 min/件，设备 临清, 建德，可选工人 王彪、王凯</li><li><b>3. 精加工</b>：15.75 min/件，设备 马扎克HCN-6000L，可选工人 王彪、尚剑侨</li><li><b>4. 过程检测</b>：16.42 min/件，设备 CMM CONTURA 10/16/6，可选工人 张福仙、王凯、王彪、王树滨、尚剑侨</li><li><b>5. 后处理</b>：23.43 min/件，设备 无，可选工人 王凯、王彪、王树滨、尚剑侨、王培培、孙淑敏、何金环</li><li><b>6. 清洗&amp;包装</b>：12.95 min/件，设备 超声波清洗机，可选工人 杜青山、单西强、王凯、王彪、袁希广</li></ol></div></section><section><div class="toolbar"><h2>按工人看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:2400px"><div class="axis-label">工人</div><div class="axis" style="width:2400px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span>D2</span></div><div class="tick dayline" style="left:2400.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div><div class="tick" style="left:1500.00px"><span>120</span></div><div class="tick" style="left:1800.00px"><span>240</span></div><div class="tick" style="left:2100.00px"><span>360</span></div></div><div class="lane-label" style="height:42px"><b>何金环</b><span>6 项 / 140.58 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #159
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 119.46-142.89 min
+总时长：23.43 min" style="left:1498.65px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #165
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 146.97-170.4 min
+总时长：23.43 min" style="left:1567.43px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #171
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 179.81-203.24 min
+总时长：23.43 min" style="left:1649.52px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #186
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 261.91-285.34 min
+总时长：23.43 min" style="left:1854.78px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #201
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 344.01-367.44 min
+总时长：23.43 min" style="left:2060.03px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #212
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 409.69-433.12 min
+总时长：23.43 min" style="left:2224.23px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>单西强</b><span>15 项 / 181.11 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #41
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 66.59-78.08 min
+总时长：11.49 min" style="left:166.48px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #63
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 136.5-147.99 min
+总时长：11.49 min" style="left:341.25px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #80
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 206.41-217.9 min
+总时长：11.49 min" style="left:516.02px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #95
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 276.32-287.81 min
+总时长：11.49 min" style="left:690.80px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #99
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 294.71-306.2 min
+总时长：11.49 min" style="left:736.77px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #113
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 364.62-376.11 min
+总时长：11.49 min" style="left:911.55px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #122
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 416.14-427.63 min
+总时长：11.49 min" style="left:1040.35px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #134
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 15.07-26.56 min
+总时长：11.49 min" style="left:1237.67px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #152
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 94.1-105.59 min
+总时长：11.49 min" style="left:1435.25px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #166
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 157.11-170.06 min
+总时长：12.95 min" style="left:1592.78px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #175
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 203.24-216.19 min
+总时长：12.95 min" style="left:1708.10px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #184
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 252.5-265.45 min
+总时长：12.95 min" style="left:1831.25px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #193
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 301.76-314.71 min
+总时长：12.95 min" style="left:1954.40px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #202
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 351.02-363.97 min
+总时长：12.95 min" style="left:2077.55px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #211
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 400.28-413.23 min
+总时长：12.95 min" style="left:2200.70px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div></div><div class="lane-label" style="height:42px"><b>孙淑敏</b><span>21 项 / 321.93 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #4
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 0-18.39 min
+总时长：18.39 min" style="left:0.00px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #12
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 18.39-26.88 min
+总时长：8.49 min" style="left:45.98px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #19
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 26.88-35.37 min
+总时长：8.49 min" style="left:67.20px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #23
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 35.37-43.86 min
+总时长：8.49 min" style="left:88.42px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #30
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 43.86-52.35 min
+总时长：8.49 min" style="left:109.65px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 52.35-60.84 min
+总时长：8.49 min" style="left:130.88px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #43
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 69.91-88.3 min
+总时长：18.39 min" style="left:174.77px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #64
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 139.82-154.89 min
+总时长：15.07 min" style="left:349.55px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #70
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 158.21-176.6 min
+总时长：18.39 min" style="left:395.53px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #92
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 261.25-276.32 min
+总时长：15.07 min" style="left:653.12px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 279.64-294.71 min
+总时长：15.07 min" style="left:699.10px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #111
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 349.55-364.62 min
+总时长：15.07 min" style="left:873.88px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #120
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 401.07-416.14 min
+总时长：15.07 min" style="left:1002.67px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #124
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 419.46-437.85 min
+总时长：18.39 min" style="left:1048.65px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #131
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 0-15.07 min
+总时长：15.07 min" style="left:1200.00px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #143
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 51.52-66.59 min
+总时长：15.07 min" style="left:1328.80px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #155
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 103.04-118.11 min
+总时长：15.07 min" style="left:1457.60px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #161
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 130.55-145.62 min
+总时长：15.07 min" style="left:1526.38px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #180
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 229.07-252.5 min
+总时长：23.43 min" style="left:1772.67px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #195
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 311.17-334.6 min
+总时长：23.43 min" style="left:1977.93px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #207
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 376.85-400.28 min
+总时长：23.43 min" style="left:2142.12px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>尚剑侨</b><span>21 项 / 364.05 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #16
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 1 24.01-47.49 min
+总时长：23.48 min" style="left:60.03px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #32
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 47.49-63.24 min
+总时长：15.75 min" style="left:118.73px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #38
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 63.24-78.99 min
+总时长：15.75 min" style="left:158.10px;width:39.37px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #52
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 94.74-110.49 min
+总时长：15.75 min" style="left:236.85px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #56
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #2
+时间：Day 1 112.31-135.79 min
+总时长：23.48 min" style="left:280.77px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #66
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 141.99-157.74 min
+总时长：15.75 min" style="left:354.98px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #68
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 157.74-173.49 min
+总时长：15.75 min" style="left:394.35px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #72
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 173.49-189.24 min
+总时长：15.75 min" style="left:433.73px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #83
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 220.74-236.49 min
+总时长：15.75 min" style="left:551.85px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #88
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 236.49-252.24 min
+总时长：15.75 min" style="left:591.23px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #91
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 257.22-261.25 min
+总时长：4.03 min" style="left:643.05px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #93
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 275.61-279.64 min
+总时长：4.03 min" style="left:689.03px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #102
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 1 303.65-327.13 min
+总时长：23.48 min" style="left:759.12px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #118
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #2
+时间：Day 1 391.95-415.43 min
+总时长：23.48 min" style="left:979.88px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #133
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 2 0-23.48 min
+总时长：23.48 min" style="left:1200.00px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #149
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 2 75.53-99.01 min
+总时长：23.48 min" style="left:1388.82px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #170
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 179.81-196.23 min
+总时长：16.42 min" style="left:1649.52px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #179
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 229.07-245.49 min
+总时长：16.42 min" style="left:1772.67px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #188
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 278.33-294.75 min
+总时长：16.42 min" style="left:1895.82px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #197
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 327.59-344.01 min
+总时长：16.42 min" style="left:2018.97px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #210
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：尚剑侨
+机器：无设备
+时间：Day 2 393.27-416.7 min
+总时长：23.43 min" style="left:2183.18px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>张福仙</b><span>17 项 / 276.03 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #13
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 18.39-36.78 min
+总时长：18.39 min" style="left:45.98px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #31
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 47.49-51.52 min
+总时长：4.03 min" style="left:118.73px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #49
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 88.3-106.69 min
+总时长：18.39 min" style="left:220.75px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #65
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 139.82-158.21 min
+总时长：18.39 min" style="left:349.55px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #82
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 209.73-228.12 min
+总时长：18.39 min" style="left:524.32px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #97
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 279.64-298.03 min
+总时长：18.39 min" style="left:699.10px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #101
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 298.03-316.42 min
+总时长：18.39 min" style="left:745.07px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #115
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 367.94-386.33 min
+总时长：18.39 min" style="left:919.85px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 437.85-456.24 min
+总时长：18.39 min" style="left:1094.62px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #132
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 0-18.39 min
+总时长：18.39 min" style="left:1200.00px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #136
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 23.48-27.51 min
+总时长：4.03 min" style="left:1258.70px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #139
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 27.51-45.9 min
+总时长：18.39 min" style="left:1268.78px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #151
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 79.03-97.42 min
+总时长：18.39 min" style="left:1397.57px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #173
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 196.23-212.65 min
+总时长：16.42 min" style="left:1690.58px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #182
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 245.49-261.91 min
+总时长：16.42 min" style="left:1813.72px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #194
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 311.17-327.59 min
+总时长：16.42 min" style="left:1977.93px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #206
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 376.85-393.27 min
+总时长：16.42 min" style="left:2142.12px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div></div><div class="lane-label" style="height:42px"><b>杜青山</b><span>28 项 / 253.78 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #1
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #6
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 8.49-16.98 min
+总时长：8.49 min" style="left:21.23px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #11
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.39-24.01 min
+总时长：5.62 min" style="left:45.98px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #15
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 24.01-32.5 min
+总时长：8.49 min" style="left:60.03px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #21
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 32.5-40.99 min
+总时长：8.49 min" style="left:81.25px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 40.99-49.48 min
+总时长：8.49 min" style="left:102.48px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #34
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 49.48-57.97 min
+总时长：8.49 min" style="left:123.70px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #47
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 84.98-96.47 min
+总时长：11.49 min" style="left:212.45px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 154.89-166.38 min
+总时长：11.49 min" style="left:387.22px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #73
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 176.6-182.22 min
+总时长：5.62 min" style="left:441.50px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #84
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 224.8-236.29 min
+总时长：11.49 min" style="left:562.00px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #89
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 246.51-252.13 min
+总时长：5.62 min" style="left:616.27px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #100
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 298.03-303.65 min
+总时长：5.62 min" style="left:745.07px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #110
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 346.23-357.72 min
+总时长：11.49 min" style="left:865.58px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #114
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 367.94-373.56 min
+总时长：5.62 min" style="left:919.85px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #117
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 386.33-391.95 min
+总时长：5.62 min" style="left:965.82px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #126
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 437.85-443.47 min
+总时长：5.62 min" style="left:1094.62px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #129
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 456.24-461.86 min
+总时长：5.62 min" style="left:1140.60px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #140
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 42.58-54.07 min
+总时长：11.49 min" style="left:1306.45px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #147
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 2 69.91-75.53 min
+总时长：5.62 min" style="left:1374.77px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #153
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 2 97.42-103.04 min
+总时长：5.62 min" style="left:1443.55px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #163
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 145.62-157.11 min
+总时长：11.49 min" style="left:1564.05px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #172
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 186.82-199.77 min
+总时长：12.95 min" style="left:1667.05px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #181
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 236.08-249.03 min
+总时长：12.95 min" style="left:1790.20px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #190
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 285.34-298.29 min
+总时长：12.95 min" style="left:1913.35px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #199
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 334.6-347.55 min
+总时长：12.95 min" style="left:2036.50px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #208
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 383.86-396.81 min
+总时长：12.95 min" style="left:2159.65px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #214
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 433.12-446.07 min
+总时长：12.95 min" style="left:2282.80px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div></div><div class="lane-label" style="height:42px"><b>王凯</b><span>34 项 / 327.64 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #2
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #8
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 14.12-19.75 min
+总时长：5.63 min" style="left:35.30px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 19.75-25.38 min
+总时长：5.63 min" style="left:49.38px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 25.38-31.01 min
+总时长：5.63 min" style="left:63.45px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #25
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 36.78-42.4 min
+总时长：5.62 min" style="left:91.95px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #27
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 42.4-48.03 min
+总时长：5.63 min" style="left:106.00px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 48.03-53.66 min
+总时长：5.63 min" style="left:120.08px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #37
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 53.66-64.92 min
+总时长：11.26 min" style="left:134.15px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #39
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 64.92-70.55 min
+总时长：5.63 min" style="left:162.30px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #44
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 70.55-81.81 min
+总时长：11.26 min" style="left:176.38px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #46
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 81.81-87.44 min
+总时长：5.63 min" style="left:204.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #48
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 88.3-93.92 min
+总时长：5.62 min" style="left:220.75px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #50
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 93.92-99.55 min
+总时长：5.63 min" style="left:234.80px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #53
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 99.55-105.18 min
+总时长：5.63 min" style="left:248.88px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #54
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 106.69-112.31 min
+总时长：5.62 min" style="left:266.73px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #57
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 117.4-121.43 min
+总时长：4.03 min" style="left:293.50px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #58
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 121.43-127.06 min
+总时长：5.63 min" style="left:303.58px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #61
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 127.06-132.69 min
+总时长：5.63 min" style="left:317.65px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #62
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 135.79-139.82 min
+总时长：4.03 min" style="left:339.47px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #69
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 158.21-163.83 min
+总时长：5.62 min" style="left:395.53px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #74
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #2
+时间：Day 1 182.22-205.7 min
+总时长：23.48 min" style="left:455.55px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #85
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 228.12-233.74 min
+总时长：5.62 min" style="left:570.30px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #104
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 316.42-322.04 min
+总时长：5.62 min" style="left:791.05px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #105
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #2
+时间：Day 1 322.04-345.52 min
+总时长：23.48 min" style="left:805.10px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #128
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #1
+时间：Day 1 443.47-466.95 min
+总时长：23.48 min" style="left:1108.68px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #135
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 18.39-24.01 min
+总时长：5.62 min" style="left:1245.97px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #141
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 45.9-51.52 min
+总时长：5.62 min" style="left:1314.75px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #148
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 75-79.03 min
+总时长：4.03 min" style="left:1387.50px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #154
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 99.01-103.04 min
+总时长：4.03 min" style="left:1447.53px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #157
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #1
+时间：Day 2 103.04-126.52 min
+总时长：23.48 min" style="left:1457.60px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #164
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 146.97-163.39 min
+总时长：16.42 min" style="left:1567.43px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #177
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 212.65-236.08 min
+总时长：23.43 min" style="left:1731.62px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #192
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 294.75-318.18 min
+总时长：23.43 min" style="left:1936.88px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #200
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 344.01-360.43 min
+总时长：16.42 min" style="left:2060.03px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div></div><div class="lane-label" style="height:42px"><b>王培培</b><span>21 项 / 312.03 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #3
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #7
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 8.49-16.98 min
+总时长：8.49 min" style="left:21.23px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #10
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 16.98-25.47 min
+总时长：8.49 min" style="left:42.45px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #18
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 25.47-33.96 min
+总时长：8.49 min" style="left:63.67px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 33.96-42.45 min
+总时长：8.49 min" style="left:84.90px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #29
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 42.45-50.94 min
+总时长：8.49 min" style="left:106.12px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #35
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 51.52-66.59 min
+总时长：15.07 min" style="left:128.80px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #42
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 69.91-84.98 min
+总时长：15.07 min" style="left:174.77px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #59
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 121.43-136.5 min
+总时长：15.07 min" style="left:303.58px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #77
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 191.34-206.41 min
+总时长：15.07 min" style="left:478.35px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #81
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 209.73-224.8 min
+总时长：15.07 min" style="left:524.32px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #86
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 228.12-246.51 min
+总时长：18.39 min" style="left:570.30px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #108
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 331.16-346.23 min
+总时长：15.07 min" style="left:827.90px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #112
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 349.55-367.94 min
+总时长：18.39 min" style="left:873.88px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #123
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 419.46-434.53 min
+总时长：15.07 min" style="left:1048.65px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #138
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 27.51-42.58 min
+总时长：15.07 min" style="left:1268.78px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #144
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 51.52-69.91 min
+总时长：18.39 min" style="left:1328.80px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #150
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 79.03-94.1 min
+总时长：15.07 min" style="left:1397.57px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #174
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 196.23-219.66 min
+总时长：23.43 min" style="left:1690.58px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #189
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 278.33-301.76 min
+总时长：23.43 min" style="left:1895.82px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #204
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 360.43-383.86 min
+总时长：23.43 min" style="left:2101.08px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>王彪</b><span>27 项 / 392.04 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #5
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 8.49-14.12 min
+总时长：5.63 min" style="left:21.23px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #9
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 14.12-29.87 min
+总时长：15.75 min" style="left:35.30px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #20
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 31.01-36.64 min
+总时长：5.63 min" style="left:77.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #24
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 36.64-42.27 min
+总时长：5.63 min" style="left:91.60px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #28
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #2
+时间：Day 1 42.4-65.88 min
+总时长：23.48 min" style="left:106.00px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #45
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 78.99-94.74 min
+总时长：15.75 min" style="left:197.47px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #55
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 110.49-126.24 min
+总时长：15.75 min" style="left:276.22px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #60
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 126.24-141.99 min
+总时长：15.75 min" style="left:315.60px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #71
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #1
+时间：Day 1 163.83-187.31 min
+总时长：23.48 min" style="left:409.58px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #76
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 189.24-204.99 min
+总时长：15.75 min" style="left:473.10px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #78
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 204.99-220.74 min
+总时长：15.75 min" style="left:512.48px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #90
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #2
+时间：Day 1 252.13-275.61 min
+总时长：23.48 min" style="left:630.33px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #94
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 275.61-291.36 min
+总时长：15.75 min" style="left:689.03px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #98
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 291.36-307.11 min
+总时长：15.75 min" style="left:728.40px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #103
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 307.11-322.86 min
+总时长：15.75 min" style="left:767.78px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #106
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 322.86-338.61 min
+总时长：15.75 min" style="left:807.15px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #119
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 397.04-401.07 min
+总时长：4.03 min" style="left:992.60px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #121
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 415.43-419.46 min
+总时长：4.03 min" style="left:1038.58px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #125
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：王彪
+机器：超声波清洗机 #1
+时间：Day 1 434.53-446.02 min
+总时长：11.49 min" style="left:1086.32px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #130
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 466.95-470.98 min
+总时长：4.03 min" style="left:1167.38px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #1
+时间：Day 2 24.01-47.49 min
+总时长：23.48 min" style="left:1260.03px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #156
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 103.04-119.46 min
+总时长：16.42 min" style="left:1457.60px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #160
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 126.52-130.55 min
+总时长：4.03 min" style="left:1516.30px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #168
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王彪
+机器：无设备
+时间：Day 2 163.39-186.82 min
+总时长：23.43 min" style="left:1608.47px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #183
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王彪
+机器：无设备
+时间：Day 2 245.49-268.92 min
+总时长：23.43 min" style="left:1813.72px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #191
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 294.75-311.17 min
+总时长：16.42 min" style="left:1936.88px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #203
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 360.43-376.85 min
+总时长：16.42 min" style="left:2101.08px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div></div><div class="lane-label" style="height:42px"><b>王树滨</b><span>16 项 / 223.63 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #40
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 65.88-69.91 min
+总时长：4.03 min" style="left:164.70px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #51
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 93.92-117.4 min
+总时长：23.48 min" style="left:234.80px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #75
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 187.31-191.34 min
+总时长：4.03 min" style="left:468.27px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #79
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 205.7-209.73 min
+总时长：4.03 min" style="left:514.25px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #87
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 233.74-257.22 min
+总时长：23.48 min" style="left:584.35px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #107
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 327.13-331.16 min
+总时长：4.03 min" style="left:817.83px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #109
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 345.52-349.55 min
+总时长：4.03 min" style="left:863.80px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #116
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 373.56-397.04 min
+总时长：23.48 min" style="left:933.90px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #142
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 47.49-51.52 min
+总时长：4.03 min" style="left:1318.72px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #145
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 2 51.52-75 min
+总时长：23.48 min" style="left:1328.80px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #162
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 130.55-146.97 min
+总时长：16.42 min" style="left:1526.38px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #167
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 163.39-179.81 min
+总时长：16.42 min" style="left:1608.47px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #176
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 212.65-229.07 min
+总时长：16.42 min" style="left:1731.62px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #185
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 261.91-278.33 min
+总时长：16.42 min" style="left:1854.78px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #198
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王树滨
+机器：无设备
+时间：Day 2 327.59-351.02 min
+总时长：23.43 min" style="left:2018.97px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #209
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 393.27-409.69 min
+总时长：16.42 min" style="left:2183.18px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div></div><div class="lane-label" style="height:42px"><b>袁希广</b><span>8 项 / 100.68 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #146
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 66.59-78.08 min
+总时长：11.49 min" style="left:1366.48px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #158
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 118.11-129.6 min
+总时长：11.49 min" style="left:1495.28px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #169
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 170.4-183.35 min
+总时长：12.95 min" style="left:1626.00px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #178
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 219.66-232.61 min
+总时长：12.95 min" style="left:1749.15px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #187
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 268.92-281.87 min
+总时长：12.95 min" style="left:1872.30px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #196
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 318.18-331.13 min
+总时长：12.95 min" style="left:1995.45px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #205
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 367.44-380.39 min
+总时长：12.95 min" style="left:2118.60px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #213
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 416.7-429.65 min
+总时长：12.95 min" style="left:2241.75px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div></div><div class="lane-label" style="height:42px"><b>齐书旺</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div></div></div></section><section><div class="toolbar"><h2>按机器看排程</h2><label>颜色 <select class="mode"><option value="process">按工序</option><option value="machine">按机器</option></select></label></div><div class="scroll"><div class="timeline" style="--chart-width:2400px"><div class="axis-label">机器</div><div class="axis" style="width:2400px"><div class="tick dayline" style="left:0.00px"><span>D1</span></div><div class="tick dayline" style="left:1200.00px"><span>D2</span></div><div class="tick dayline" style="left:2400.00px"><span></span></div><div class="tick" style="left:300.00px"><span>120</span></div><div class="tick" style="left:600.00px"><span>240</span></div><div class="tick" style="left:900.00px"><span>360</span></div><div class="tick" style="left:1500.00px"><span>120</span></div><div class="tick" style="left:1800.00px"><span>240</span></div><div class="tick" style="left:2100.00px"><span>360</span></div></div><div class="lane-label" style="height:136px"><b>无设备</b><span>72 项 / 946.98 min</span></div><div class="lane" style="width:2400px;height:136px"><div class="task" data-tooltip="任务 #1
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #2
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #3
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 0-8.49 min
+总时长：8.49 min" style="left:0.00px;width:21.23px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #6
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 8.49-16.98 min
+总时长：8.49 min" style="left:21.23px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #7
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 8.49-16.98 min
+总时长：8.49 min" style="left:21.23px;width:21.23px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #10
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 16.98-25.47 min
+总时长：8.49 min" style="left:42.45px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #11
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 18.39-24.01 min
+总时长：5.62 min" style="left:45.98px;width:14.05px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #12
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 18.39-26.88 min
+总时长：8.49 min" style="left:45.98px;width:21.22px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #15
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 24.01-32.5 min
+总时长：8.49 min" style="left:60.03px;width:21.22px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #18
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 25.47-33.96 min
+总时长：8.49 min" style="left:63.67px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #19
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 26.88-35.37 min
+总时长：8.49 min" style="left:67.20px;width:21.22px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #21
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 32.5-40.99 min
+总时长：8.49 min" style="left:81.25px;width:21.23px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #22
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 33.96-42.45 min
+总时长：8.49 min" style="left:84.90px;width:21.23px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #23
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 35.37-43.86 min
+总时长：8.49 min" style="left:88.42px;width:21.23px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #25
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 36.78-42.4 min
+总时长：5.62 min" style="left:91.95px;width:14.05px;top:103.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #26
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 40.99-49.48 min
+总时长：8.49 min" style="left:102.48px;width:21.22px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #29
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 42.45-50.94 min
+总时长：8.49 min" style="left:106.12px;width:21.22px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #30
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 43.86-52.35 min
+总时长：8.49 min" style="left:109.65px;width:21.23px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #34
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 49.48-57.97 min
+总时长：8.49 min" style="left:123.70px;width:21.23px;top:39.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #35
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 51.52-66.59 min
+总时长：15.07 min" style="left:128.80px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #36
+产品：6521532
+工序：1. 外观验收
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 52.35-60.84 min
+总时长：8.49 min" style="left:130.88px;width:21.23px;top:71.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>1. 外观验收 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #42
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 69.91-84.98 min
+总时长：15.07 min" style="left:174.77px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #48
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 88.3-93.92 min
+总时长：5.62 min" style="left:220.75px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #54
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 106.69-112.31 min
+总时长：5.62 min" style="left:266.73px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #59
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 121.43-136.5 min
+总时长：15.07 min" style="left:303.58px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #64
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 139.82-154.89 min
+总时长：15.07 min" style="left:349.55px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #69
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 158.21-163.83 min
+总时长：5.62 min" style="left:395.53px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #73
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 176.6-182.22 min
+总时长：5.62 min" style="left:441.50px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #77
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 191.34-206.41 min
+总时长：15.07 min" style="left:478.35px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #81
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 209.73-224.8 min
+总时长：15.07 min" style="left:524.32px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #85
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 228.12-233.74 min
+总时长：5.62 min" style="left:570.30px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #89
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 246.51-252.13 min
+总时长：5.62 min" style="left:616.27px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #92
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 261.25-276.32 min
+总时长：15.07 min" style="left:653.12px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #96
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 279.64-294.71 min
+总时长：15.07 min" style="left:699.10px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #100
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 298.03-303.65 min
+总时长：5.62 min" style="left:745.07px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #104
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 1 316.42-322.04 min
+总时长：5.62 min" style="left:791.05px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #108
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 331.16-346.23 min
+总时长：15.07 min" style="left:827.90px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #111
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 349.55-364.62 min
+总时长：15.07 min" style="left:873.88px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #114
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 367.94-373.56 min
+总时长：5.62 min" style="left:919.85px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #117
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 386.33-391.95 min
+总时长：5.62 min" style="left:965.82px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #120
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 1 401.07-416.14 min
+总时长：15.07 min" style="left:1002.67px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #123
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 1 419.46-434.53 min
+总时长：15.07 min" style="left:1048.65px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #126
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 437.85-443.47 min
+总时长：5.62 min" style="left:1094.62px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #129
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 1 456.24-461.86 min
+总时长：5.62 min" style="left:1140.60px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #131
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 0-15.07 min
+总时长：15.07 min" style="left:1200.00px;width:37.67px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #135
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 18.39-24.01 min
+总时长：5.62 min" style="left:1245.97px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #138
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 27.51-42.58 min
+总时长：15.07 min" style="left:1268.78px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #141
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 45.9-51.52 min
+总时长：5.62 min" style="left:1314.75px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #143
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 51.52-66.59 min
+总时长：15.07 min" style="left:1328.80px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #147
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 2 69.91-75.53 min
+总时长：5.62 min" style="left:1374.77px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #150
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 79.03-94.1 min
+总时长：15.07 min" style="left:1397.57px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #153
+产品：6521523
+工序：2. 外观验收
+数量：1
+工人：杜青山
+机器：无设备
+时间：Day 2 97.42-103.04 min
+总时长：5.62 min" style="left:1443.55px;width:14.05px;top:7.00px;--proc:#f28e2b;--mach:#76b7b2;"><span>2. 外观验收 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #155
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 103.04-118.11 min
+总时长：15.07 min" style="left:1457.60px;width:37.68px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #159
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 119.46-142.89 min
+总时长：23.43 min" style="left:1498.65px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #161
+产品：6521523
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 130.55-145.62 min
+总时长：15.07 min" style="left:1526.38px;width:37.68px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521523 · 无设备</small></div><div class="task" data-tooltip="任务 #165
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 146.97-170.4 min
+总时长：23.43 min" style="left:1567.43px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #168
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王彪
+机器：无设备
+时间：Day 2 163.39-186.82 min
+总时长：23.43 min" style="left:1608.47px;width:58.57px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #171
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 179.81-203.24 min
+总时长：23.43 min" style="left:1649.52px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #174
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 196.23-219.66 min
+总时长：23.43 min" style="left:1690.58px;width:58.57px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #177
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 212.65-236.08 min
+总时长：23.43 min" style="left:1731.62px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #180
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 229.07-252.5 min
+总时长：23.43 min" style="left:1772.67px;width:58.58px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #183
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王彪
+机器：无设备
+时间：Day 2 245.49-268.92 min
+总时长：23.43 min" style="left:1813.72px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #186
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 261.91-285.34 min
+总时长：23.43 min" style="left:1854.78px;width:58.57px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #189
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 278.33-301.76 min
+总时长：23.43 min" style="left:1895.82px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #192
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王凯
+机器：无设备
+时间：Day 2 294.75-318.18 min
+总时长：23.43 min" style="left:1936.88px;width:58.58px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #195
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 311.17-334.6 min
+总时长：23.43 min" style="left:1977.93px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #198
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王树滨
+机器：无设备
+时间：Day 2 327.59-351.02 min
+总时长：23.43 min" style="left:2018.97px;width:58.58px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #201
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 344.01-367.44 min
+总时长：23.43 min" style="left:2060.03px;width:58.58px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #204
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：王培培
+机器：无设备
+时间：Day 2 360.43-383.86 min
+总时长：23.43 min" style="left:2101.08px;width:58.57px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #207
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：孙淑敏
+机器：无设备
+时间：Day 2 376.85-400.28 min
+总时长：23.43 min" style="left:2142.12px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #210
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：尚剑侨
+机器：无设备
+时间：Day 2 393.27-416.7 min
+总时长：23.43 min" style="left:2183.18px;width:58.58px;top:39.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div><div class="task" data-tooltip="任务 #212
+产品：6521532
+工序：5. 后处理
+数量：1
+工人：何金环
+机器：无设备
+时间：Day 2 409.69-433.12 min
+总时长：23.43 min" style="left:2224.23px;width:58.57px;top:7.00px;--proc:#4e79a7;--mach:#76b7b2;"><span>5. 后处理 x1</span><small>6521532 · 无设备</small></div></div><div class="lane-label" style="height:42px"><b>CMM CONTURA 10/16/6 #1</b><span>54 项 / 699.12 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #4
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 0-18.39 min
+总时长：18.39 min" style="left:0.00px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #13
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 18.39-36.78 min
+总时长：18.39 min" style="left:45.98px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #31
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 47.49-51.52 min
+总时长：4.03 min" style="left:118.73px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #40
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 65.88-69.91 min
+总时长：4.03 min" style="left:164.70px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #43
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 69.91-88.3 min
+总时长：18.39 min" style="left:174.77px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #49
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 88.3-106.69 min
+总时长：18.39 min" style="left:220.75px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #57
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 117.4-121.43 min
+总时长：4.03 min" style="left:293.50px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #62
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 135.79-139.82 min
+总时长：4.03 min" style="left:339.47px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #65
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 139.82-158.21 min
+总时长：18.39 min" style="left:349.55px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #70
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 158.21-176.6 min
+总时长：18.39 min" style="left:395.53px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #75
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 187.31-191.34 min
+总时长：4.03 min" style="left:468.27px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #79
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 205.7-209.73 min
+总时长：4.03 min" style="left:514.25px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #82
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 209.73-228.12 min
+总时长：18.39 min" style="left:524.32px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #86
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 228.12-246.51 min
+总时长：18.39 min" style="left:570.30px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #91
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 257.22-261.25 min
+总时长：4.03 min" style="left:643.05px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #93
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 275.61-279.64 min
+总时长：4.03 min" style="left:689.03px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #97
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 279.64-298.03 min
+总时长：18.39 min" style="left:699.10px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #101
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 298.03-316.42 min
+总时长：18.39 min" style="left:745.07px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #107
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 327.13-331.16 min
+总时长：4.03 min" style="left:817.83px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #109
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 345.52-349.55 min
+总时长：4.03 min" style="left:863.80px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #112
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 349.55-367.94 min
+总时长：18.39 min" style="left:873.88px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #115
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 367.94-386.33 min
+总时长：18.39 min" style="left:919.85px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #119
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 397.04-401.07 min
+总时长：4.03 min" style="left:992.60px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #121
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 415.43-419.46 min
+总时长：4.03 min" style="left:1038.58px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #124
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：孙淑敏
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 419.46-437.85 min
+总时长：18.39 min" style="left:1048.65px;width:45.98px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #127
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 437.85-456.24 min
+总时长：18.39 min" style="left:1094.62px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #130
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 1 466.95-470.98 min
+总时长：4.03 min" style="left:1167.38px;width:10.08px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #132
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 0-18.39 min
+总时长：18.39 min" style="left:1200.00px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #136
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 23.48-27.51 min
+总时长：4.03 min" style="left:1258.70px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #139
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 27.51-45.9 min
+总时长：18.39 min" style="left:1268.78px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #142
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 47.49-51.52 min
+总时长：4.03 min" style="left:1318.72px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #144
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：王培培
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 51.52-69.91 min
+总时长：18.39 min" style="left:1328.80px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #148
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 75-79.03 min
+总时长：4.03 min" style="left:1387.50px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #151
+产品：6521523
+工序：1. 来料检
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 79.03-97.42 min
+总时长：18.39 min" style="left:1397.57px;width:45.97px;top:7.00px;--proc:#59a14f;--mach:#4e79a7;"><span>1. 来料检 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #154
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 99.01-103.04 min
+总时长：4.03 min" style="left:1447.53px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #156
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 103.04-119.46 min
+总时长：16.42 min" style="left:1457.60px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #160
+产品：6521523
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 126.52-130.55 min
+总时长：4.03 min" style="left:1516.30px;width:10.07px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521523 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #162
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 130.55-146.97 min
+总时长：16.42 min" style="left:1526.38px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #164
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 146.97-163.39 min
+总时长：16.42 min" style="left:1567.43px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #167
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 163.39-179.81 min
+总时长：16.42 min" style="left:1608.47px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #170
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 179.81-196.23 min
+总时长：16.42 min" style="left:1649.52px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #173
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 196.23-212.65 min
+总时长：16.42 min" style="left:1690.58px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #176
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 212.65-229.07 min
+总时长：16.42 min" style="left:1731.62px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #179
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 229.07-245.49 min
+总时长：16.42 min" style="left:1772.67px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #182
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 245.49-261.91 min
+总时长：16.42 min" style="left:1813.72px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #185
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 261.91-278.33 min
+总时长：16.42 min" style="left:1854.78px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #188
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 278.33-294.75 min
+总时长：16.42 min" style="left:1895.82px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #191
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 294.75-311.17 min
+总时长：16.42 min" style="left:1936.88px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #194
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 311.17-327.59 min
+总时长：16.42 min" style="left:1977.93px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #197
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：尚剑侨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 327.59-344.01 min
+总时长：16.42 min" style="left:2018.97px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #200
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王凯
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 344.01-360.43 min
+总时长：16.42 min" style="left:2060.03px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #203
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王彪
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 360.43-376.85 min
+总时长：16.42 min" style="left:2101.08px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #206
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：张福仙
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 376.85-393.27 min
+总时长：16.42 min" style="left:2142.12px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div><div class="task" data-tooltip="任务 #209
+产品：6521532
+工序：4. 过程检测
+数量：1
+工人：王树滨
+机器：CMM CONTURA 10/16/6 #1
+时间：Day 2 393.27-409.69 min
+总时长：16.42 min" style="left:2183.18px;width:41.05px;top:7.00px;--proc:#b07aa1;--mach:#4e79a7;"><span>4. 过程检测 x1</span><small>6521532 · CMM CONTURA 10/16/6 #1</small></div></div><div class="lane-label" style="height:42px"><b>CX-40Y车铣复合 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>HCL360 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>KEHREN RW8C #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>临清 #1</b><span>16 项 / 101.34 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #5
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 8.49-14.12 min
+总时长：5.63 min" style="left:21.23px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #8
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 14.12-19.75 min
+总时长：5.63 min" style="left:35.30px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 19.75-25.38 min
+总时长：5.63 min" style="left:49.38px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 25.38-31.01 min
+总时长：5.63 min" style="left:63.45px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #20
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 31.01-36.64 min
+总时长：5.63 min" style="left:77.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #24
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 36.64-42.27 min
+总时长：5.63 min" style="left:91.60px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #27
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 42.4-48.03 min
+总时长：5.63 min" style="left:106.00px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 48.03-53.66 min
+总时长：5.63 min" style="left:120.08px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #37
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 53.66-64.92 min
+总时长：11.26 min" style="left:134.15px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #39
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 64.92-70.55 min
+总时长：5.63 min" style="left:162.30px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #44
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 70.55-81.81 min
+总时长：11.26 min" style="left:176.38px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #46
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 81.81-87.44 min
+总时长：5.63 min" style="left:204.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #50
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 93.92-99.55 min
+总时长：5.63 min" style="left:234.80px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #53
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 99.55-105.18 min
+总时长：5.63 min" style="left:248.88px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #58
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 121.43-127.06 min
+总时长：5.63 min" style="left:303.58px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #61
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 127.06-132.69 min
+总时长：5.63 min" style="left:317.65px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #1</b><span>12 项 / 281.76 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #16
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 1 24.01-47.49 min
+总时长：23.48 min" style="left:60.03px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #51
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 93.92-117.4 min
+总时长：23.48 min" style="left:234.80px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #71
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #1
+时间：Day 1 163.83-187.31 min
+总时长：23.48 min" style="left:409.58px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #87
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 233.74-257.22 min
+总时长：23.48 min" style="left:584.35px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #102
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 1 303.65-327.13 min
+总时长：23.48 min" style="left:759.12px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #116
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 1 373.56-397.04 min
+总时长：23.48 min" style="left:933.90px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #128
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #1
+时间：Day 1 443.47-466.95 min
+总时长：23.48 min" style="left:1108.68px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #133
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 2 0-23.48 min
+总时长：23.48 min" style="left:1200.00px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #137
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #1
+时间：Day 2 24.01-47.49 min
+总时长：23.48 min" style="left:1260.03px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #145
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王树滨
+机器：丽驰MV1400B #1
+时间：Day 2 51.52-75 min
+总时长：23.48 min" style="left:1328.80px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #149
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #1
+时间：Day 2 75.53-99.01 min
+总时长：23.48 min" style="left:1388.82px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div><div class="task" data-tooltip="任务 #157
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #1
+时间：Day 2 103.04-126.52 min
+总时长：23.48 min" style="left:1457.60px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #1</small></div></div><div class="lane-label" style="height:42px"><b>丽驰MV1400B #2</b><span>6 项 / 140.88 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #28
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #2
+时间：Day 1 42.4-65.88 min
+总时长：23.48 min" style="left:106.00px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #56
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #2
+时间：Day 1 112.31-135.79 min
+总时长：23.48 min" style="left:280.77px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #74
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #2
+时间：Day 1 182.22-205.7 min
+总时长：23.48 min" style="left:455.55px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #90
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：丽驰MV1400B #2
+时间：Day 1 252.13-275.61 min
+总时长：23.48 min" style="left:630.33px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #105
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：王凯
+机器：丽驰MV1400B #2
+时间：Day 1 322.04-345.52 min
+总时长：23.48 min" style="left:805.10px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div><div class="task" data-tooltip="任务 #118
+产品：6521523
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：丽驰MV1400B #2
+时间：Day 1 391.95-415.43 min
+总时长：23.48 min" style="left:979.88px;width:58.70px;top:7.00px;--proc:#edc948;--mach:#59a14f;"><span>3. 精加工 x1</span><small>6521523 · 丽驰MV1400B #2</small></div></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-1000 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>丽驰TX-500 #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>台钻 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>大侨VL1055 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>建德 #1</b><span>16 项 / 101.34 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #5
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 8.49-14.12 min
+总时长：5.63 min" style="left:21.23px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #8
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 14.12-19.75 min
+总时长：5.63 min" style="left:35.30px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #14
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 19.75-25.38 min
+总时长：5.63 min" style="left:49.38px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #17
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 25.38-31.01 min
+总时长：5.63 min" style="left:63.45px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #20
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 31.01-36.64 min
+总时长：5.63 min" style="left:77.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #24
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王彪
+机器：临清 #1, 建德 #1
+时间：Day 1 36.64-42.27 min
+总时长：5.63 min" style="left:91.60px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #27
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 42.4-48.03 min
+总时长：5.63 min" style="left:106.00px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #33
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 48.03-53.66 min
+总时长：5.63 min" style="left:120.08px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #37
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 53.66-64.92 min
+总时长：11.26 min" style="left:134.15px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #39
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 64.92-70.55 min
+总时长：5.63 min" style="left:162.30px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #44
+产品：6521532
+工序：2. 磨序
+数量：2
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 70.55-81.81 min
+总时长：11.26 min" style="left:176.38px;width:28.15px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x2</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #46
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 81.81-87.44 min
+总时长：5.63 min" style="left:204.53px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #50
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 93.92-99.55 min
+总时长：5.63 min" style="left:234.80px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #53
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 99.55-105.18 min
+总时长：5.63 min" style="left:248.88px;width:14.08px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #58
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 121.43-127.06 min
+总时长：5.63 min" style="left:303.58px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div><div class="task" data-tooltip="任务 #61
+产品：6521532
+工序：2. 磨序
+数量：1
+工人：王凯
+机器：临清 #1, 建德 #1
+时间：Day 1 127.06-132.69 min
+总时长：5.63 min" style="left:317.65px;width:14.07px;top:7.00px;--proc:#76b7b2;--mach:#f28e2b;"><span>2. 磨序 x1</span><small>6521532 · 临清 #1, 建德 #1</small></div></div><div class="lane-label" style="height:42px"><b>沈机TC500R #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>沈机TC500R #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #3</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>海天VMC1000L #4</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>海德曼T45 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>超声波清洗机 #1</b><span>36 项 / 439.92 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #41
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 66.59-78.08 min
+总时长：11.49 min" style="left:166.48px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #47
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 84.98-96.47 min
+总时长：11.49 min" style="left:212.45px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #63
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 136.5-147.99 min
+总时长：11.49 min" style="left:341.25px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #67
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 154.89-166.38 min
+总时长：11.49 min" style="left:387.22px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #80
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 206.41-217.9 min
+总时长：11.49 min" style="left:516.02px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #84
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 224.8-236.29 min
+总时长：11.49 min" style="left:562.00px;width:28.72px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #95
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 276.32-287.81 min
+总时长：11.49 min" style="left:690.80px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #99
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 294.71-306.2 min
+总时长：11.49 min" style="left:736.77px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #110
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 1 346.23-357.72 min
+总时长：11.49 min" style="left:865.58px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #113
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 364.62-376.11 min
+总时长：11.49 min" style="left:911.55px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #122
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 1 416.14-427.63 min
+总时长：11.49 min" style="left:1040.35px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #125
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：王彪
+机器：超声波清洗机 #1
+时间：Day 1 434.53-446.02 min
+总时长：11.49 min" style="left:1086.32px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #134
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 15.07-26.56 min
+总时长：11.49 min" style="left:1237.67px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #140
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 42.58-54.07 min
+总时长：11.49 min" style="left:1306.45px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #146
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 66.59-78.08 min
+总时长：11.49 min" style="left:1366.48px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #152
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 94.1-105.59 min
+总时长：11.49 min" style="left:1435.25px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #158
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 118.11-129.6 min
+总时长：11.49 min" style="left:1495.28px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #163
+产品：6521523
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 145.62-157.11 min
+总时长：11.49 min" style="left:1564.05px;width:28.73px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521523 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #166
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 157.11-170.06 min
+总时长：12.95 min" style="left:1592.78px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #169
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 170.4-183.35 min
+总时长：12.95 min" style="left:1626.00px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #172
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 186.82-199.77 min
+总时长：12.95 min" style="left:1667.05px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #175
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 203.24-216.19 min
+总时长：12.95 min" style="left:1708.10px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #178
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 219.66-232.61 min
+总时长：12.95 min" style="left:1749.15px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #181
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 236.08-249.03 min
+总时长：12.95 min" style="left:1790.20px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #184
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 252.5-265.45 min
+总时长：12.95 min" style="left:1831.25px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #187
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 268.92-281.87 min
+总时长：12.95 min" style="left:1872.30px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #190
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 285.34-298.29 min
+总时长：12.95 min" style="left:1913.35px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #193
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 301.76-314.71 min
+总时长：12.95 min" style="left:1954.40px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #196
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 318.18-331.13 min
+总时长：12.95 min" style="left:1995.45px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #199
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 334.6-347.55 min
+总时长：12.95 min" style="left:2036.50px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #202
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 351.02-363.97 min
+总时长：12.95 min" style="left:2077.55px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #205
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 367.44-380.39 min
+总时长：12.95 min" style="left:2118.60px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #208
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 383.86-396.81 min
+总时长：12.95 min" style="left:2159.65px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #211
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：单西强
+机器：超声波清洗机 #1
+时间：Day 2 400.28-413.23 min
+总时长：12.95 min" style="left:2200.70px;width:32.38px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #213
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：袁希广
+机器：超声波清洗机 #1
+时间：Day 2 416.7-429.65 min
+总时长：12.95 min" style="left:2241.75px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div><div class="task" data-tooltip="任务 #214
+产品：6521532
+工序：6. 清洗&amp;包装
+数量：1
+工人：杜青山
+机器：超声波清洗机 #1
+时间：Day 2 433.12-446.07 min
+总时长：12.95 min" style="left:2282.80px;width:32.37px;top:7.00px;--proc:#e15759;--mach:#edc948;"><span>6. 清洗&amp;包装 x1</span><small>6521532 · 超声波清洗机 #1</small></div></div><div class="lane-label" style="height:42px"><b>锯床 #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>马扎克HCN-6000L #1</b><span>18 项 / 283.5 min</span></div><div class="lane" style="width:2400px;height:42px"><div class="task" data-tooltip="任务 #9
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 14.12-29.87 min
+总时长：15.75 min" style="left:35.30px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #32
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 47.49-63.24 min
+总时长：15.75 min" style="left:118.73px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #38
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 63.24-78.99 min
+总时长：15.75 min" style="left:158.10px;width:39.37px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #45
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 78.99-94.74 min
+总时长：15.75 min" style="left:197.47px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #52
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 94.74-110.49 min
+总时长：15.75 min" style="left:236.85px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #55
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 110.49-126.24 min
+总时长：15.75 min" style="left:276.22px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #60
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 126.24-141.99 min
+总时长：15.75 min" style="left:315.60px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #66
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 141.99-157.74 min
+总时长：15.75 min" style="left:354.98px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #68
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 157.74-173.49 min
+总时长：15.75 min" style="left:394.35px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #72
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 173.49-189.24 min
+总时长：15.75 min" style="left:433.73px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #76
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 189.24-204.99 min
+总时长：15.75 min" style="left:473.10px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #78
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 204.99-220.74 min
+总时长：15.75 min" style="left:512.48px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #83
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 220.74-236.49 min
+总时长：15.75 min" style="left:551.85px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #88
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：尚剑侨
+机器：马扎克HCN-6000L #1
+时间：Day 1 236.49-252.24 min
+总时长：15.75 min" style="left:591.23px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #94
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 275.61-291.36 min
+总时长：15.75 min" style="left:689.03px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #98
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 291.36-307.11 min
+总时长：15.75 min" style="left:728.40px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #103
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 307.11-322.86 min
+总时长：15.75 min" style="left:767.78px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div><div class="task" data-tooltip="任务 #106
+产品：6521532
+工序：3. 精加工
+数量：1
+工人：王彪
+机器：马扎克HCN-6000L #1
+时间：Day 1 322.86-338.61 min
+总时长：15.75 min" style="left:807.15px;width:39.38px;top:7.00px;--proc:#edc948;--mach:#b07aa1;"><span>3. 精加工 x1</span><small>6521532 · 马扎克HCN-6000L #1</small></div></div><div class="lane-label" style="height:42px"><b>马扎克VCN535L #1</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div><div class="lane-label" style="height:42px"><b>马扎克VCN535L #2</b><span>0 项 / 0 min</span></div><div class="lane" style="width:2400px;height:42px"></div></div></div></section><section><h2>任务明细</h2><div class="table-wrap"><table><thead><tr><th>#</th><th>Day</th><th>时间</th><th>产品</th><th>Step</th><th>工序</th><th>数量</th><th>工人</th><th>机器</th><th>时长</th></tr></thead><tbody><tr><td>1</td><td>Day 1</td><td>0-8.49</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>2</td><td>Day 1</td><td>0-8.49</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>8.49</td></tr><tr><td>3</td><td>Day 1</td><td>0-8.49</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>4</td><td>Day 1</td><td>0-18.39</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>孙淑敏</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>5</td><td>Day 1</td><td>8.49-14.12</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王彪</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>6</td><td>Day 1</td><td>8.49-16.98</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>7</td><td>Day 1</td><td>8.49-16.98</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>8</td><td>Day 1</td><td>14.12-19.75</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>9</td><td>Day 1</td><td>14.12-29.87</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>10</td><td>Day 1</td><td>16.98-25.47</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>11</td><td>Day 1</td><td>18.39-24.01</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>12</td><td>Day 1</td><td>18.39-26.88</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>8.49</td></tr><tr><td>13</td><td>Day 1</td><td>18.39-36.78</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>14</td><td>Day 1</td><td>19.75-25.38</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>15</td><td>Day 1</td><td>24.01-32.5</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>16</td><td>Day 1</td><td>24.01-47.49</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>17</td><td>Day 1</td><td>25.38-31.01</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>18</td><td>Day 1</td><td>25.47-33.96</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>19</td><td>Day 1</td><td>26.88-35.37</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>8.49</td></tr><tr><td>20</td><td>Day 1</td><td>31.01-36.64</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王彪</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>21</td><td>Day 1</td><td>32.5-40.99</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>22</td><td>Day 1</td><td>33.96-42.45</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>23</td><td>Day 1</td><td>35.37-43.86</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>8.49</td></tr><tr><td>24</td><td>Day 1</td><td>36.64-42.27</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王彪</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>25</td><td>Day 1</td><td>36.78-42.4</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>26</td><td>Day 1</td><td>40.99-49.48</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>27</td><td>Day 1</td><td>42.4-48.03</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>28</td><td>Day 1</td><td>42.4-65.88</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>29</td><td>Day 1</td><td>42.45-50.94</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>王培培</td><td>无设备</td><td>8.49</td></tr><tr><td>30</td><td>Day 1</td><td>43.86-52.35</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>8.49</td></tr><tr><td>31</td><td>Day 1</td><td>47.49-51.52</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>32</td><td>Day 1</td><td>47.49-63.24</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>33</td><td>Day 1</td><td>48.03-53.66</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>34</td><td>Day 1</td><td>49.48-57.97</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>8.49</td></tr><tr><td>35</td><td>Day 1</td><td>51.52-66.59</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>36</td><td>Day 1</td><td>52.35-60.84</td><td>6521532</td><td>1</td><td>外观验收</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>8.49</td></tr><tr><td>37</td><td>Day 1</td><td>53.66-64.92</td><td>6521532</td><td>2</td><td>磨序</td><td>2</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>11.26</td></tr><tr><td>38</td><td>Day 1</td><td>63.24-78.99</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>39</td><td>Day 1</td><td>64.92-70.55</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>40</td><td>Day 1</td><td>65.88-69.91</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>41</td><td>Day 1</td><td>66.59-78.08</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>42</td><td>Day 1</td><td>69.91-84.98</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>43</td><td>Day 1</td><td>69.91-88.3</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>孙淑敏</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>44</td><td>Day 1</td><td>70.55-81.81</td><td>6521532</td><td>2</td><td>磨序</td><td>2</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>11.26</td></tr><tr><td>45</td><td>Day 1</td><td>78.99-94.74</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>46</td><td>Day 1</td><td>81.81-87.44</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>47</td><td>Day 1</td><td>84.98-96.47</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>48</td><td>Day 1</td><td>88.3-93.92</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>49</td><td>Day 1</td><td>88.3-106.69</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>50</td><td>Day 1</td><td>93.92-99.55</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>51</td><td>Day 1</td><td>93.92-117.4</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>52</td><td>Day 1</td><td>94.74-110.49</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>53</td><td>Day 1</td><td>99.55-105.18</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>54</td><td>Day 1</td><td>106.69-112.31</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>55</td><td>Day 1</td><td>110.49-126.24</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>56</td><td>Day 1</td><td>112.31-135.79</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>57</td><td>Day 1</td><td>117.4-121.43</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>58</td><td>Day 1</td><td>121.43-127.06</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>59</td><td>Day 1</td><td>121.43-136.5</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>60</td><td>Day 1</td><td>126.24-141.99</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>61</td><td>Day 1</td><td>127.06-132.69</td><td>6521532</td><td>2</td><td>磨序</td><td>1</td><td>王凯</td><td>临清 #1, 建德 #1</td><td>5.63</td></tr><tr><td>62</td><td>Day 1</td><td>135.79-139.82</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>63</td><td>Day 1</td><td>136.5-147.99</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>64</td><td>Day 1</td><td>139.82-154.89</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>65</td><td>Day 1</td><td>139.82-158.21</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>66</td><td>Day 1</td><td>141.99-157.74</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>67</td><td>Day 1</td><td>154.89-166.38</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>68</td><td>Day 1</td><td>157.74-173.49</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>69</td><td>Day 1</td><td>158.21-163.83</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>70</td><td>Day 1</td><td>158.21-176.6</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>孙淑敏</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>71</td><td>Day 1</td><td>163.83-187.31</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>72</td><td>Day 1</td><td>173.49-189.24</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>73</td><td>Day 1</td><td>176.6-182.22</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>74</td><td>Day 1</td><td>182.22-205.7</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王凯</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>75</td><td>Day 1</td><td>187.31-191.34</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>76</td><td>Day 1</td><td>189.24-204.99</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>77</td><td>Day 1</td><td>191.34-206.41</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>78</td><td>Day 1</td><td>204.99-220.74</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>79</td><td>Day 1</td><td>205.7-209.73</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>80</td><td>Day 1</td><td>206.41-217.9</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>81</td><td>Day 1</td><td>209.73-224.8</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>82</td><td>Day 1</td><td>209.73-228.12</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>83</td><td>Day 1</td><td>220.74-236.49</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>84</td><td>Day 1</td><td>224.8-236.29</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>85</td><td>Day 1</td><td>228.12-233.74</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>86</td><td>Day 1</td><td>228.12-246.51</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>王培培</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>87</td><td>Day 1</td><td>233.74-257.22</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>88</td><td>Day 1</td><td>236.49-252.24</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>89</td><td>Day 1</td><td>246.51-252.13</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>90</td><td>Day 1</td><td>252.13-275.61</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>91</td><td>Day 1</td><td>257.22-261.25</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>92</td><td>Day 1</td><td>261.25-276.32</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>93</td><td>Day 1</td><td>275.61-279.64</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>94</td><td>Day 1</td><td>275.61-291.36</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>95</td><td>Day 1</td><td>276.32-287.81</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>96</td><td>Day 1</td><td>279.64-294.71</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>97</td><td>Day 1</td><td>279.64-298.03</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>98</td><td>Day 1</td><td>291.36-307.11</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>99</td><td>Day 1</td><td>294.71-306.2</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>100</td><td>Day 1</td><td>298.03-303.65</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>101</td><td>Day 1</td><td>298.03-316.42</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>102</td><td>Day 1</td><td>303.65-327.13</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>103</td><td>Day 1</td><td>307.11-322.86</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>104</td><td>Day 1</td><td>316.42-322.04</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>105</td><td>Day 1</td><td>322.04-345.52</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王凯</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>106</td><td>Day 1</td><td>322.86-338.61</td><td>6521532</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>马扎克HCN-6000L #1</td><td>15.75</td></tr><tr><td>107</td><td>Day 1</td><td>327.13-331.16</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>108</td><td>Day 1</td><td>331.16-346.23</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>109</td><td>Day 1</td><td>345.52-349.55</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>110</td><td>Day 1</td><td>346.23-357.72</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>111</td><td>Day 1</td><td>349.55-364.62</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>112</td><td>Day 1</td><td>349.55-367.94</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>王培培</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>113</td><td>Day 1</td><td>364.62-376.11</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>114</td><td>Day 1</td><td>367.94-373.56</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>115</td><td>Day 1</td><td>367.94-386.33</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>116</td><td>Day 1</td><td>373.56-397.04</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>117</td><td>Day 1</td><td>386.33-391.95</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>118</td><td>Day 1</td><td>391.95-415.43</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #2</td><td>23.48</td></tr><tr><td>119</td><td>Day 1</td><td>397.04-401.07</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>120</td><td>Day 1</td><td>401.07-416.14</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>121</td><td>Day 1</td><td>415.43-419.46</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>122</td><td>Day 1</td><td>416.14-427.63</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>123</td><td>Day 1</td><td>419.46-434.53</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>124</td><td>Day 1</td><td>419.46-437.85</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>孙淑敏</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>125</td><td>Day 1</td><td>434.53-446.02</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>王彪</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>126</td><td>Day 1</td><td>437.85-443.47</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>127</td><td>Day 1</td><td>437.85-456.24</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>128</td><td>Day 1</td><td>443.47-466.95</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王凯</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>129</td><td>Day 1</td><td>456.24-461.86</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>130</td><td>Day 1</td><td>466.95-470.98</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>131</td><td>Day 2</td><td>0-15.07</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>132</td><td>Day 2</td><td>0-18.39</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>133</td><td>Day 2</td><td>0-23.48</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>134</td><td>Day 2</td><td>15.07-26.56</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>135</td><td>Day 2</td><td>18.39-24.01</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>136</td><td>Day 2</td><td>23.48-27.51</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>137</td><td>Day 2</td><td>24.01-47.49</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王彪</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>138</td><td>Day 2</td><td>27.51-42.58</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>139</td><td>Day 2</td><td>27.51-45.9</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>140</td><td>Day 2</td><td>42.58-54.07</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>141</td><td>Day 2</td><td>45.9-51.52</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>王凯</td><td>无设备</td><td>5.62</td></tr><tr><td>142</td><td>Day 2</td><td>47.49-51.52</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>143</td><td>Day 2</td><td>51.52-66.59</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>144</td><td>Day 2</td><td>51.52-69.91</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>王培培</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>145</td><td>Day 2</td><td>51.52-75</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王树滨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>146</td><td>Day 2</td><td>66.59-78.08</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>147</td><td>Day 2</td><td>69.91-75.53</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>148</td><td>Day 2</td><td>75-79.03</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>149</td><td>Day 2</td><td>75.53-99.01</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>尚剑侨</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>150</td><td>Day 2</td><td>79.03-94.1</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>15.07</td></tr><tr><td>151</td><td>Day 2</td><td>79.03-97.42</td><td>6521523</td><td>1</td><td>来料检</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>18.39</td></tr><tr><td>152</td><td>Day 2</td><td>94.1-105.59</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>153</td><td>Day 2</td><td>97.42-103.04</td><td>6521523</td><td>2</td><td>外观验收</td><td>1</td><td>杜青山</td><td>无设备</td><td>5.62</td></tr><tr><td>154</td><td>Day 2</td><td>99.01-103.04</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>155</td><td>Day 2</td><td>103.04-118.11</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>156</td><td>Day 2</td><td>103.04-119.46</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>157</td><td>Day 2</td><td>103.04-126.52</td><td>6521523</td><td>3</td><td>精加工</td><td>1</td><td>王凯</td><td>丽驰MV1400B #1</td><td>23.48</td></tr><tr><td>158</td><td>Day 2</td><td>118.11-129.6</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>159</td><td>Day 2</td><td>119.46-142.89</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>160</td><td>Day 2</td><td>126.52-130.55</td><td>6521523</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>4.03</td></tr><tr><td>161</td><td>Day 2</td><td>130.55-145.62</td><td>6521523</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>15.07</td></tr><tr><td>162</td><td>Day 2</td><td>130.55-146.97</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>163</td><td>Day 2</td><td>145.62-157.11</td><td>6521523</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>11.49</td></tr><tr><td>164</td><td>Day 2</td><td>146.97-163.39</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>165</td><td>Day 2</td><td>146.97-170.4</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>166</td><td>Day 2</td><td>157.11-170.06</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>167</td><td>Day 2</td><td>163.39-179.81</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>168</td><td>Day 2</td><td>163.39-186.82</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王彪</td><td>无设备</td><td>23.43</td></tr><tr><td>169</td><td>Day 2</td><td>170.4-183.35</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>170</td><td>Day 2</td><td>179.81-196.23</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>171</td><td>Day 2</td><td>179.81-203.24</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>172</td><td>Day 2</td><td>186.82-199.77</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>173</td><td>Day 2</td><td>196.23-212.65</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>174</td><td>Day 2</td><td>196.23-219.66</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>23.43</td></tr><tr><td>175</td><td>Day 2</td><td>203.24-216.19</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>176</td><td>Day 2</td><td>212.65-229.07</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>177</td><td>Day 2</td><td>212.65-236.08</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王凯</td><td>无设备</td><td>23.43</td></tr><tr><td>178</td><td>Day 2</td><td>219.66-232.61</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>179</td><td>Day 2</td><td>229.07-245.49</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>180</td><td>Day 2</td><td>229.07-252.5</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>23.43</td></tr><tr><td>181</td><td>Day 2</td><td>236.08-249.03</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>182</td><td>Day 2</td><td>245.49-261.91</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>183</td><td>Day 2</td><td>245.49-268.92</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王彪</td><td>无设备</td><td>23.43</td></tr><tr><td>184</td><td>Day 2</td><td>252.5-265.45</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>185</td><td>Day 2</td><td>261.91-278.33</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>186</td><td>Day 2</td><td>261.91-285.34</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>187</td><td>Day 2</td><td>268.92-281.87</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>188</td><td>Day 2</td><td>278.33-294.75</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>189</td><td>Day 2</td><td>278.33-301.76</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>23.43</td></tr><tr><td>190</td><td>Day 2</td><td>285.34-298.29</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>191</td><td>Day 2</td><td>294.75-311.17</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>192</td><td>Day 2</td><td>294.75-318.18</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王凯</td><td>无设备</td><td>23.43</td></tr><tr><td>193</td><td>Day 2</td><td>301.76-314.71</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>194</td><td>Day 2</td><td>311.17-327.59</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>195</td><td>Day 2</td><td>311.17-334.6</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>23.43</td></tr><tr><td>196</td><td>Day 2</td><td>318.18-331.13</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>197</td><td>Day 2</td><td>327.59-344.01</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>尚剑侨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>198</td><td>Day 2</td><td>327.59-351.02</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王树滨</td><td>无设备</td><td>23.43</td></tr><tr><td>199</td><td>Day 2</td><td>334.6-347.55</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>200</td><td>Day 2</td><td>344.01-360.43</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王凯</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>201</td><td>Day 2</td><td>344.01-367.44</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>202</td><td>Day 2</td><td>351.02-363.97</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>203</td><td>Day 2</td><td>360.43-376.85</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王彪</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>204</td><td>Day 2</td><td>360.43-383.86</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>王培培</td><td>无设备</td><td>23.43</td></tr><tr><td>205</td><td>Day 2</td><td>367.44-380.39</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>206</td><td>Day 2</td><td>376.85-393.27</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>张福仙</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>207</td><td>Day 2</td><td>376.85-400.28</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>孙淑敏</td><td>无设备</td><td>23.43</td></tr><tr><td>208</td><td>Day 2</td><td>383.86-396.81</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>209</td><td>Day 2</td><td>393.27-409.69</td><td>6521532</td><td>4</td><td>过程检测</td><td>1</td><td>王树滨</td><td>CMM CONTURA 10/16/6 #1</td><td>16.42</td></tr><tr><td>210</td><td>Day 2</td><td>393.27-416.7</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>尚剑侨</td><td>无设备</td><td>23.43</td></tr><tr><td>211</td><td>Day 2</td><td>400.28-413.23</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>单西强</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>212</td><td>Day 2</td><td>409.69-433.12</td><td>6521532</td><td>5</td><td>后处理</td><td>1</td><td>何金环</td><td>无设备</td><td>23.43</td></tr><tr><td>213</td><td>Day 2</td><td>416.7-429.65</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>袁希广</td><td>超声波清洗机 #1</td><td>12.95</td></tr><tr><td>214</td><td>Day 2</td><td>433.12-446.07</td><td>6521532</td><td>6</td><td>清洗&amp;包装</td><td>1</td><td>杜青山</td><td>超声波清洗机 #1</td><td>12.95</td></tr></tbody></table></div></section><section><h2>文件来源</h2><div class="panel source"><b>问题</b><span>/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2024-05-0025-2.json</span><b>解</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2024-05-0025-2.solution.json</span><b>Verify</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2024-05-0025-2.verify.json</span></div></section></main><script>
+const body=document.body;
+document.querySelectorAll('.mode').forEach(select=>{
+  select.addEventListener('change',()=>{body.dataset.color=select.value;document.querySelectorAll('.mode').forEach(other=>{other.value=select.value;});});
+});
+const taskTooltip=document.createElement('div');
+taskTooltip.className='task-tooltip';
+document.body.appendChild(taskTooltip);
+function placeTaskTooltip(event){
+  const pad=14;
+  taskTooltip.style.display='block';
+  const rect=taskTooltip.getBoundingClientRect();
+  let left=event.clientX+pad;
+  let top=event.clientY+pad;
+  if(left+rect.width>window.innerWidth-8) left=event.clientX-rect.width-pad;
+  if(top+rect.height>window.innerHeight-8) top=event.clientY-rect.height-pad;
+  taskTooltip.style.left=Math.max(8,left)+'px';
+  taskTooltip.style.top=Math.max(8,top)+'px';
+}
+document.querySelectorAll('.task').forEach(task=>{
+  task.addEventListener('mouseenter',event=>{
+    const title=document.createElement('b');
+    title.textContent='任务详情';
+    const body=document.createElement('div');
+    body.textContent=task.dataset.tooltip||'';
+    taskTooltip.textContent='';
+    taskTooltip.append(title,body);
+    placeTaskTooltip(event);
+  });
+  task.addEventListener('mousemove',placeTaskTooltip);
+  task.addEventListener('mouseleave',()=>{taskTooltip.style.display='none';});
+});
+</script></body></html>
