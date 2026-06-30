@@ -472,40 +472,89 @@ def _product_requirements(order: Any, tasks: list[VisualTask]) -> dict[str, dict
 
 def _inventory_by_day(order: Any, tasks: list[VisualTask], days: list[int]) -> dict[str, list[dict[str, Any]]]:
     requirements = _product_requirements(order, tasks)
-    last_step_by_product = {
-        product: max((step.step_index for step in steps), default=None)
+    routes = {
+        product: tuple(sorted(steps, key=lambda item: item.step_index))
         for product, steps in order.processes.items()
     }
-    final_output: dict[tuple[str, int], int] = defaultdict(int)
+    produced_by_step_day: dict[tuple[str, int, int], int] = defaultdict(int)
     for task in tasks:
         if task.step_index is None:
             continue
-        if task.step_index == last_step_by_product.get(task.product_id):
-            final_output[(task.product_id, task.day)] += task.quantity
+        produced_by_step_day[(task.product_id, task.step_index, task.day)] += task.quantity
 
     result: dict[str, list[dict[str, Any]]] = {}
+    products = set(requirements) | set(routes) | {task.product_id for task in tasks if task.product_id}
     for day in days:
         rows: list[dict[str, Any]] = []
-        for product, info in requirements.items():
-            produced_before = sum(qty for (pid, output_day), qty in final_output.items() if pid == product and output_day < day)
-            produced_today = int(final_output.get((product, day), 0))
-            start_available = int(info["initial_inventory"]) + produced_before
-            end_available = start_available + produced_today
-            required = int(info["required"])
-            rows.append(
-                {
-                    "product_id": product,
-                    "initial_inventory": int(info["initial_inventory"]),
-                    "required": required,
-                    "net_required": int(info["net_required"]),
-                    "start_available": start_available,
-                    "start_remaining": max(required - start_available, 0),
-                    "produced_today": produced_today,
-                    "end_available": end_available,
-                    "end_remaining": max(required - end_available, 0),
-                    "due": info["due"],
-                }
+        for product in sorted(products):
+            info = requirements.get(
+                product,
+                {"required": 0, "net_required": 0, "initial_inventory": int(order.initial_inventory.get(product, 0)), "due": []},
             )
+            steps = routes.get(product, ())
+            if not steps:
+                initial_inventory = int(info["initial_inventory"])
+                rows.append(
+                    {
+                        "product_id": product,
+                        "artifact": "成品",
+                        "step_index": None,
+                        "process": "成品",
+                        "is_final": True,
+                        "initial_inventory": initial_inventory,
+                        "start_inventory": initial_inventory,
+                        "produced_today": 0,
+                        "consumed_today": 0,
+                        "end_inventory": initial_inventory,
+                        "required": int(info["required"]),
+                        "net_required": int(info["net_required"]),
+                        "end_remaining": max(int(info["required"]) - initial_inventory, 0),
+                        "due": info["due"],
+                    }
+                )
+                continue
+            step_indices = [step.step_index for step in steps]
+            for position, step in enumerate(steps):
+                next_step_index = step_indices[position + 1] if position + 1 < len(step_indices) else None
+                produced_before = sum(
+                    qty
+                    for (pid, step_index, output_day), qty in produced_by_step_day.items()
+                    if pid == product and step_index == step.step_index and output_day < day
+                )
+                produced_today = int(produced_by_step_day.get((product, step.step_index, day), 0))
+                if next_step_index is None:
+                    consumed_before = 0
+                    consumed_today = 0
+                else:
+                    consumed_before = sum(
+                        qty
+                        for (pid, step_index, output_day), qty in produced_by_step_day.items()
+                        if pid == product and step_index == next_step_index and output_day < day
+                    )
+                    consumed_today = int(produced_by_step_day.get((product, next_step_index, day), 0))
+                is_final = next_step_index is None
+                initial_inventory = int(info["initial_inventory"]) if is_final else 0
+                start_inventory = initial_inventory + produced_before - consumed_before
+                end_inventory = start_inventory + produced_today - consumed_today
+                required = int(info["required"]) if is_final else 0
+                rows.append(
+                    {
+                        "product_id": product,
+                        "artifact": "成品" if is_final else f"Step {step.step_index}产物",
+                        "step_index": step.step_index,
+                        "process": step.name,
+                        "is_final": is_final,
+                        "initial_inventory": initial_inventory,
+                        "start_inventory": start_inventory,
+                        "produced_today": produced_today,
+                        "consumed_today": consumed_today,
+                        "end_inventory": end_inventory,
+                        "required": required,
+                        "net_required": int(info["net_required"]) if is_final else 0,
+                        "end_remaining": max(required - end_inventory, 0) if is_final else None,
+                        "due": info["due"] if is_final else [],
+                    }
+                )
         result[str(day)] = rows
     return result
 
@@ -609,6 +658,8 @@ h1{margin:0 0 8px;font-size:24px;letter-spacing:0}
 h2{font-size:18px;margin:0 0 10px}
 h3{font-size:15px;margin:14px 0 6px}
 .meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.explain{margin-top:12px;max-width:1180px;border-left:4px solid var(--focus);background:#eef3f4;padding:10px 12px;border-radius:6px;color:#27322e}
+.explain b{margin-right:4px}
 main{padding:16px 24px 28px}
 .controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
 .control{display:grid;gap:5px;color:var(--muted);font-size:12px}
@@ -651,11 +702,14 @@ select{height:30px;border:1px solid var(--strong);border-radius:6px;background:w
 table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px;background:white}
 th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{position:sticky;top:0;background:#eef1e9;color:#475044;font-size:12px}
-.inventory table{min-width:1120px}
+.inventory table{min-width:1260px}
+.info-grid{display:grid;grid-template-columns:minmax(360px,.8fr) minmax(520px,1.2fr);gap:12px}
+.info-grid h3{margin:0 0 8px}
+.info-grid table{min-width:720px}
 .source{display:grid;grid-template-columns:90px 1fr;gap:6px 10px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
 .task-tooltip{position:fixed;z-index:9999;display:none;max-width:360px;padding:10px 12px;border:1px solid #9ea995;border-radius:8px;background:rgba(255,255,252,.98);box-shadow:0 12px 30px rgba(32,40,28,.18);color:#222821;font-size:13px;line-height:1.45;white-space:pre-line;pointer-events:none}
 .task-tooltip b{display:block;margin-bottom:5px;font-size:14px}
-@media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}}
+@media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}.info-grid{grid-template-columns:1fr}}
 """
     script = f"""
 const CASE={_safe_script_json(case_payload)};
@@ -908,12 +962,34 @@ function renderCards(){{
   ];
   document.getElementById('cards').innerHTML=cards.map(([label,value,ok])=>`<div class="card ${{ok?'ok':''}}"><span>${{escapeHtml(label)}}</span><b>${{escapeHtml(value)}}</b></div>`).join('');
 }}
+function dueText(items){{
+  return (items || []).map(item=>`Day ${{item.day}} x${{item.quantity}}`).join('；');
+}}
+function renderProblemInfo(){{
+  const target=document.getElementById('problemInfo');
+  const requirementRows=Object.keys(CASE.requirements || {{}}).sort().map(product=>{{
+    const row=CASE.requirements[product] || {{}};
+    return `<tr><td>${{escapeHtml(product)}}</td><td>${{row.required ?? 0}}</td><td>${{row.initial_inventory ?? 0}}</td><td>${{row.net_required ?? 0}}</td><td>${{escapeHtml(dueText(row.due))}}</td></tr>`;
+  }}).join('');
+  const routeRows=Object.keys(CASE.routes || {{}}).sort().flatMap(product=>
+    (CASE.routes[product] || []).map(step=>{{
+      const artifact=step.step_index === (CASE.routes[product] || [])[((CASE.routes[product] || []).length)-1]?.step_index ? '成品' : `Step ${{step.step_index}}产物`;
+      const machines=(step.machines || []).join('、') || NO_MACHINE_LABEL;
+      const workers=(step.workers || []).join('、') || '未提供';
+      return `<tr><td>${{escapeHtml(product)}}</td><td>${{escapeHtml(artifact)}}</td><td>${{escapeHtml(step.step_index)}}</td><td>${{escapeHtml(step.process)}}</td><td>${{fmt(step.duration_minutes)}} min/件</td><td>${{escapeHtml(machines)}}</td><td>${{escapeHtml(workers)}}</td></tr>`;
+    }})
+  ).join('');
+  target.innerHTML=`<div class="info-grid">
+    <div><h3>订单需求</h3><div class="table-wrap"><table><thead><tr><th>产品</th><th>订单需求</th><th>初始成品库存</th><th>净需求</th><th>交期</th></tr></thead><tbody>${{requirementRows || '<tr><td colspan="5">无订单需求</td></tr>'}}</tbody></table></div></div>
+    <div><h3>工艺路线和资源</h3><div class="table-wrap"><table><thead><tr><th>产品</th><th>生成产物</th><th>Step</th><th>工序</th><th>单件耗时</th><th>机器</th><th>可选工人</th></tr></thead><tbody>${{routeRows || '<tr><td colspan="7">无工艺路线</td></tr>'}}</tbody></table></div></div>
+  </div>`;
+}}
 function renderInventory(){{
   const day=String(daySelect.value || CASE.days[0] || 1);
   const rows=CASE.inventory_by_day[day] || [];
   const target=document.getElementById('inventory');
   if(rows.length===0){{target.innerHTML='<div class="empty">无订单需求</div>';return;}}
-  target.innerHTML=`<div class="table-wrap"><table><thead><tr><th>产品</th><th>初始库存</th><th>订单总需求</th><th>净需求</th><th>Day开始可用</th><th>Day开始剩余</th><th>当天完成</th><th>Day结束可用</th><th>Day结束剩余</th><th>交期</th></tr></thead><tbody>${{rows.map(row=>`<tr><td>${{escapeHtml(row.product_id)}}</td><td>${{row.initial_inventory}}</td><td>${{row.required}}</td><td>${{row.net_required}}</td><td>${{row.start_available}}</td><td>${{row.start_remaining}}</td><td>${{row.produced_today}}</td><td>${{row.end_available}}</td><td>${{row.end_remaining}}</td><td>${{escapeHtml((row.due || []).map(item=>`Day ${{item.day}} x${{item.quantity}}`).join('；'))}}</td></tr>`).join('')}}</tbody></table></div>`;
+  target.innerHTML=`<div class="table-wrap"><table><thead><tr><th>产品</th><th>工序产物</th><th>Step</th><th>工序</th><th>初始库存</th><th>Day开始库存</th><th>当天生成</th><th>当天被下一工序消耗</th><th>Day结束库存</th><th>订单需求</th><th>净需求</th><th>成品订单剩余</th><th>交期</th></tr></thead><tbody>${{rows.map(row=>`<tr><td>${{escapeHtml(row.product_id)}}</td><td>${{escapeHtml(row.artifact)}}</td><td>${{escapeHtml(row.step_index ?? '')}}</td><td>${{escapeHtml(row.process)}}</td><td>${{row.initial_inventory}}</td><td>${{row.start_inventory}}</td><td>${{row.produced_today}}</td><td>${{row.consumed_today}}</td><td>${{row.end_inventory}}</td><td>${{row.is_final ? row.required : ''}}</td><td>${{row.is_final ? row.net_required : ''}}</td><td>${{row.is_final ? row.end_remaining : ''}}</td><td>${{escapeHtml(dueText(row.due))}}</td></tr>`).join('')}}</tbody></table></div>`;
 }}
 function renderTaskTable(){{
   const tasks=dayTasks();
@@ -930,6 +1006,7 @@ function renderErrors(){{
 function renderAll(){{
   body.dataset.color=colorSelect.value;
   renderCards();
+  renderProblemInfo();
   renderInventory();
   renderTimeline();
   renderTaskTable();
@@ -966,7 +1043,9 @@ renderAll();
         f"<span>verify：{_html(case_payload['verify_status'])}</span>"
         f"<span>机器并发错误：{_html(case_payload['machine_error_count'])}</span>"
         f"<span>排程：{_html(day_text)}</span>"
-        "</div></header><main>"
+        "</div>"
+        '<div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；工人/机器视图用于检查资源占用，任务视图按产品生产流检查工序顺序；库存表显示每道工序产物在当天开始和结束时的余量。</div>'
+        "</header><main>"
         '<section class="controls">'
         '<label class="control">Day<select id="daySelect"></select></label>'
         '<label class="control">颜色<select id="colorSelect"><option value="process">按工序</option><option value="machine">按机器</option></select></label>'
@@ -976,7 +1055,8 @@ renderAll();
         '<button type="button" data-view="task">任务</button>'
         "</div></div></section>"
         '<section id="cards" class="cards"></section>'
-        '<section class="inventory"><h2>当日产出和余量</h2><div id="inventory"></div></section>'
+        '<section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section>'
+        '<section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section>'
         '<section><div class="toolbar"><h2>排班甘特图</h2></div><div id="chart"></div></section>'
         '<section><h2>当天任务顺序</h2><div id="taskTable"></div></section>'
         '<div id="errors"></div>'
