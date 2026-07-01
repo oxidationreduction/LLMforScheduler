@@ -142,6 +142,25 @@ Verifier 的验证思路：
 - 单订单页还展示订单需求、工艺路线、单件耗时、所需机器、可选工人等任务信息。
 - 库存表按工序产物展示，而不是只展示最终产品：每道工序完成后形成一个流程产物，下一道工序会消耗上一道工序产物；最后一道工序产物视为成品库存。表中展示每个工序产物的 Day 开始库存、当天生成、当天被下一工序消耗、Day 结束库存；成品行额外展示订单需求、净需求和成品订单剩余。可行 case 展示具体排班，不可行 case 展示状态、输入摘要和不可行原因。
 
+查看全量 HTML 可视化入口时，推荐在仓库根目录启动一个本地静态文件服务：
+
+```bash
+cd /path/to/LLMforScheduler
+python3 -m http.server 8765 -d results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120
+```
+
+然后在浏览器打开：
+
+`http://127.0.0.1:8765/index.html`
+
+在 macOS 上也可以直接打开入口文件：
+
+```bash
+open results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html
+```
+
+如果直接打开时订单页没有加载，使用上面的 `python3 -m http.server` 方式。
+
 ## case_study
 
 `analysis/case_study/` 下放了 4 个可视化 HTML，用于人工检查排班是否合理。HTML 是单个 solver 解的甘特图，不是 DSV4 对比图；任务块支持鼠标悬浮查看具体信息，包括时间范围、工人、机器、产品和工序。
