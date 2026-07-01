@@ -14,10 +14,6 @@ main{padding:16px 24px 28px}
 .controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
 .control{display:grid;gap:5px;color:var(--muted);font-size:12px}
 .control select{min-width:120px}
-.segmented{display:inline-flex;border:1px solid var(--strong);border-radius:8px;overflow:hidden;background:white}
-.segmented button{height:32px;border:0;border-right:1px solid var(--strong);background:white;padding:0 14px;color:#354035;cursor:pointer}
-.segmented button:last-child{border-right:0}
-.segmented button.active{background:#315f83;color:white}
 .cards{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:10px;margin-bottom:14px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:70px}
 .card span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
@@ -61,16 +57,14 @@ th{position:sticky;top:0;background:#eef1e9;color:#475044;font-size:12px}
 .task-tooltip b{display:block;margin-bottom:5px;font-size:14px}
 @media(max-width:1100px){main,header{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,minmax(130px,1fr))}.info-grid{grid-template-columns:1fr}}
 </style></head>
-<body data-color="process"><header><h1>SO-2023-10-0023-2 排班可视化</h1><div class="meta"><span>生成时间：2026-06-30 11:54:01</span><span>solution：optimal</span><span>verify：ok</span><span>机器并发错误：0</span><span>排程：无任务</span></div><div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；工人/机器视图用于检查资源占用，任务视图按产品生产流检查工序顺序；库存表显示每道工序产物在当天开始和结束时的余量。</div></header><main><section class="controls"><label class="control">Day<select id="daySelect"></select></label><label class="control">颜色<select id="colorSelect"><option value="process">按工序</option><option value="machine">按机器</option></select></label><div class="control"><span>View</span><div class="segmented"><button type="button" class="active" data-view="worker">工人</button><button type="button" data-view="machine">机器</button><button type="button" data-view="task">任务</button></div></div></section><section id="cards" class="cards"></section><section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section><section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section><section><div class="toolbar"><h2>排班甘特图</h2></div><div id="chart"></div></section><section><h2>当天任务顺序</h2><div id="taskTable"></div></section><div id="errors"></div><section><h2>文件来源</h2><div class="panel source"><b>问题</b><span>/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-10-0023-2.json</span><b>解</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2023-10-0023-2.solution.json</span><b>Verify</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2023-10-0023-2.verify.json</span></div></section></main><script>
+<body data-color="process"><header><h1>SO-2023-10-0023-2 排班可视化</h1><div class="meta"><span>生成时间：2026-07-01 16:29:54</span><span>solution：optimal</span><span>verify：ok</span><span>机器并发错误：0</span><span>排程：无任务</span></div><div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；页面会同时展示工人、机器、生产流三张甘特图，分别用于检查人员占用、设备占用和工序顺序；库存表显示每道工序产物在当天开始和结束时的余量。</div></header><main><section class="controls"><label class="control">Day<select id="daySelect"></select></label><label class="control">颜色<select id="colorSelect"><option value="process">按工序</option><option value="machine">按机器</option></select></label></section><section id="cards" class="cards"></section><section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section><section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section><section><div class="toolbar"><h2>按工人看排程</h2></div><div id="workerChart"></div></section><section><div class="toolbar"><h2>按机器看排程</h2></div><div id="machineChart"></div></section><section><div class="toolbar"><h2>按生产流/工序看排程</h2></div><div id="taskChart"></div></section><section><h2>当天任务顺序</h2><div id="taskTable"></div></section><div id="errors"></div><section><h2>文件来源</h2><div class="panel source"><b>问题</b><span>/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-10-0023-2.json</span><b>解</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2023-10-0023-2.solution.json</span><b>Verify</b><span>/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2023-10-0023-2.verify.json</span></div></section></main><script>
 const CASE={"case_id":"SO-2023-10-0023-2","status":"optimal","verify_status":"ok","machine_error_count":0,"solver_method":"timed_greedy","strategy":null,"solve_seconds":1.1998985428363085e-05,"summary":{"case_id":"SO-2023-10-0023-2","path":"/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-10-0023-2.json","product_count":0,"net_required_total":0,"step_count":0,"total_work_minutes":0.0,"max_due_day":0,"worker_count":12,"worker_day_count":168,"complexity_score":0.0},"errors":[],"days":[1],"max_due_day":0,"workers":["何金环","单西强","孙淑敏","尚剑侨","张福仙","杜青山","王凯","王培培","王彪","王树滨","袁希广","齐书旺"],"machines":{"海德曼T45":1,"CX-40Y车铣复合":1,"HCL360":3,"建德":1,"KEHREN RW8C":1,"临清":1,"沈机TC500R":2,"海天VMC1000L":4,"大侨VL1055":1,"马扎克VCN535L":1,"丽驰MV1400B":2,"丽驰TX-1000":2,"丽驰TX-500":4,"马扎克HCN-6000L":1,"台钻":1,"CMM CONTURA 10/16/6":1,"锯床":1,"超声波清洗机":1},"requirements":{},"inventory_by_day":{"1":[]},"tasks":[],"routes":{},"source":{"order":"/wenyu/media-wenyu-data/TianjinLLM/raw_orders/SO-2023-10-0023-2.json","solution":"/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/solutions/SO-2023-10-0023-2.solution.json","verify":"/wenyu/media-wenyu-data/TianjinLLM/results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/verify/SO-2023-10-0023-2.verify.json"}};
 const WORKER_DAY_MINUTES=480.0;
 const NO_MACHINE_LABEL="无设备";
 const PALETTE=["#4e79a7","#f28e2b","#59a14f","#e15759","#76b7b2","#edc948","#b07aa1","#ff9da7","#9c755f","#bab0ac","#2f6f73","#8c6d31"];
-let currentView='worker';
 const body=document.body;
 const daySelect=document.getElementById('daySelect');
 const colorSelect=document.getElementById('colorSelect');
-const viewButtons=[...document.querySelectorAll('[data-view]')];
 const taskTooltip=document.createElement('div');
 taskTooltip.className='task-tooltip';
 document.body.appendChild(taskTooltip);
@@ -249,14 +243,15 @@ function renderTask(task,left,width,top){
   attachTooltip(el,task);
   return el;
 }
-function renderTimeline(){
+function viewLanes(view,tasks){
+  if(view==='machine') return {lanes:buildMachineLanes(tasks), laneTitle:'机器'};
+  if(view==='task') return {lanes:buildTaskLanes(tasks), laneTitle:'生产流'};
+  return {lanes:buildWorkerLanes(tasks), laneTitle:'工人'};
+}
+function renderTimeline(view,targetId){
   const tasks=dayTasks();
-  let lanes;
-  let laneTitle;
-  if(currentView==='machine'){lanes=buildMachineLanes(tasks);laneTitle='机器';}
-  else if(currentView==='task'){lanes=buildTaskLanes(tasks);laneTitle='产品';}
-  else{lanes=buildWorkerLanes(tasks);laneTitle='工人';}
-  const chart=document.getElementById('chart');
+  const {lanes,laneTitle}=viewLanes(view,tasks);
+  const chart=document.getElementById(targetId);
   const width=1440;
   const scale=width/WORKER_DAY_MINUTES;
   if(tasks.length===0){
@@ -269,7 +264,7 @@ function renderTimeline(){
     const sorted=[...laneTasks].sort((a,b)=>a.start_minute-b.start_minute || a.end_minute-b.end_minute || a.index-b.index);
     let positioned=[];
     let laneHeight=42;
-    if(currentView==='task'){
+    if(view==='task'){
       positioned=sorted.map(task=>[task,0]);
     } else {
       const levels=[];
@@ -358,7 +353,9 @@ function renderAll(){
   renderCards();
   renderProblemInfo();
   renderInventory();
-  renderTimeline();
+  renderTimeline('worker','workerChart');
+  renderTimeline('machine','machineChart');
+  renderTimeline('task','taskChart');
   renderTaskTable();
   renderErrors();
 }
@@ -367,13 +364,6 @@ CASE.days.forEach(day=>{
   option.value=day;
   option.textContent=`Day ${day}`;
   daySelect.appendChild(option);
-});
-viewButtons.forEach(button=>{
-  button.addEventListener('click',()=>{
-    currentView=button.dataset.view;
-    viewButtons.forEach(item=>item.classList.toggle('active',item===button));
-    renderAll();
-  });
 });
 daySelect.addEventListener('change',renderAll);
 colorSelect.addEventListener('change',renderAll);
