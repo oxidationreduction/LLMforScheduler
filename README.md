@@ -150,17 +150,21 @@ git clone https://github.com/lxd99/LLMforScheduler.git
 cd LLMforScheduler
 ```
 
-然后打开全量 HTML 可视化入口：
+然后直接双击或打开这个入口文件即可：
+
+`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html`
+
+注意不要只单独拷贝 `index.html`。这个入口页会按订单加载同目录下的 `SO-*.html` 文件，因此需要保留整个目录：
+
+`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`
+
+在 macOS 上也可以用命令打开：
 
 ```bash
 open results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html
 ```
 
-入口文件是：
-
-`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html`
-
-如果直接打开时订单页没有加载，改用本地静态文件服务：
+如果浏览器安全策略导致订单页没有加载，再改用本地静态文件服务：
 
 ```bash
 python3 -m http.server 8765 -d results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120
