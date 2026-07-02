@@ -790,7 +790,7 @@ function buildWorkerLanes(tasks){{
     if(!grouped.has(key)) grouped.set(key,[]);
     grouped.get(key).push(task);
   }});
-  const names=[...new Set([...(CASE.workers || []),...grouped.keys()])].sort();
+  const names=[...grouped.keys()].sort((a,b)=>a.localeCompare(b,'zh-CN'));
   return names.map(name=>[name,grouped.get(name) || []]);
 }}
 function buildMachineLanes(tasks){{
@@ -802,13 +802,11 @@ function buildMachineLanes(tasks){{
       grouped.get(label).push(task);
     }});
   }});
-  const names=[];
-  if(grouped.has(NO_MACHINE_LABEL)) names.push(NO_MACHINE_LABEL);
-  Object.keys(CASE.machines || {{}}).sort().forEach(machine=>{{
-    const count=Math.max(Number(CASE.machines[machine]) || 1,1);
-    for(let index=1;index<=count;index++) names.push(`${{machine}} #${{index}}`);
+  const names=[...grouped.keys()].sort((a,b)=>{{
+    if(a===NO_MACHINE_LABEL) return -1;
+    if(b===NO_MACHINE_LABEL) return 1;
+    return a.localeCompare(b,'zh-CN');
   }});
-  [...grouped.keys()].sort().forEach(name=>{{if(!names.includes(name)) names.push(name);}});
   return names.map(name=>[name,grouped.get(name) || []]);
 }}
 function absStart(task){{
@@ -1056,7 +1054,7 @@ renderAll();
         f"<span>机器并发错误：{_html(case_payload['machine_error_count'])}</span>"
         f"<span>排程：{_html(day_text)}</span>"
         "</div>"
-        '<div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；页面会同时展示工人、机器、生产流三张甘特图，分别用于检查人员占用、设备占用和工序顺序；库存表显示每道工序产物在当天开始和结束时的余量。</div>'
+        '<div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；页面会同时展示工人、机器、生产流三张甘特图，分别用于检查人员占用、设备占用和工序顺序；甘特图下方的库存表显示每道工序产物在当天开始和结束时的余量。</div>'
         "</header><main>"
         '<section id="staticCards" class="cards"></section>'
         '<section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section>'
@@ -1065,10 +1063,10 @@ renderAll();
         '<label class="control">颜色<select id="colorSelect"><option value="process">按工序</option><option value="machine">按机器</option></select></label>'
         "</section>"
         '<section id="dayCards" class="cards"></section>'
-        '<section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section>'
         '<section><div class="toolbar"><h2>按工人看排程</h2></div><div id="workerChart"></div></section>'
         '<section><div class="toolbar"><h2>按机器看排程</h2></div><div id="machineChart"></div></section>'
         '<section><div class="toolbar"><h2>按生产流/工序看排程</h2></div><div id="taskChart"></div></section>'
+        '<section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section>'
         '<section><h2>当天任务顺序</h2><div id="taskTable"></div></section>'
         '<div id="errors"></div>'
         + _render_sources(order_path, solution_path, verify_path)
