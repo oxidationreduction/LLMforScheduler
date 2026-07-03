@@ -138,9 +138,41 @@ Verifier 的验证思路：
 - 当前结果中的 `solver_method` 均为 `timed_greedy`；CP-SAT fallback 保留在代码中，但本轮全量结果没有依赖它产出解。
 - 当前全量结果已转换为 670 个订单 HTML 文件，保存在 `results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`；入口页是 `results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html`。
 - 入口页可以按订单搜索/筛选并打开对应排班页。单订单页顶部有简短说明，解释色块、视图和库存表的含义。
-- 单订单页支持按 Day 切换，并提供工人、机器、任务 3 种视图；任务 view 按产品实例/生产流分行查看当天工序顺序，底部表格按开始时间列出当天任务。
+- 单订单页顶部先展示不随 Day 变化的求解摘要，例如 `Solution`、`Verify`、机器并发错误、总任务数、排程天数、求解方法和耗时。
+- 单订单页支持按 Day 切换；Day 下拉框下方展示会随 Day 变化的当天摘要、3 张甘特图、工序产物库存和当天任务顺序表。3 张甘特图分别按工人检查人员占用，按机器检查设备占用，按产品实例/生产流检查当天工序顺序；当天没有任务的工人、机器或生产流不会显示空行。
 - 单订单页还展示订单需求、工艺路线、单件耗时、所需机器、可选工人等任务信息。
 - 库存表按工序产物展示，而不是只展示最终产品：每道工序完成后形成一个流程产物，下一道工序会消耗上一道工序产物；最后一道工序产物视为成品库存。表中展示每个工序产物的 Day 开始库存、当天生成、当天被下一工序消耗、Day 结束库存；成品行额外展示订单需求、净需求和成品订单剩余。可行 case 展示具体排班，不可行 case 展示状态、输入摘要和不可行原因。
+
+查看已经求解完成的排班结果时，先把仓库 clone 到本地：
+
+```bash
+git clone https://github.com/lxd99/LLMforScheduler.git
+cd LLMforScheduler
+```
+
+然后直接双击或打开这个入口文件即可：
+
+`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html`
+
+注意不要只单独拷贝 `index.html`。这个入口页会按订单加载同目录下的 `SO-*.html` 文件，因此需要保留整个目录：
+
+`results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/`
+
+在 macOS 上也可以用命令打开：
+
+```bash
+open results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html
+```
+
+如果浏览器安全策略导致订单页没有加载，再改用本地静态文件服务：
+
+```bash
+python3 -m http.server 8765 -d results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120
+```
+
+然后在浏览器打开：
+
+`http://127.0.0.1:8765/index.html`
 
 ## case_study
 

@@ -664,10 +664,6 @@ main{padding:16px 24px 28px}
 .controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
 .control{display:grid;gap:5px;color:var(--muted);font-size:12px}
 .control select{min-width:120px}
-.segmented{display:inline-flex;border:1px solid var(--strong);border-radius:8px;overflow:hidden;background:white}
-.segmented button{height:32px;border:0;border-right:1px solid var(--strong);background:white;padding:0 14px;color:#354035;cursor:pointer}
-.segmented button:last-child{border-right:0}
-.segmented button.active{background:#315f83;color:white}
 .cards{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:10px;margin-bottom:14px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;min-height:70px}
 .card span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
@@ -716,11 +712,9 @@ const CASE={_safe_script_json(case_payload)};
 const WORKER_DAY_MINUTES={WORKER_DAY_MINUTES};
 const NO_MACHINE_LABEL={_safe_script_json(NO_MACHINE_LABEL)};
 const PALETTE={_safe_script_json(PALETTE)};
-let currentView='worker';
 const body=document.body;
 const daySelect=document.getElementById('daySelect');
 const colorSelect=document.getElementById('colorSelect');
-const viewButtons=[...document.querySelectorAll('[data-view]')];
 const taskTooltip=document.createElement('div');
 taskTooltip.className='task-tooltip';
 document.body.appendChild(taskTooltip);
@@ -796,7 +790,7 @@ function buildWorkerLanes(tasks){{
     if(!grouped.has(key)) grouped.set(key,[]);
     grouped.get(key).push(task);
   }});
-  const names=[...new Set([...(CASE.workers || []),...grouped.keys()])].sort();
+  const names=[...grouped.keys()].sort((a,b)=>a.localeCompare(b,'zh-CN'));
   return names.map(name=>[name,grouped.get(name) || []]);
 }}
 function buildMachineLanes(tasks){{
@@ -808,13 +802,11 @@ function buildMachineLanes(tasks){{
       grouped.get(label).push(task);
     }});
   }});
-  const names=[];
-  if(grouped.has(NO_MACHINE_LABEL)) names.push(NO_MACHINE_LABEL);
-  Object.keys(CASE.machines || {{}}).sort().forEach(machine=>{{
-    const count=Math.max(Number(CASE.machines[machine]) || 1,1);
-    for(let index=1;index<=count;index++) names.push(`${{machine}} #${{index}}`);
+  const names=[...grouped.keys()].sort((a,b)=>{{
+    if(a===NO_MACHINE_LABEL) return -1;
+    if(b===NO_MACHINE_LABEL) return 1;
+    return a.localeCompare(b,'zh-CN');
   }});
-  [...grouped.keys()].sort().forEach(name=>{{if(!names.includes(name)) names.push(name);}});
   return names.map(name=>[name,grouped.get(name) || []]);
 }}
 function absStart(task){{
@@ -899,14 +891,15 @@ function renderTask(task,left,width,top){{
   attachTooltip(el,task);
   return el;
 }}
-function renderTimeline(){{
+function viewLanes(view,tasks){{
+  if(view==='machine') return {{lanes:buildMachineLanes(tasks), laneTitle:'机器'}};
+  if(view==='task') return {{lanes:buildTaskLanes(tasks), laneTitle:'生产流'}};
+  return {{lanes:buildWorkerLanes(tasks), laneTitle:'工人'}};
+}}
+function renderTimeline(view,targetId){{
   const tasks=dayTasks();
-  let lanes;
-  let laneTitle;
-  if(currentView==='machine'){{lanes=buildMachineLanes(tasks);laneTitle='机器';}}
-  else if(currentView==='task'){{lanes=buildTaskLanes(tasks);laneTitle='产品';}}
-  else{{lanes=buildWorkerLanes(tasks);laneTitle='工人';}}
-  const chart=document.getElementById('chart');
+  const {{lanes,laneTitle}}=viewLanes(view,tasks);
+  const chart=document.getElementById(targetId);
   const width=1440;
   const scale=width/WORKER_DAY_MINUTES;
   if(tasks.length===0){{
@@ -919,7 +912,7 @@ function renderTimeline(){{
     const sorted=[...laneTasks].sort((a,b)=>a.start_minute-b.start_minute || a.end_minute-b.end_minute || a.index-b.index);
     let positioned=[];
     let laneHeight=42;
-    if(currentView==='task'){{
+    if(view==='task'){{
       positioned=sorted.map(task=>[task,0]);
     }} else {{
       const levels=[];
@@ -947,20 +940,41 @@ function renderTimeline(){{
     timeline.append(label,lane);
   }});
 }}
-function renderCards(){{
-  const tasks=dayTasks();
+function renderStaticCards(){{
   const cards=[
     ['Solution',CASE.status,CASE.status==='feasible' || CASE.status==='optimal'],
     ['Verify',CASE.verify_status,CASE.verify_status==='ok'],
     ['机器并发错误',CASE.machine_error_count,CASE.machine_error_count===0],
     ['总任务数',CASE.tasks.length,false],
-    ['当天任务',tasks.length,false],
     ['排程天数',CASE.days.length,false],
     ['订单期限',CASE.max_due_day ? `Day ${{CASE.max_due_day}}` : '无期限',false],
     ['Solver',CASE.solver_method || 'unknown',false],
     ['耗时',Number.isFinite(Number(CASE.solve_seconds)) ? `${{Number(CASE.solve_seconds).toFixed(3)}} s` : '未提供',false]
   ];
-  document.getElementById('cards').innerHTML=cards.map(([label,value,ok])=>`<div class="card ${{ok?'ok':''}}"><span>${{escapeHtml(label)}}</span><b>${{escapeHtml(value)}}</b></div>`).join('');
+  document.getElementById('staticCards').innerHTML=cards.map(([label,value,ok])=>`<div class="card ${{ok?'ok':''}}"><span>${{escapeHtml(label)}}</span><b>${{escapeHtml(value)}}</b></div>`).join('');
+}}
+function renderDayCards(){{
+  const day=String(daySelect.value || CASE.days[0] || 1);
+  const tasks=dayTasks();
+  const rows=CASE.inventory_by_day[day] || [];
+  const finalRows=rows.filter(row=>row.is_final);
+  const startRemaining=finalRows.reduce((total,row)=>total+Math.max(Number(row.required)-Number(row.start_inventory),0),0);
+  const endRemaining=finalRows.reduce((total,row)=>total+Number(row.end_remaining || 0),0);
+  const finalOutput=finalRows.reduce((total,row)=>total+Number(row.produced_today || 0),0);
+  const wipEnd=rows.filter(row=>!row.is_final).reduce((total,row)=>total+Number(row.end_inventory || 0),0);
+  const workers=new Set(tasks.map(task=>task.worker).filter(Boolean));
+  const machines=new Set(tasks.flatMap(task=>task.machine_copy_labels || []).filter(label=>label && label!==NO_MACHINE_LABEL));
+  const cards=[
+    ['当前 Day',`Day ${{day}}`,false],
+    ['当天任务',tasks.length,false],
+    ['Day开始成品剩余',startRemaining,false],
+    ['当天完成成品',finalOutput,false],
+    ['Day结束成品剩余',endRemaining,false],
+    ['Day结束在制品',wipEnd,false],
+    ['当天工人',workers.size,false],
+    ['当天机器',machines.size,false]
+  ];
+  document.getElementById('dayCards').innerHTML=cards.map(([label,value,ok])=>`<div class="card ${{ok?'ok':''}}"><span>${{escapeHtml(label)}}</span><b>${{escapeHtml(value)}}</b></div>`).join('');
 }}
 function dueText(items){{
   return (items || []).map(item=>`Day ${{item.day}} x${{item.quantity}}`).join('；');
@@ -1005,10 +1019,13 @@ function renderErrors(){{
 }}
 function renderAll(){{
   body.dataset.color=colorSelect.value;
-  renderCards();
+  renderStaticCards();
   renderProblemInfo();
+  renderDayCards();
   renderInventory();
-  renderTimeline();
+  renderTimeline('worker','workerChart');
+  renderTimeline('machine','machineChart');
+  renderTimeline('task','taskChart');
   renderTaskTable();
   renderErrors();
 }}
@@ -1017,13 +1034,6 @@ CASE.days.forEach(day=>{{
   option.value=day;
   option.textContent=`Day ${{day}}`;
   daySelect.appendChild(option);
-}});
-viewButtons.forEach(button=>{{
-  button.addEventListener('click',()=>{{
-    currentView=button.dataset.view;
-    viewButtons.forEach(item=>item.classList.toggle('active',item===button));
-    renderAll();
-  }});
 }});
 daySelect.addEventListener('change',renderAll);
 colorSelect.addEventListener('change',renderAll);
@@ -1044,20 +1054,19 @@ renderAll();
         f"<span>机器并发错误：{_html(case_payload['machine_error_count'])}</span>"
         f"<span>排程：{_html(day_text)}</span>"
         "</div>"
-        '<div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；工人/机器视图用于检查资源占用，任务视图按产品生产流检查工序顺序；库存表显示每道工序产物在当天开始和结束时的余量。</div>'
+        '<div class="explain"><b>说明：</b>每个色块是一道排产任务，长度表示加工时间；页面会同时展示工人、机器、生产流三张甘特图，分别用于检查人员占用、设备占用和工序顺序；甘特图下方的库存表显示每道工序产物在当天开始和结束时的余量。</div>'
         "</header><main>"
+        '<section id="staticCards" class="cards"></section>'
+        '<section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section>'
         '<section class="controls">'
         '<label class="control">Day<select id="daySelect"></select></label>'
         '<label class="control">颜色<select id="colorSelect"><option value="process">按工序</option><option value="machine">按机器</option></select></label>'
-        '<div class="control"><span>View</span><div class="segmented">'
-        '<button type="button" class="active" data-view="worker">工人</button>'
-        '<button type="button" data-view="machine">机器</button>'
-        '<button type="button" data-view="task">任务</button>'
-        "</div></div></section>"
-        '<section id="cards" class="cards"></section>'
-        '<section><h2>任务和工艺信息</h2><div id="problemInfo"></div></section>'
+        "</section>"
+        '<section id="dayCards" class="cards"></section>'
+        '<section><div class="toolbar"><h2>按工人看排程</h2></div><div id="workerChart"></div></section>'
+        '<section><div class="toolbar"><h2>按机器看排程</h2></div><div id="machineChart"></div></section>'
+        '<section><div class="toolbar"><h2>按生产流/工序看排程</h2></div><div id="taskChart"></div></section>'
         '<section class="inventory"><h2>工序产物库存</h2><div id="inventory"></div></section>'
-        '<section><div class="toolbar"><h2>排班甘特图</h2></div><div id="chart"></div></section>'
         '<section><h2>当天任务顺序</h2><div id="taskTable"></div></section>'
         '<div id="errors"></div>'
         + _render_sources(order_path, solution_path, verify_path)
