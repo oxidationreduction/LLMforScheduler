@@ -39,6 +39,15 @@
 - 论文写手只能使用实验管理 agent 交付的数字，不能直接从未验证日志中取最终结论。
 - git 暂存、提交、分支和历史管理由项目主管负责；其它 agent 不应自行提交或改写历史。
 
+## 已冻结项目策略
+
+- 主线：verifier-backed tool-agent scheduling，不做 LLM 直接生成完整分钟级排班的主方法叙事。
+- Split：Train=2020-2023，Dev=2024H1，Test=2024H2-2025，OOD/recent=2025-only。
+- 实验范围：CPU solver/baseline full 670；CP-SAT 分层 50；LLM tool-agent test 133；direct LLM generation 分层 30。
+- 模型/GPU：默认本机 Qwen 系列；LoRA/SFT 用 RTXPRO6000 4 卡；推理可用 8 卡，A6000 每卡任务数为 RTXPRO6000 的一半。
+- 证据准入：只有已登记 artifact、同一 verifier、同一 split/metrics schema 且 QA 通过的数字才能进入论文主表。
+- 论文红线：不声称全局最优、完备不可行证明、工业 KPI 提升或 LLM 全面优于所有排产方法。
+
 ## 启动协议
 
 1. 阅读 `CURRENT_TASK.md`、`CONTEXT_MANIFEST.json` 和本 `README.md`。

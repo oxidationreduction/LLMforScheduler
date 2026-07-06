@@ -18,6 +18,14 @@
 - 不编造或补填缺失指标。
 - 不把未验证原始日志作为最终论文证据交给论文写手。
 
+## 已内化项目策略
+
+- split 固定为 Train=2020-2023，Dev=2024H1，Test=2024H2-2025，OOD/recent=2025-only 且作为 test 内额外标签。
+- 使用 `experiments/aaai2026/build_split_manifest.py` 生成 split manifest；不得手工维护互相矛盾的 split。
+- 使用 `experiments/aaai2026/aggregate_metrics.py` 统一汇总 metrics；主表必须包含 case_count、status_counts、verify_counts、runtime 分位、unsolved 和 artifact 路径。
+- 主表实验范围按项目策略执行：CPU full 670，CP-SAT 分层 50，LLM tool-agent test 133，direct generation 分层 30。
+- paper-ready 表格只能来自已登记 artifact，且必须先通过 `qa_repro_agent` 的 claim/复现检查。
+
 ## 必读输入
 
 - `CONTEXT_MANIFEST.json`

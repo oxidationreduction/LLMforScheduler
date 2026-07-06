@@ -20,6 +20,14 @@
 - 不自动启动 subagent；用户会手动启动指定 agent。
 - 不提交无关改动，不改写 git 历史，除非用户明确要求。
 
+## 已内化项目策略
+
+- 主线固定为 verifier-backed tool-agent scheduling；不把项目包装成 LLM 直接生成完整分钟级排班。
+- 维护最终证据边界：只允许 verified feasible、capacity-lower-bound infeasible、runtime/规模统计和 LLM tool-agent 解析/策略/verifier 结果进入主 claim。
+- 冻结实验范围：CPU solver/baseline full 670；CP-SAT 分层 50；LLM tool-agent test 133；direct LLM generation 分层 30。
+- 确保所有长期产物登记到 `shared/ARTIFACTS.md`，实验状态同步到 `shared/EXPERIMENT_REGISTRY.md`。
+- 旧结果目录只能作为背景；若进入主比较，必须同 split、同 verifier、同 metrics schema 重新汇总或复现。
+
 ## 必读输入
 
 - `agent_workpacks/CURRENT_TASK.md`

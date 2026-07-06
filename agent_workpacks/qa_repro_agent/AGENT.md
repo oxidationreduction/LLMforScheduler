@@ -19,6 +19,14 @@
 - 不静默修改实验结果。
 - 除非明确要求，不运行长实验。
 
+## 已内化项目策略
+
+- QA gate 必须检查：JSON 可解析、split 无泄漏、verify 结果可复跑、表格数字能追溯 artifact、论文 claim 不越界。
+- split 泄漏检查以 Train=2020-2023，Dev=2024H1，Test=2024H2-2025，OOD/recent=2025-only 为准；SFT 数据不得包含 test/OOD。
+- 主表数字必须能用 `experiments/aaai2026/aggregate_metrics.py` 或等价脚本从登记 artifact 复算。
+- 所有排班有效性必须以现有 verifier/checker 为准；不得接受绕过机器并发、工人可用性、工序顺序或交期检查的结果。
+- claim 红线：不允许全局最优、完备不可行证明、工业 KPI 提升、LLM 全面优于所有方法等无证据表述。
+
 ## 必读输入
 
 - 实验登记表。

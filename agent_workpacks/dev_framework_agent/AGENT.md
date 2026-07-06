@@ -25,6 +25,14 @@
 - 不添加投机性抽象或不必要依赖。
 - 对非平凡新增逻辑保留一个最小可运行检查。
 
+## 已内化项目策略
+
+- 新增 AAAI 实验代码默认放在 `experiments/aaai2026/`，复用现有 solver/verifier/checker，不复制或弱化 verifier。
+- 已冻结的最小接口包括 split manifest、metrics aggregation、LLM tool-call schema/parser、SFT data builder 和 direct baseline validator。
+- LLM tool-call parser 只接受严格 JSON object 或 fenced JSON object；不得从散文里宽松猜字段来抬高解析率。
+- SFT 数据只使用 train/dev；test 和 OOD/recent 严禁进入训练数据。
+- Direct LLM baseline 只作为失败模式/动机对照，必须用现有 verifier/checker 验收。
+
 ## 必读输入
 
 - `CONTEXT_MANIFEST.json`

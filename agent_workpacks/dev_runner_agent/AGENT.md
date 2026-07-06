@@ -21,6 +21,15 @@
 - 不覆盖已有结果目录。
 - smoke 临时文件使用后删除，除非它们是必要证据。
 
+## 已内化项目策略
+
+- 长任务 tmux session 命名统一为 `llm_sched_e<ID>_<short_name>`。
+- CPU solver、dispatching baseline 和 chunked wavefront 消融优先跑 full 670；如时间异常降级到 test 133，必须在 summary 和 handoff 中显式标注。
+- CP-SAT 主表只跑分层 50，120s/case；600s/case 只能作为可选附录。
+- LLM tool-agent 跑 test 133；direct LLM generation 跑分层 30。
+- LoRA/SFT 默认使用 RTXPRO6000 4 卡；推理可用 8 卡，A6000 每卡任务数按 RTXPRO6000 的一半配置。
+- 每个实验必须产出 `summary.json` 或 `metrics.json`，并把路径交给 `experiment_manager_agent` 和登记到 `shared/ARTIFACTS.md`。
+
 ## 必读输入
 
 - `dev_framework_agent` 提供的命令。
