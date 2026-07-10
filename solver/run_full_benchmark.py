@@ -53,8 +53,15 @@ def resolve_path(path: Path) -> Path:
     return PROJECT_ROOT / path
 
 
-def select_cases(manifest: dict[str, Any], case_ids: list[str] | None, limit: int | None) -> list[dict[str, Any]]:
+def select_cases(
+    manifest: dict[str, Any],
+    case_ids: list[str] | None,
+    split: str | None,
+    limit: int | None,
+) -> list[dict[str, Any]]:
     cases = list(manifest.get("cases", []))
+    if split:
+        cases = [case for case in cases if str(case.get("split")) == split]
     if case_ids:
         wanted = set(case_ids)
         cases = [case for case in cases if str(case.get("case_id")) in wanted]
@@ -67,6 +74,23 @@ def select_cases(manifest: dict[str, Any], case_ids: list[str] | None, limit: in
             raise ValueError("--limit must be positive")
         cases = cases[:limit]
     return cases
+
+
+def strategy_config(unit_strategy: str | None, worker_strategy: str, day_strategy: str) -> dict[str, Any] | None:
+    if unit_strategy is None:
+        return None
+    strategy: dict[str, Any] = {
+        "unit_strategy": unit_strategy,
+        "worker_strategy": worker_strategy,
+        "day_strategy": day_strategy,
+    }
+    prefix = "chunked_wavefront_"
+    if unit_strategy.startswith(prefix):
+        try:
+            strategy["chunk_size"] = max(1, int(unit_strategy[len(prefix) :]))
+        except ValueError:
+            strategy["chunk_size"] = 10
+    return strategy
 
 
 def task_count(solution: dict[str, Any]) -> int:
@@ -125,12 +149,21 @@ def run_benchmark(
     output_dir: Path,
     time_limit_seconds: float,
     method: str,
+    unit_strategy: str | None,
+    worker_strategy: str,
+    day_strategy: str,
     case_ids: list[str] | None,
+    split: str | None,
     limit: int | None,
 ) -> dict[str, Any]:
+    if method == "cpsat" and (
+        unit_strategy is not None or worker_strategy != "least_used" or day_strategy != "forward"
+    ):
+        raise ValueError("method='cpsat' does not accept timed greedy strategy overrides")
     manifest = read_json(manifest_path)
-    cases = select_cases(manifest, case_ids, limit)
+    cases = select_cases(manifest, case_ids, split, limit)
     ensure_new_output_dir(output_dir)
+    fixed_strategy = strategy_config(unit_strategy, worker_strategy, day_strategy)
 
     solutions_dir = output_dir / "solutions"
     run_manifest = {
@@ -138,6 +171,8 @@ def run_benchmark(
         "output_dir": relpath(output_dir),
         "time_limit_seconds": time_limit_seconds,
         "method": method,
+        "strategy": fixed_strategy,
+        "split": split,
         "case_count": len(cases),
         "case_ids": [str(case["case_id"]) for case in cases],
         "started_at": now_iso(),
@@ -149,6 +184,8 @@ def run_benchmark(
         "output_dir": relpath(output_dir),
         "manifest": relpath(manifest_path),
         "case_count": len(cases),
+        "strategy": fixed_strategy,
+        "split": split,
         "completed_count": 0,
         "failed_count": 0,
         "started_at": run_manifest["started_at"],
@@ -176,7 +213,14 @@ def run_benchmark(
             try:
                 order = load_order(order_path)
                 stats = order_stats(order)
-                solution = solve_order(order, time_limit_seconds=time_limit_seconds, method=method)
+                solution = solve_order(
+                    order,
+                    time_limit_seconds=time_limit_seconds,
+                    method=method,
+                    unit_strategy=unit_strategy,
+                    worker_strategy=worker_strategy,
+                    day_strategy=day_strategy,
+                )
             except Exception as exc:  # pragma: no cover - defensive long-run guard.
                 stats = {}
                 solution = {
@@ -184,6 +228,7 @@ def run_benchmark(
                     "input_path": relpath(order_path),
                     "status": "failed",
                     "solver_method": method,
+                    "strategy": fixed_strategy,
                     "solve_seconds": time.perf_counter() - case_started,
                     "objective_value": None,
                     "summary": {},
@@ -288,6 +333,8 @@ def run_benchmark(
             "expected_case_count": len(cases),
             "time_limit_seconds": time_limit_seconds,
             "method": method,
+            "strategy": fixed_strategy,
+            "split": split,
             "elapsed_seconds": elapsed_seconds,
             "status_counts": status_counts,
             "method_counts": count_by(rows, "method"),
@@ -312,12 +359,16 @@ def run_benchmark(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the timed solver over manifest-listed raw orders.")
+    parser = argparse.ArgumentParser(description="Run the solver over manifest-listed raw orders.")
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--time-limit", type=float, default=120.0)
-    parser.add_argument("--method", choices=["timed"], default="timed")
+    parser.add_argument("--method", choices=["timed", "cpsat"], default="timed")
+    parser.add_argument("--unit-strategy", default=None)
+    parser.add_argument("--worker-strategy", default=None)
+    parser.add_argument("--day-strategy", default=None)
     parser.add_argument("--case-id", action="append", default=None, help="Restrict to one case; repeatable.")
+    parser.add_argument("--split", default=None, help="Restrict to a manifest split such as test.")
     parser.add_argument("--limit", type=int, default=None, help="Run only the first N selected manifest cases.")
     args = parser.parse_args()
 
@@ -326,7 +377,11 @@ def main() -> None:
         output_dir=resolve_path(args.output_dir),
         time_limit_seconds=args.time_limit,
         method=args.method,
+        unit_strategy=args.unit_strategy,
+        worker_strategy=args.worker_strategy or "least_used",
+        day_strategy=args.day_strategy or "forward",
         case_ids=args.case_id,
+        split=args.split,
         limit=args.limit,
     )
     print(

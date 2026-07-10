@@ -1,0 +1,1651 @@
+{
+  "case_id": "SO-2021-08-0002-2",
+  "input_path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2021-08-0002-2.json",
+  "status": "feasible",
+  "solver_method": "timed_greedy",
+  "solve_seconds": 0.05810257000848651,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2021-08-0002-2",
+    "path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2021-08-0002-2.json",
+    "product_count": 2,
+    "net_required_total": 19,
+    "step_count": 12,
+    "total_work_minutes": 398.37,
+    "max_due_day": 22,
+    "worker_count": 12,
+    "worker_day_count": 243,
+    "complexity_score": 3598.37
+  },
+  "scheduled_operations": 114,
+  "task_count_before_merge": 114,
+  "task_count_after_merge": 114,
+  "strategy": {
+    "unit_strategy": "round_robin_product",
+    "worker_strategy": "least_used",
+    "day_strategy": "forward"
+  },
+  "plan": [
+    {
+      "day": 1,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 5.19,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 5.37,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 5.19,
+          "end_minute": 10.56,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 5.37,
+          "end_minute": 5.54,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 5.37,
+          "end_minute": 10.56,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 5.54,
+          "end_minute": 5.75,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 5.54,
+          "end_minute": 6.86,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 5.75,
+          "end_minute": 7.01,
+          "worker": "尚剑侨",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 6.86,
+          "end_minute": 16.73,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 7.01,
+          "end_minute": 16.48,
+          "worker": "齐书旺",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 10.56,
+          "end_minute": 10.73,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 10.56,
+          "end_minute": 15.75,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 10.56,
+          "end_minute": 15.93,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 10.73,
+          "end_minute": 10.94,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 10.73,
+          "end_minute": 12.05,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 10.94,
+          "end_minute": 12.2,
+          "worker": "尚剑侨",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 15.93,
+          "end_minute": 16.1,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 16.1,
+          "end_minute": 16.31,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 16.48,
+          "end_minute": 17.8,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 16.48,
+          "end_minute": 19.65,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 16.48,
+          "end_minute": 26.35,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 16.73,
+          "end_minute": 17.99,
+          "worker": "王树滨",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 16.73,
+          "end_minute": 19.57,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 16.73,
+          "end_minute": 26.2,
+          "worker": "王彪",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 19.57,
+          "end_minute": 21.09,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 19.57,
+          "end_minute": 24.94,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 19.65,
+          "end_minute": 21.18,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 24.94,
+          "end_minute": 25.11,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 24.94,
+          "end_minute": 30.13,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 26.2,
+          "end_minute": 27.52,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 26.2,
+          "end_minute": 29.37,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 26.2,
+          "end_minute": 36.07,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 26.35,
+          "end_minute": 29.19,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 26.35,
+          "end_minute": 35.82,
+          "worker": "齐书旺",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 29.19,
+          "end_minute": 30.71,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 29.37,
+          "end_minute": 30.9,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 30.13,
+          "end_minute": 30.34,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 30.13,
+          "end_minute": 35.5,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 30.34,
+          "end_minute": 31.6,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 30.9,
+          "end_minute": 36.09,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 35.5,
+          "end_minute": 35.67,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 35.82,
+          "end_minute": 37.14,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 35.82,
+          "end_minute": 38.99,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 35.82,
+          "end_minute": 45.69,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 36.07,
+          "end_minute": 38.91,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 36.07,
+          "end_minute": 45.54,
+          "worker": "王彪",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 37.14,
+          "end_minute": 37.35,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 37.35,
+          "end_minute": 38.61,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 38.91,
+          "end_minute": 40.43,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 38.99,
+          "end_minute": 40.52,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 38.99,
+          "end_minute": 44.36,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 44.36,
+          "end_minute": 44.53,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 44.36,
+          "end_minute": 49.55,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 45.54,
+          "end_minute": 46.86,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 45.54,
+          "end_minute": 48.71,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 45.54,
+          "end_minute": 55.41,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 45.69,
+          "end_minute": 48.53,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 45.69,
+          "end_minute": 55.16,
+          "worker": "齐书旺",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 48.53,
+          "end_minute": 50.05,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 48.71,
+          "end_minute": 50.24,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 49.55,
+          "end_minute": 49.76,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 49.55,
+          "end_minute": 54.92,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 49.76,
+          "end_minute": 51.02,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 54.92,
+          "end_minute": 55.09,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 54.92,
+          "end_minute": 60.11,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 55.16,
+          "end_minute": 56.48,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 55.16,
+          "end_minute": 58.33,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 55.16,
+          "end_minute": 65.03,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 55.41,
+          "end_minute": 58.25,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 55.41,
+          "end_minute": 64.88,
+          "worker": "王彪",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 58.25,
+          "end_minute": 59.77,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 58.33,
+          "end_minute": 59.86,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 60.11,
+          "end_minute": 60.32,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 60.11,
+          "end_minute": 65.48,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 60.32,
+          "end_minute": 61.58,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 64.88,
+          "end_minute": 68.05,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 64.88,
+          "end_minute": 74.75,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 65.03,
+          "end_minute": 67.87,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 65.03,
+          "end_minute": 74.5,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 65.48,
+          "end_minute": 65.65,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 65.48,
+          "end_minute": 70.67,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 65.65,
+          "end_minute": 66.97,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 67.87,
+          "end_minute": 69.39,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 68.05,
+          "end_minute": 69.58,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 70.67,
+          "end_minute": 70.88,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 70.67,
+          "end_minute": 76.04,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 70.88,
+          "end_minute": 72.14,
+          "worker": "齐书旺",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 74.5,
+          "end_minute": 77.67,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 74.5,
+          "end_minute": 84.37,
+          "worker": "王彪",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 74.75,
+          "end_minute": 77.59,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 74.75,
+          "end_minute": 84.22,
+          "worker": "齐书旺",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 76.04,
+          "end_minute": 76.21,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 76.04,
+          "end_minute": 81.23,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 76.21,
+          "end_minute": 77.53,
+          "worker": "王树滨",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 77.59,
+          "end_minute": 79.11,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 77.67,
+          "end_minute": 79.2,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 81.23,
+          "end_minute": 81.44,
+          "worker": "尚剑侨",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537933",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.21,
+          "duration_minutes": 0.21
+        },
+        {
+          "start_minute": 81.23,
+          "end_minute": 86.6,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 5.37,
+          "duration_minutes": 5.37
+        },
+        {
+          "start_minute": 81.44,
+          "end_minute": 82.7,
+          "worker": "尚剑侨",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537933",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.26,
+          "duration_minutes": 1.26
+        },
+        {
+          "start_minute": 84.22,
+          "end_minute": 87.39,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 84.22,
+          "end_minute": 94.09,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 84.37,
+          "end_minute": 87.21,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 84.37,
+          "end_minute": 93.84,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537933",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.47,
+          "duration_minutes": 9.47
+        },
+        {
+          "start_minute": 86.6,
+          "end_minute": 86.77,
+          "worker": "齐书旺",
+          "machines": [
+            "锯床"
+          ],
+          "machine": "锯床",
+          "material": "6537932",
+          "process": "下料",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 0.17,
+          "duration_minutes": 0.17
+        },
+        {
+          "start_minute": 86.77,
+          "end_minute": 88.09,
+          "worker": "王彪",
+          "machines": [
+            "沈机TC500R"
+          ],
+          "machine": "沈机TC500R",
+          "material": "6537932",
+          "process": "粗加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 1.32,
+          "duration_minutes": 1.32
+        },
+        {
+          "start_minute": 87.21,
+          "end_minute": 88.73,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 87.39,
+          "end_minute": 88.92,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 93.84,
+          "end_minute": 97.01,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 3.17,
+          "duration_minutes": 3.17
+        },
+        {
+          "start_minute": 93.84,
+          "end_minute": 103.71,
+          "worker": "王彪",
+          "machines": [
+            "丽驰TX-500",
+            "丽驰TX-1000"
+          ],
+          "machine": "丽驰TX-500+丽驰TX-1000",
+          "material": "6537932",
+          "process": "精加工",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 9.87,
+          "duration_minutes": 9.87
+        },
+        {
+          "start_minute": 94.09,
+          "end_minute": 96.93,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 96.93,
+          "end_minute": 98.45,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        },
+        {
+          "start_minute": 97.01,
+          "end_minute": 98.54,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "6537933",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.53,
+          "duration_minutes": 1.53
+        },
+        {
+          "start_minute": 103.71,
+          "end_minute": 106.55,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "巡检",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 2.84,
+          "duration_minutes": 2.84
+        },
+        {
+          "start_minute": 106.55,
+          "end_minute": 108.07,
+          "worker": "张福仙",
+          "machines": [],
+          "machine": "无",
+          "material": "6537932",
+          "process": "刻号&包装",
+          "step_index": 6,
+          "quantity": 1,
+          "unit_duration_minutes": 1.52,
+          "duration_minutes": 1.52
+        }
+      ]
+    }
+  ],
+  "attempt_count": 1
+}

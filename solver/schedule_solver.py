@@ -846,6 +846,35 @@ def _empty_solution(
     }
 
 
+def _strategy_config(unit_strategy: str, worker_strategy: str, day_strategy: str) -> dict[str, Any]:
+    strategy: dict[str, Any] = {
+        "unit_strategy": unit_strategy,
+        "worker_strategy": worker_strategy,
+        "day_strategy": day_strategy,
+    }
+    if unit_strategy.startswith("chunked_wavefront_"):
+        strategy["chunk_size"] = _parse_chunked_wavefront_strategy(unit_strategy)
+    return strategy
+
+
+def _validate_timed_strategy(unit_strategy: str, worker_strategy: str, day_strategy: str) -> None:
+    known_units = {
+        "earliest_due",
+        "round_robin_product",
+        "largest_route_work",
+        "smallest_route_work",
+        "interleaved_slack",
+        "interleaved_ready",
+        "interleaved_depth",
+    }
+    if unit_strategy not in known_units and not unit_strategy.startswith("chunked_wavefront_"):
+        raise ValueError(f"unknown unit_strategy: {unit_strategy}")
+    if worker_strategy not in {"least_used", "most_used", "name"}:
+        raise ValueError(f"unknown worker_strategy: {worker_strategy}")
+    if day_strategy not in {"forward", "backward"}:
+        raise ValueError(f"unknown day_strategy: {day_strategy}")
+
+
 def _unit_specs_for_strategy(order: OrderData, strategy: str) -> list[tuple[int, str, int]]:
     unit_specs: list[tuple[int, str, int]] = []
     for product_id, due_rows in due_requirements_by_product(order).items():
@@ -2108,15 +2137,143 @@ def solve_order_timed(order: OrderData, *, time_limit_seconds: float = 600.0) ->
     return solution
 
 
-def solve_order(order: OrderData, *, time_limit_seconds: float = 600.0, method: str = "timed") -> dict[str, Any]:
+def solve_order_timed_single(
+    order: OrderData,
+    *,
+    time_limit_seconds: float = 600.0,
+    unit_strategy: str,
+    worker_strategy: str = "least_used",
+    day_strategy: str = "forward",
+) -> dict[str, Any]:
+    _validate_timed_strategy(unit_strategy, worker_strategy, day_strategy)
+    start_time = time.perf_counter()
+    deadline = start_time + float(time_limit_seconds)
+    strategy = _strategy_config(unit_strategy, worker_strategy, day_strategy)
+    static_errors = validate_order_static(order)
+    if static_errors:
+        solution = _empty_solution(order, "invalid_input", start_time, static_errors)
+        solution["solver_method"] = "timed_greedy"
+        solution["strategy"] = strategy
+        solution["attempt_count"] = 0
+        return solution
+
+    horizon = max_due_day(order)
+    net_required = net_required_by_product(order)
+    active_products = [product for product, quantity in sorted(net_required.items()) if quantity > 0]
+    if not active_products:
+        solution = _empty_solution(order, "optimal", start_time)
+        solution["solver_method"] = "timed_greedy"
+        solution["strategy"] = strategy
+        solution["attempt_count"] = 0
+        return solution
+    if horizon <= 0:
+        solution = _empty_solution(order, "invalid_input", start_time, ["存在净需求但没有有效期限"])
+        solution["solver_method"] = "timed_greedy"
+        solution["strategy"] = strategy
+        solution["attempt_count"] = 0
+        return solution
+
+    capacity_errors = _basic_capacity_errors(order)
+    if capacity_errors:
+        solution = _empty_solution(order, "infeasible_proven", start_time, capacity_errors)
+        solution["solver_method"] = "timed_greedy"
+        solution["strategy"] = strategy
+        solution["attempt_count"] = 0
+        return solution
+
+    result = _attempt_timed_schedule(
+        order,
+        start_time=start_time,
+        deadline=deadline,
+        unit_strategy=unit_strategy,
+        worker_strategy=worker_strategy,
+        day_strategy=day_strategy,
+    )
+    result["solver_method"] = "timed_greedy"
+    result["strategy"] = result.get("strategy") or strategy
+    result["attempt_count"] = 1
+    return result
+
+
+def solve_order_cpsat(order: OrderData, *, time_limit_seconds: float = 600.0) -> dict[str, Any]:
+    start_time = time.perf_counter()
+    deadline = start_time + float(time_limit_seconds)
+    static_errors = validate_order_static(order)
+    if static_errors:
+        solution = _empty_solution(order, "invalid_input", start_time, static_errors)
+        solution["solver_method"] = "timed_cpsat"
+        return solution
+
+    horizon = max_due_day(order)
+    net_required = net_required_by_product(order)
+    active_products = [product for product, quantity in sorted(net_required.items()) if quantity > 0]
+    if not active_products:
+        solution = _empty_solution(order, "optimal", start_time)
+        solution["solver_method"] = "timed_cpsat"
+        return solution
+    if horizon <= 0:
+        solution = _empty_solution(order, "invalid_input", start_time, ["存在净需求但没有有效期限"])
+        solution["solver_method"] = "timed_cpsat"
+        return solution
+
+    capacity_errors = _basic_capacity_errors(order)
+    if capacity_errors:
+        solution = _empty_solution(order, "infeasible_proven", start_time, capacity_errors)
+        solution["solver_method"] = "timed_cpsat"
+        return solution
+
+    result = _solve_order_timed_cpsat(order, start_time=start_time, deadline=deadline)
+    if result is None:
+        result = _empty_solution(order, "solver_unavailable", start_time, ["CP-SAT solver did not return a result"])
+        result["solver_method"] = "timed_cpsat"
+    return result
+
+
+def solve_order(
+    order: OrderData,
+    *,
+    time_limit_seconds: float = 600.0,
+    method: str = "timed",
+    unit_strategy: str | None = None,
+    worker_strategy: str = "least_used",
+    day_strategy: str = "forward",
+) -> dict[str, Any]:
+    if method == "cpsat":
+        if unit_strategy is not None:
+            raise ValueError("method='cpsat' does not accept timed greedy strategy overrides")
+        return solve_order_cpsat(order, time_limit_seconds=time_limit_seconds)
     if method != "timed":
-        raise ValueError("only minute-level timed scheduling is supported")
+        raise ValueError("method must be one of: timed, cpsat")
+    if unit_strategy is not None:
+        return solve_order_timed_single(
+            order,
+            time_limit_seconds=time_limit_seconds,
+            unit_strategy=unit_strategy,
+            worker_strategy=worker_strategy,
+            day_strategy=day_strategy,
+        )
     return solve_order_timed(order, time_limit_seconds=time_limit_seconds)
 
 
-def solve_file(input_path: Path, output_path: Path | None, *, time_limit_seconds: float, method: str) -> dict[str, Any]:
+def solve_file(
+    input_path: Path,
+    output_path: Path | None,
+    *,
+    time_limit_seconds: float,
+    method: str,
+    unit_strategy: str | None = None,
+    worker_strategy: str = "least_used",
+    day_strategy: str = "forward",
+) -> dict[str, Any]:
     order = load_order(input_path)
-    solution = solve_order(order, time_limit_seconds=time_limit_seconds, method=method)
+    solution = solve_order(
+        order,
+        time_limit_seconds=time_limit_seconds,
+        method=method,
+        unit_strategy=unit_strategy,
+        worker_strategy=worker_strategy,
+        day_strategy=day_strategy,
+    )
     if output_path is not None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(solution, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -2128,10 +2285,21 @@ def main() -> None:
     parser.add_argument("input_json", type=Path)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--time-limit", type=float, default=600.0)
-    parser.add_argument("--method", choices=["timed"], default="timed")
+    parser.add_argument("--method", choices=["timed", "cpsat"], default="timed")
+    parser.add_argument("--unit-strategy", default=None)
+    parser.add_argument("--worker-strategy", default="least_used")
+    parser.add_argument("--day-strategy", default="forward")
     args = parser.parse_args()
 
-    solution = solve_file(args.input_json, args.output, time_limit_seconds=args.time_limit, method=args.method)
+    solution = solve_file(
+        args.input_json,
+        args.output,
+        time_limit_seconds=args.time_limit,
+        method=args.method,
+        unit_strategy=args.unit_strategy,
+        worker_strategy=args.worker_strategy,
+        day_strategy=args.day_strategy,
+    )
     print(
         json.dumps(
             {

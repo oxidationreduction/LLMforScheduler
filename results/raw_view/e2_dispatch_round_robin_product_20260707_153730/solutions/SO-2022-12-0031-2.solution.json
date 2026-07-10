@@ -1,0 +1,3090 @@
+{
+  "case_id": "SO-2022-12-0031-2",
+  "input_path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2022-12-0031-2.json",
+  "status": "feasible",
+  "solver_method": "timed_greedy",
+  "solve_seconds": 0.03285191603936255,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2022-12-0031-2",
+    "path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2022-12-0031-2.json",
+    "product_count": 2,
+    "net_required_total": 43,
+    "step_count": 10,
+    "total_work_minutes": 2269.34,
+    "max_due_day": 18,
+    "worker_count": 12,
+    "worker_day_count": 192,
+    "complexity_score": 4969.34
+  },
+  "scheduled_operations": 215,
+  "task_count_before_merge": 215,
+  "task_count_after_merge": 211,
+  "strategy": {
+    "unit_strategy": "round_robin_product",
+    "worker_strategy": "least_used",
+    "day_strategy": "forward"
+  },
+  "plan": [
+    {
+      "day": 1,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 4.51,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 19.29,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 4.51,
+          "end_minute": 9.02,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 4.51,
+          "end_minute": 18.25,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 9.02,
+          "end_minute": 22.55,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 3,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 13.53
+        },
+        {
+          "start_minute": 18.25,
+          "end_minute": 31.99,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 19.29,
+          "end_minute": 23.12,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 19.29,
+          "end_minute": 23.71,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 22.55,
+          "end_minute": 27.06,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 23.12,
+          "end_minute": 37.08,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 23.12,
+          "end_minute": 42.41,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 23.71,
+          "end_minute": 39.48,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 27.06,
+          "end_minute": 36.08,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 9.02
+        },
+        {
+          "start_minute": 31.99,
+          "end_minute": 45.73,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 36.08,
+          "end_minute": 40.59,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 37.08,
+          "end_minute": 44.38,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 39.48,
+          "end_minute": 52.22,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 40.59,
+          "end_minute": 45.1,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 42.41,
+          "end_minute": 46.24,
+          "worker": "尚剑侨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 42.41,
+          "end_minute": 46.83,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 45.73,
+          "end_minute": 59.47,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 46.24,
+          "end_minute": 60.2,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 46.24,
+          "end_minute": 65.53,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 46.83,
+          "end_minute": 62.6,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 52.22,
+          "end_minute": 60.98,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 59.47,
+          "end_minute": 73.21,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 60.98,
+          "end_minute": 68.28,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 62.6,
+          "end_minute": 67.11,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 62.6,
+          "end_minute": 75.34,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 65.53,
+          "end_minute": 69.36,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 65.53,
+          "end_minute": 69.95,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 67.11,
+          "end_minute": 71.62,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 69.36,
+          "end_minute": 83.32,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 69.36,
+          "end_minute": 88.65,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 69.95,
+          "end_minute": 85.72,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 71.62,
+          "end_minute": 76.13,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 73.21,
+          "end_minute": 86.95,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 75.34,
+          "end_minute": 84.1,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 76.13,
+          "end_minute": 85.15,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 9.02
+        },
+        {
+          "start_minute": 84.1,
+          "end_minute": 91.4,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 85.72,
+          "end_minute": 98.46,
+          "worker": "王凯",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 86.95,
+          "end_minute": 100.69,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 88.65,
+          "end_minute": 92.48,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 88.65,
+          "end_minute": 93.07,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 92.48,
+          "end_minute": 106.44,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 92.48,
+          "end_minute": 111.77,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 93.07,
+          "end_minute": 108.84,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 98.46,
+          "end_minute": 102.97,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 98.46,
+          "end_minute": 107.22,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 100.69,
+          "end_minute": 114.43,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 102.97,
+          "end_minute": 107.48,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 107.22,
+          "end_minute": 114.52,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 107.48,
+          "end_minute": 111.99,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 108.84,
+          "end_minute": 121.58,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 111.77,
+          "end_minute": 115.6,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 111.77,
+          "end_minute": 116.19,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 114.43,
+          "end_minute": 128.17,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 115.6,
+          "end_minute": 129.56,
+          "worker": "尚剑侨",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 115.6,
+          "end_minute": 134.89,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 116.19,
+          "end_minute": 131.96,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 121.58,
+          "end_minute": 130.34,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 128.17,
+          "end_minute": 141.91,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 130.34,
+          "end_minute": 137.64,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 131.96,
+          "end_minute": 144.7,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 134.89,
+          "end_minute": 138.72,
+          "worker": "王凯",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 134.89,
+          "end_minute": 139.31,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 138.72,
+          "end_minute": 152.68,
+          "worker": "孙淑敏",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 138.72,
+          "end_minute": 158.01,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 139.31,
+          "end_minute": 155.08,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 141.91,
+          "end_minute": 155.65,
+          "worker": "王凯",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 144.7,
+          "end_minute": 153.46,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 153.46,
+          "end_minute": 160.76,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 155.08,
+          "end_minute": 167.82,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 155.65,
+          "end_minute": 160.16,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 155.65,
+          "end_minute": 169.39,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 158.01,
+          "end_minute": 161.84,
+          "worker": "尚剑侨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 158.01,
+          "end_minute": 162.43,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 161.84,
+          "end_minute": 175.8,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 161.84,
+          "end_minute": 181.13,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 162.43,
+          "end_minute": 178.2,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 167.82,
+          "end_minute": 176.58,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 169.39,
+          "end_minute": 183.13,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 176.58,
+          "end_minute": 183.88,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 178.2,
+          "end_minute": 182.71,
+          "worker": "王凯",
+          "machines": [
+            "KEHREN RW8C",
+            "临清"
+          ],
+          "machine": "KEHREN RW8C+临清",
+          "material": "23165121",
+          "process": "磨序",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 4.51,
+          "duration_minutes": 4.51
+        },
+        {
+          "start_minute": 178.2,
+          "end_minute": 190.94,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 181.13,
+          "end_minute": 184.96,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 181.13,
+          "end_minute": 185.55,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 183.13,
+          "end_minute": 196.87,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 184.96,
+          "end_minute": 198.92,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 184.96,
+          "end_minute": 204.25,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 185.55,
+          "end_minute": 201.32,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 190.94,
+          "end_minute": 199.7,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 196.87,
+          "end_minute": 210.61,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 199.7,
+          "end_minute": 207.0,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 201.32,
+          "end_minute": 214.06,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 204.25,
+          "end_minute": 208.08,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 204.25,
+          "end_minute": 208.67,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 208.08,
+          "end_minute": 222.04,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 208.08,
+          "end_minute": 227.37,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 208.67,
+          "end_minute": 224.44,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 210.61,
+          "end_minute": 224.35,
+          "worker": "尚剑侨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 214.06,
+          "end_minute": 222.82,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 222.82,
+          "end_minute": 230.12,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 224.35,
+          "end_minute": 238.09,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 224.44,
+          "end_minute": 237.18,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 227.37,
+          "end_minute": 231.2,
+          "worker": "尚剑侨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 227.37,
+          "end_minute": 231.79,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 231.2,
+          "end_minute": 245.16,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 231.2,
+          "end_minute": 250.49,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 231.79,
+          "end_minute": 247.56,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 237.18,
+          "end_minute": 245.94,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 238.09,
+          "end_minute": 251.83,
+          "worker": "王凯",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 245.94,
+          "end_minute": 253.24,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 247.56,
+          "end_minute": 260.3,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 250.49,
+          "end_minute": 254.32,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 250.49,
+          "end_minute": 254.91,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 251.83,
+          "end_minute": 265.57,
+          "worker": "王凯",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 254.32,
+          "end_minute": 268.28,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 254.32,
+          "end_minute": 273.61,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 254.91,
+          "end_minute": 270.68,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 260.3,
+          "end_minute": 269.06,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 265.57,
+          "end_minute": 279.31,
+          "worker": "王树滨",
+          "machines": [
+            "大侨VL1055"
+          ],
+          "machine": "大侨VL1055",
+          "material": "23165121",
+          "process": "精加工",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 13.74,
+          "duration_minutes": 13.74
+        },
+        {
+          "start_minute": 269.06,
+          "end_minute": 276.36,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 270.68,
+          "end_minute": 283.42,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 273.61,
+          "end_minute": 277.44,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 273.61,
+          "end_minute": 278.03,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 277.44,
+          "end_minute": 291.4,
+          "worker": "孙淑敏",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 277.44,
+          "end_minute": 296.73,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 278.03,
+          "end_minute": 293.8,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 283.42,
+          "end_minute": 292.18,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 292.18,
+          "end_minute": 299.48,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 293.8,
+          "end_minute": 306.54,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 296.73,
+          "end_minute": 300.56,
+          "worker": "尚剑侨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 296.73,
+          "end_minute": 301.15,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 300.56,
+          "end_minute": 314.52,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 300.56,
+          "end_minute": 319.85,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 301.15,
+          "end_minute": 316.92,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 306.54,
+          "end_minute": 315.3,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 315.3,
+          "end_minute": 322.6,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 316.92,
+          "end_minute": 329.66,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 319.85,
+          "end_minute": 323.68,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 319.85,
+          "end_minute": 324.27,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 323.68,
+          "end_minute": 337.64,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 323.68,
+          "end_minute": 342.97,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 324.27,
+          "end_minute": 340.04,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 329.66,
+          "end_minute": 338.42,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 338.42,
+          "end_minute": 345.72,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 340.04,
+          "end_minute": 352.78,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 342.97,
+          "end_minute": 346.8,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 342.97,
+          "end_minute": 347.39,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 346.8,
+          "end_minute": 360.76,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 346.8,
+          "end_minute": 366.09,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 347.39,
+          "end_minute": 363.16,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 352.78,
+          "end_minute": 361.54,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 361.54,
+          "end_minute": 368.84,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 363.16,
+          "end_minute": 375.9,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 366.09,
+          "end_minute": 369.92,
+          "worker": "王树滨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 366.09,
+          "end_minute": 370.51,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 369.92,
+          "end_minute": 383.88,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 369.92,
+          "end_minute": 389.21,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 370.51,
+          "end_minute": 386.28,
+          "worker": "王凯",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 375.9,
+          "end_minute": 384.66,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 384.66,
+          "end_minute": 391.96,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 386.28,
+          "end_minute": 399.02,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 389.21,
+          "end_minute": 393.04,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 389.21,
+          "end_minute": 393.63,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 393.04,
+          "end_minute": 407.0,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 393.04,
+          "end_minute": 412.33,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 393.63,
+          "end_minute": 409.4,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 399.02,
+          "end_minute": 407.78,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 407.78,
+          "end_minute": 415.08,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 409.4,
+          "end_minute": 422.14,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 412.33,
+          "end_minute": 416.16,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 412.33,
+          "end_minute": 416.75,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 416.16,
+          "end_minute": 430.12,
+          "worker": "孙淑敏",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 416.16,
+          "end_minute": 435.45,
+          "worker": "王培培",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 416.75,
+          "end_minute": 432.52,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 422.14,
+          "end_minute": 430.9,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 430.9,
+          "end_minute": 438.2,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 432.52,
+          "end_minute": 445.26,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 435.45,
+          "end_minute": 439.28,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 435.45,
+          "end_minute": 439.87,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 439.28,
+          "end_minute": 453.24,
+          "worker": "孙淑敏",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 439.28,
+          "end_minute": 458.57,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 439.87,
+          "end_minute": 455.64,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 445.26,
+          "end_minute": 454.02,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 454.02,
+          "end_minute": 461.32,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 455.64,
+          "end_minute": 468.38,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 458.57,
+          "end_minute": 462.4,
+          "worker": "尚剑侨",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23165121",
+          "process": "过程检测",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.83,
+          "duration_minutes": 3.83
+        },
+        {
+          "start_minute": 458.57,
+          "end_minute": 462.99,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 462.4,
+          "end_minute": 476.36,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23165121",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 13.96,
+          "duration_minutes": 13.96
+        },
+        {
+          "start_minute": 462.99,
+          "end_minute": 478.76,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 468.38,
+          "end_minute": 477.14,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 7.3,
+          "worker": "杜青山",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23165121",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 7.3,
+          "duration_minutes": 7.3
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 12.74,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 19.29,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 12.74,
+          "end_minute": 21.5,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 19.29,
+          "end_minute": 23.71,
+          "worker": "王凯",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 19.29,
+          "end_minute": 38.58,
+          "worker": "张福仙",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 23.71,
+          "end_minute": 39.48,
+          "worker": "尚剑侨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 38.58,
+          "end_minute": 43.0,
+          "worker": "袁希广",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 38.58,
+          "end_minute": 57.87,
+          "worker": "孙淑敏",
+          "machines": [
+            "CMM CONTURA 10/16/6"
+          ],
+          "machine": "CMM CONTURA 10/16/6",
+          "material": "23158122",
+          "process": "来料检",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 19.29,
+          "duration_minutes": 19.29
+        },
+        {
+          "start_minute": 39.48,
+          "end_minute": 52.22,
+          "worker": "王培培",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 43.0,
+          "end_minute": 58.77,
+          "worker": "王树滨",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 52.22,
+          "end_minute": 60.98,
+          "worker": "王彪",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 57.87,
+          "end_minute": 62.29,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "外观验收",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 4.42,
+          "duration_minutes": 4.42
+        },
+        {
+          "start_minute": 58.77,
+          "end_minute": 71.51,
+          "worker": "王凯",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 62.29,
+          "end_minute": 78.06,
+          "worker": "王彪",
+          "machines": [
+            "丽驰MV1400B"
+          ],
+          "machine": "丽驰MV1400B",
+          "material": "23158122",
+          "process": "精加工",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 15.77,
+          "duration_minutes": 15.77
+        },
+        {
+          "start_minute": 71.51,
+          "end_minute": 80.27,
+          "worker": "袁希广",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        },
+        {
+          "start_minute": 78.06,
+          "end_minute": 90.8,
+          "worker": "何金环",
+          "machines": [],
+          "machine": "无",
+          "material": "23158122",
+          "process": "后处理",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 12.74,
+          "duration_minutes": 12.74
+        },
+        {
+          "start_minute": 90.8,
+          "end_minute": 99.56,
+          "worker": "单西强",
+          "machines": [
+            "超声波清洗机"
+          ],
+          "machine": "超声波清洗机",
+          "material": "23158122",
+          "process": "清洗&包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 8.76,
+          "duration_minutes": 8.76
+        }
+      ]
+    }
+  ],
+  "attempt_count": 1
+}

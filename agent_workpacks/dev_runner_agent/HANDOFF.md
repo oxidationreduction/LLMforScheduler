@@ -82,6 +82,7 @@ python3 experiments/aaai2026/aggregate_metrics.py \
 ## 等待事项
 
 - E1 已完成；等待后续 E2/E3/E4 等实验指挥。
+- E0/E1 论文表格底稿已保存：`experiments/aaai2026/e0_e1_paper_table_draft.md`。后续 dev-agent 使用该底稿时，不要混入未登记旧目录；E1 只能作为 `Timed greedy solver (E1 reproduction)` 主表行，不能写成 LLM/CP-SAT/新算法结果。
 
 ## E1 完成记录：full 670 solver reproduction
 
@@ -114,3 +115,104 @@ python3 experiments/aaai2026/aggregate_metrics.py \
 - E1 新增 ok：0。
 - manifest missing cases：0。
 - manifest extra cases：0。
+
+## E2/E3 完成记录：dispatching-rule baselines 与 chunked wavefront 消融
+
+- CPU-only：所有正式 run 使用 `CUDA_VISIBLE_DEVICES=""`，未占用 GPU。
+- smoke：`earliest_due` 与 `chunked_wavefront_5` 各跑 manifest 前 2 单，确认策略字段可区分、summary/solution/verify 正常；临时目录已删除。
+- tmux session：
+  - `llm_sched_e2_dispatch_baseline`：完成后停在 shell prompt，已确认 `E2_DONE 2026-07-07T15:47:12+08:00`，随后关闭该本任务空 session。
+  - `llm_sched_e3_wavefront_ablation`：完成后停在 shell prompt，已确认 `E3_DONE 2026-07-07T15:45:44+08:00`，随后关闭该本任务空 session。
+- scope：均为 full 670；未降级 test 133。
+- runner：`solver/run_full_benchmark.py` 新增 `--unit-strategy`、`--worker-strategy`、`--day-strategy` 和 `--split`；不传策略时保留 E1 多策略 timed 行为。
+- metrics：
+  - E2：`experiments/aaai2026/metrics_e2_dispatch_baselines_20260707_153730.json`
+  - E3：`experiments/aaai2026/metrics_e3_wavefront_ablation_20260707_153731.json`
+
+E2 fixed dispatching-rule summaries：
+
+| strategy | summary | status_counts | verify_counts | unsolved | verify invalid | elapsed / solve_seconds mean, median, p90, p95, max |
+|---|---|---|---|---:|---:|---|
+| earliest_due | `results/raw_view/e2_dispatch_earliest_due_20260707_153730/summary.json` | `{'infeasible_proven': 94, 'feasible': 530, 'no_solution_found': 30, 'optimal': 16}` | `{'not_applicable': 124, 'ok': 546}` | 30 | 0 | 149.063s / 0.208, 0.078, 0.421, 0.672, 7.709 |
+| round_robin_product | `results/raw_view/e2_dispatch_round_robin_product_20260707_153730/summary.json` | `{'infeasible_proven': 94, 'feasible': 532, 'no_solution_found': 28, 'optimal': 16}` | `{'not_applicable': 122, 'ok': 548}` | 28 | 0 | 139.882s / 0.194, 0.079, 0.387, 0.621, 6.508 |
+| largest_route_work | `results/raw_view/e2_dispatch_largest_route_work_20260707_153730/summary.json` | `{'infeasible_proven': 94, 'feasible': 532, 'no_solution_found': 28, 'optimal': 16}` | `{'not_applicable': 122, 'ok': 548}` | 28 | 0 | 140.998s / 0.195, 0.078, 0.375, 0.613, 6.752 |
+| smallest_route_work | `results/raw_view/e2_dispatch_smallest_route_work_20260707_153730/summary.json` | `{'infeasible_proven': 94, 'feasible': 526, 'no_solution_found': 34, 'optimal': 16}` | `{'not_applicable': 128, 'ok': 542}` | 34 | 0 | 147.854s / 0.205, 0.079, 0.396, 0.652, 7.720 |
+
+E3 chunked wavefront summaries：
+
+| strategy | summary | status_counts | verify_counts | unsolved | verify invalid | elapsed / solve_seconds mean, median, p90, p95, max |
+|---|---|---|---|---:|---:|---|
+| chunked_wavefront_5 | `results/raw_view/e3_wavefront_chunk5_20260707_153731/summary.json` | `{'infeasible_proven': 94, 'feasible': 556, 'optimal': 16, 'no_solution_found': 4}` | `{'not_applicable': 98, 'ok': 572}` | 4 | 0 | 157.910s / 0.220, 0.079, 0.447, 0.746, 7.981 |
+| chunked_wavefront_10 | `results/raw_view/e3_wavefront_chunk10_20260707_153731/summary.json` | `{'infeasible_proven': 94, 'feasible': 558, 'optimal': 16, 'no_solution_found': 2}` | `{'not_applicable': 96, 'ok': 574}` | 2 | 0 | 160.155s / 0.221, 0.081, 0.453, 0.735, 7.254 |
+| chunked_wavefront_25 | `results/raw_view/e3_wavefront_chunk25_20260707_153731/summary.json` | `{'infeasible_proven': 94, 'feasible': 560, 'optimal': 16}` | `{'not_applicable': 94, 'ok': 576}` | 0 | 0 | 172.358s / 0.239, 0.085, 0.502, 0.861, 7.446 |
+
+异常说明：
+
+- E2 固定 dispatching-rule baselines 均低于 E1/chunk25 的 576 verify ok，出现 28-34 个 `no_solution_found`；这是单策略消融结果，artifact 已保留，未覆盖重跑。
+- E3 `chunked_wavefront_25` 与 E1/full existing baseline 的 status/verify counts 持平；`chunked_wavefront_5/10` 分别有 4/2 个 `no_solution_found`。
+
+## E4 完成记录：CP-SAT stratified-50 baseline
+
+更新时间：2026-07-09T15:43:00+08:00
+
+- tmux session：`llm_sched_e4_cpsat_strat50`，正式 run 完成后自然退出，当前无残留 tmux session。
+- 启动命令：使用项目主管转交的 120s/case 主表命令，`CUDA_VISIBLE_DEVICES=""`，未启动 600s/case 附录版。
+- scope：`experiments/aaai2026/e4_cpsat_stratified50_manifest.json`，分层 50 单。
+- 结果目录：`results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/`
+- summary：`results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/summary.json`
+- metrics：`results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/metrics.json`
+- status/watcher：`results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/status.json`
+- 日志：`results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/run.log`
+
+关键数字：
+
+- case_count：50。
+- expected_case_count：50。
+- coverage_rate：1.0。
+- status_counts：`{'feasible': 42, 'infeasible_proven': 6, 'optimal': 2}`。
+- verify_counts：`{'ok': 44, 'not_applicable': 6}`。
+- method_counts：`{'timed_cpsat': 39, 'timed_cpsat_batched': 11}`；无 `timed_greedy`。
+- not_solved_count：0。
+- verify_invalid_count：0。
+- elapsed_seconds：265.9068440308329。
+- solve_seconds：mean 5.3049399915，median 2.3945699481，p90 13.9520238571，p95 19.3658396501，max 38.7951691588。
+
+验收记录：
+
+- `summary.json`、`status.json`、`run.log`、`manifest.json`、`metrics.json` 均存在。
+- `solutions/*.solution.json` 50 个，`solutions/*.verify.json` 50 个。
+- 非可验证状态均为 `verify_status=not_applicable`。
+- `metrics.json` 中 run 名为 `e4_cpsat_stratified50_tl120`，overall coverage 1.0。
+- 结果目录为新目录，未覆盖 E0-E3 或 smoke 产物。
+
+## E5 第一阶段记录：LLM tool-agent test-133 prompts
+
+更新时间：2026-07-10T23:25:23+08:00
+
+- 执行身份：dev_runner_agent。
+- 命令：`CUDA_VISIBLE_DEVICES="" python3 experiments/aaai2026/run_llm_tool_agent.py prepare --split-manifest experiments/aaai2026/split_manifest.json --split test --out results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl`
+- 输出：`results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl`
+- scope：test split，133 条 prompts。
+- 校验：JSONL 133 行；所有行 `split=test`；system prompt 与 user policy 均要求 strict JSON tool call。
+- 边界：仅生成 prompts；未运行 direct LLM schedule generation；尚无 `responses.jsonl`、parsed tool calls、run summary 或 verifier metrics。
+- 登记：已更新 `agent_workpacks/shared/ARTIFACTS.md` 与 `agent_workpacks/shared/EXPERIMENT_REGISTRY.md`。
+
+下一步交给模型推理 agent：
+
+```text
+请基于仓库 /wenyu/media-wenyu-data/LLMforScheduler 的 E5 LLM tool-agent test-133 prompts 运行模型推理，只产出 responses.jsonl。
+
+输入 prompts:
+results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl
+
+输出目录:
+results/raw_view/e5_llm_tool_agent_test133_20260710_232523/
+
+硬约束:
+- 不运行 direct LLM schedule generation。
+- LLM 只输出 strict JSON tool call、策略选择、解释或 verifier repair action。
+- 不允许把 LLM 直接生成的 plan 当最终排班。
+- 输出文件命名为 responses.jsonl。
+- 不覆盖 prompts.jsonl 或其它既有产物。
+- 如运行耗时推理任务，必须使用 tmux 托管。
+```

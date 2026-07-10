@@ -12,6 +12,23 @@
 | 现有 timed_greedy 基线 metrics | experiment_manager_agent | `experiments/aaai2026/metrics_timed_greedy_existing.json` | available | 670 单；576 verify ok，94 infeasible_proven，0 unsolved，0 verify invalid |
 | E1 full 670 复现 summary | dev_runner_agent | `results/raw_view/e1_full670_repro_20260703_232018/summary.json` | available | 670 单；576 verify ok，94 infeasible_proven，0 unsolved，0 verify invalid；elapsed 167.628s |
 | E1 full 670 复现 metrics | dev_runner_agent | `experiments/aaai2026/metrics_e1_full670_repro.json` | available | 与 existing baseline case-level 状态一致；coverage 1.0 |
+| E0/E1 论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/e0_e1_paper_table_draft.md` | available | 只使用已登记 E0/E1 artifacts；含 claim 边界和 dev-agent 交接说明 |
+| E2 dispatch earliest_due summary | dev_runner_agent | `results/raw_view/e2_dispatch_earliest_due_20260707_153730/summary.json` | available | full 670；546 verify ok，94 infeasible_proven，30 unsolved，0 verify invalid；elapsed 149.063s |
+| E2 dispatch round_robin_product summary | dev_runner_agent | `results/raw_view/e2_dispatch_round_robin_product_20260707_153730/summary.json` | available | full 670；548 verify ok，94 infeasible_proven，28 unsolved，0 verify invalid；elapsed 139.882s |
+| E2 dispatch largest_route_work summary | dev_runner_agent | `results/raw_view/e2_dispatch_largest_route_work_20260707_153730/summary.json` | available | full 670；548 verify ok，94 infeasible_proven，28 unsolved，0 verify invalid；elapsed 140.998s |
+| E2 dispatch smallest_route_work summary | dev_runner_agent | `results/raw_view/e2_dispatch_smallest_route_work_20260707_153730/summary.json` | available | full 670；542 verify ok，94 infeasible_proven，34 unsolved，0 verify invalid；elapsed 147.854s |
+| E2 dispatch metrics | dev_runner_agent | `experiments/aaai2026/metrics_e2_dispatch_baselines_20260707_153730.json` | available | 4 个 full-670 fixed dispatching rules；coverage 1.0；无 test133 降级 |
+| E3 wavefront chunk5 summary | dev_runner_agent | `results/raw_view/e3_wavefront_chunk5_20260707_153731/summary.json` | available | full 670；572 verify ok，94 infeasible_proven，4 unsolved，0 verify invalid；elapsed 157.910s |
+| E3 wavefront chunk10 summary | dev_runner_agent | `results/raw_view/e3_wavefront_chunk10_20260707_153731/summary.json` | available | full 670；574 verify ok，94 infeasible_proven，2 unsolved，0 verify invalid；elapsed 160.155s |
+| E3 wavefront chunk25 summary | dev_runner_agent | `results/raw_view/e3_wavefront_chunk25_20260707_153731/summary.json` | available | full 670；576 verify ok，94 infeasible_proven，0 unsolved，0 verify invalid；elapsed 172.358s |
+| E3 wavefront metrics | dev_runner_agent | `experiments/aaai2026/metrics_e3_wavefront_ablation_20260707_153731.json` | available | 3 个 full-670 chunked_wavefront 消融；chunk25 与 E1 status/verify counts 持平；无 test133 降级 |
+| E1-E3 QA gate 记录 | qa_repro_agent | `agent_workpacks/qa_repro_agent/HANDOFF.md` | available | 2026-07-09 QA gate PASS；JSON/path/split/summary/verify/claim 边界已核对；含措辞注意点 |
+| E0-E3 论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/e0_e3_paper_table_draft.md` | available | 基于已登记 E0/E1/E2/E3 metrics；含主表、E2/E3 消融表和 claim 边界；已交给 qa_repro_agent 做 table-specific QA gate |
+| E4 CP-SAT stratified-50 summary | dev_runner_agent | `results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/summary.json` | available | 分层 50 单；120s/case；CPU-only；44 verify ok，6 infeasible_proven，0 unsolved，0 verify invalid；未启动 600s 附录版 |
+| E4 CP-SAT stratified-50 metrics | dev_runner_agent | `results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/metrics.json` | available | coverage 1.0；method_counts `timed_cpsat=39, timed_cpsat_batched=11`；无 `timed_greedy`；elapsed 265.907s |
+| E4 CP-SAT stratified-50 表格候选 | experiment_manager_agent | `experiments/aaai2026/e4_cpsat_stratified50_table_candidate.md` | available | E8 候选记录；E4 artifact QA PASS 已满足；由 `experiments/aaai2026/e0_e4_paper_table_draft.md` 承接为 paper-ready draft |
+| E0-E4 论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/e0_e4_paper_table_draft.md` | available | E0-E3 full-670 与 E4 CP-SAT stratified-50 分区呈现；E4 artifact QA PASS 后生成；禁止 case_count 等价比较 |
+| E5 LLM tool-agent test-133 prompts | dev_runner_agent | `results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl` | available | 仅 prompts；test 133 条；strict JSON tool-call prompts；尚无 responses、parsed tool calls、run summary 或 verifier metrics；未运行 direct LLM schedule generation |
 
 ## 产物规则
 

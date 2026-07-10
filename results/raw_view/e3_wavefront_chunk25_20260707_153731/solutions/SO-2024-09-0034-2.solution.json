@@ -1,0 +1,4506 @@
+{
+  "case_id": "SO-2024-09-0034-2",
+  "input_path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2024-09-0034-2.json",
+  "status": "feasible",
+  "solver_method": "timed_greedy",
+  "solve_seconds": 0.060278343968093395,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2024-09-0034-2",
+    "path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2024-09-0034-2.json",
+    "product_count": 1,
+    "net_required_total": 83,
+    "step_count": 5,
+    "total_work_minutes": 3394.7,
+    "max_due_day": 12,
+    "worker_count": 12,
+    "worker_day_count": 129,
+    "complexity_score": 4744.7
+  },
+  "scheduled_operations": 415,
+  "task_count_before_merge": 415,
+  "task_count_after_merge": 314,
+  "strategy": {
+    "unit_strategy": "chunked_wavefront_25",
+    "worker_strategy": "least_used",
+    "day_strategy": "forward",
+    "chunk_size": 25
+  },
+  "plan": [
+    {
+      "day": 1,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 59.5,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 25,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 59.5
+        },
+        {
+          "start_minute": 59.5,
+          "end_minute": 452.2,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 14,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 392.7
+        },
+        {
+          "start_minute": 452.2,
+          "end_minute": 478.92,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 8,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 26.72
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 3.34,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 5.19,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 28.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 3.34,
+          "end_minute": 10.02,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 2,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 6.68
+        },
+        {
+          "start_minute": 6.68,
+          "end_minute": 11.87,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 10.02,
+          "end_minute": 16.7,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 2,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 6.68
+        },
+        {
+          "start_minute": 13.36,
+          "end_minute": 18.55,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 16.7,
+          "end_minute": 20.04,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 20.04,
+          "end_minute": 22.42,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 20.04,
+          "end_minute": 25.23,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 22.42,
+          "end_minute": 27.18,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 25.23,
+          "end_minute": 30.42,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 31.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 56.1,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 31.39,
+          "end_minute": 33.77,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 31.39,
+          "end_minute": 36.58,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 33.77,
+          "end_minute": 38.53,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 36.58,
+          "end_minute": 41.77,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 38.53,
+          "end_minute": 43.29,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 41.77,
+          "end_minute": 46.96,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 43.29,
+          "end_minute": 48.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 46.96,
+          "end_minute": 52.15,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 48.05,
+          "end_minute": 52.81,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 52.15,
+          "end_minute": 57.34,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 52.81,
+          "end_minute": 55.19,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 59.44,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 84.15,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 57.34,
+          "end_minute": 59.28,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 59.44,
+          "end_minute": 61.82,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 59.44,
+          "end_minute": 64.63,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 61.82,
+          "end_minute": 66.58,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 64.63,
+          "end_minute": 69.82,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 66.58,
+          "end_minute": 71.34,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 69.82,
+          "end_minute": 75.01,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 71.34,
+          "end_minute": 76.1,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 75.01,
+          "end_minute": 80.2,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 76.1,
+          "end_minute": 80.86,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 80.2,
+          "end_minute": 85.39,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 80.86,
+          "end_minute": 83.24,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 87.49,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 112.2,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 85.39,
+          "end_minute": 87.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 87.49,
+          "end_minute": 89.87,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 87.49,
+          "end_minute": 92.68,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 89.87,
+          "end_minute": 94.63,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 92.68,
+          "end_minute": 97.87,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 94.63,
+          "end_minute": 99.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 97.87,
+          "end_minute": 99.81,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 99.39,
+          "end_minute": 101.77,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 99.81,
+          "end_minute": 103.69,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 2,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 3.88
+        },
+        {
+          "start_minute": 101.77,
+          "end_minute": 104.15,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 103.69,
+          "end_minute": 105.63,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 104.15,
+          "end_minute": 106.53,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 105.63,
+          "end_minute": 107.57,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 106.53,
+          "end_minute": 108.91,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 107.57,
+          "end_minute": 109.51,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 108.91,
+          "end_minute": 111.29,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 109.51,
+          "end_minute": 113.39,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 2,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 3.88
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 115.54,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 140.25,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 113.39,
+          "end_minute": 115.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 115.54,
+          "end_minute": 117.92,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 115.54,
+          "end_minute": 120.73,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 117.92,
+          "end_minute": 122.68,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 120.73,
+          "end_minute": 124.61,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 2,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 3.88
+        },
+        {
+          "start_minute": 122.68,
+          "end_minute": 125.06,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 124.61,
+          "end_minute": 126.55,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 125.06,
+          "end_minute": 127.44,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 126.55,
+          "end_minute": 128.49,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 127.44,
+          "end_minute": 129.82,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 128.49,
+          "end_minute": 130.43,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 129.82,
+          "end_minute": 132.2,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 130.43,
+          "end_minute": 132.37,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 132.2,
+          "end_minute": 134.58,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 132.37,
+          "end_minute": 134.31,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 134.58,
+          "end_minute": 139.34,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 143.59,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 168.3,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 143.59,
+          "end_minute": 145.97,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 143.59,
+          "end_minute": 148.78,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 145.97,
+          "end_minute": 150.73,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 148.78,
+          "end_minute": 150.72,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 150.73,
+          "end_minute": 167.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 7,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 16.66
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 171.64,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 196.35,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 171.64,
+          "end_minute": 174.02,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 1,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 2.38
+        },
+        {
+          "start_minute": 171.64,
+          "end_minute": 176.83,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 174.02,
+          "end_minute": 178.78,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 176.83,
+          "end_minute": 178.77,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 178.78,
+          "end_minute": 183.54,
+          "worker": "袁希广",
+          "machines": [
+            "HCL360"
+          ],
+          "machine": "HCL360",
+          "material": "71230563",
+          "process": "下料",
+          "step_index": 1,
+          "quantity": 2,
+          "unit_duration_minutes": 2.38,
+          "duration_minutes": 4.76
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 199.69,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 224.4,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 199.69,
+          "end_minute": 204.88,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 204.88,
+          "end_minute": 206.82,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 227.74,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 252.45,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 227.74,
+          "end_minute": 232.93,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 232.93,
+          "end_minute": 234.87,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 255.79,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 280.5,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 255.79,
+          "end_minute": 260.98,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 260.98,
+          "end_minute": 262.92,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 283.84,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 308.55,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 283.84,
+          "end_minute": 289.03,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 289.03,
+          "end_minute": 290.97,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 311.89,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 336.6,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 311.89,
+          "end_minute": 317.08,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 317.08,
+          "end_minute": 319.02,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 339.94,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 364.65,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 339.94,
+          "end_minute": 345.13,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 345.13,
+          "end_minute": 347.07,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 367.99,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 392.7,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 367.99,
+          "end_minute": 373.18,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 373.18,
+          "end_minute": 375.12,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 396.04,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 420.75,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 396.04,
+          "end_minute": 401.23,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 401.23,
+          "end_minute": 403.17,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 424.09,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 448.8,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 424.09,
+          "end_minute": 429.28,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 429.28,
+          "end_minute": 431.22,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 452.14,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 476.85,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 452.14,
+          "end_minute": 457.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 457.33,
+          "end_minute": 459.27,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 3.34,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 28.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 3.34,
+          "end_minute": 8.53,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 8.53,
+          "end_minute": 10.47,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 31.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 56.1,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 31.39,
+          "end_minute": 36.58,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 36.58,
+          "end_minute": 38.52,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 59.44,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 84.15,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 59.44,
+          "end_minute": 64.63,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 64.63,
+          "end_minute": 66.57,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 87.49,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 112.2,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 87.49,
+          "end_minute": 92.68,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 92.68,
+          "end_minute": 94.62,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 115.54,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 140.25,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 115.54,
+          "end_minute": 120.73,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 120.73,
+          "end_minute": 122.67,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 143.59,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 168.3,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 143.59,
+          "end_minute": 148.78,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 148.78,
+          "end_minute": 150.72,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 171.64,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 196.35,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 171.64,
+          "end_minute": 176.83,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 176.83,
+          "end_minute": 178.77,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 199.69,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 224.4,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 199.69,
+          "end_minute": 204.88,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 204.88,
+          "end_minute": 206.82,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 227.74,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 252.45,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 227.74,
+          "end_minute": 232.93,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 232.93,
+          "end_minute": 234.87,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 255.79,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 280.5,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 255.79,
+          "end_minute": 260.98,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 260.98,
+          "end_minute": 262.92,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 283.84,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 308.55,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 283.84,
+          "end_minute": 289.03,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 289.03,
+          "end_minute": 290.97,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 311.89,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 336.6,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 311.89,
+          "end_minute": 317.08,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 317.08,
+          "end_minute": 319.02,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 339.94,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 364.65,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 339.94,
+          "end_minute": 345.13,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 345.13,
+          "end_minute": 347.07,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 367.99,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 392.7,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 367.99,
+          "end_minute": 373.18,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 373.18,
+          "end_minute": 375.12,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 396.04,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 420.75,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 396.04,
+          "end_minute": 401.23,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 401.23,
+          "end_minute": 403.17,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 424.09,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 448.8,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 424.09,
+          "end_minute": 429.28,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 429.28,
+          "end_minute": 431.22,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 452.14,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 476.85,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 452.14,
+          "end_minute": 457.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 457.33,
+          "end_minute": 459.27,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 3.34,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 28.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 31.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 56.1,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 59.44,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 84.15,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 87.49,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 112.2,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 115.54,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 140.25,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 143.59,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 168.3,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 171.64,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 196.35,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 199.69,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 224.4,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 227.74,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 252.45,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 255.79,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 280.5,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 283.84,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 308.55,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 311.89,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 336.6,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 339.94,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 364.65,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 367.99,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 392.7,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 396.04,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 420.75,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 424.09,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 448.8,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 452.14,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 476.85,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 3.34,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 5.19,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 28.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 5.19,
+          "end_minute": 15.57,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 2,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 10.38
+        },
+        {
+          "start_minute": 15.57,
+          "end_minute": 21.39,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 3,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 5.82
+        },
+        {
+          "start_minute": 21.39,
+          "end_minute": 26.58,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 26.58,
+          "end_minute": 28.52,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 31.39,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 56.1,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 31.39,
+          "end_minute": 57.34,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 5,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 25.95
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 59.44,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 56.1,
+          "end_minute": 84.15,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 57.34,
+          "end_minute": 59.28,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 59.44,
+          "end_minute": 85.39,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 5,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 25.95
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 87.49,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 84.15,
+          "end_minute": 112.2,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 85.39,
+          "end_minute": 87.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 87.49,
+          "end_minute": 113.44,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 5,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 25.95
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 115.54,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 112.2,
+          "end_minute": 140.25,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 113.44,
+          "end_minute": 115.38,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 115.54,
+          "end_minute": 131.11,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 3,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 15.57
+        },
+        {
+          "start_minute": 131.11,
+          "end_minute": 140.81,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 5,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 9.7
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 143.59,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 140.25,
+          "end_minute": 168.3,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 140.81,
+          "end_minute": 142.75,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 143.59,
+          "end_minute": 148.78,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 148.78,
+          "end_minute": 168.18,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 10,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 19.4
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 171.64,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 168.3,
+          "end_minute": 196.35,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 171.64,
+          "end_minute": 176.83,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 176.83,
+          "end_minute": 178.77,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 199.69,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 196.35,
+          "end_minute": 224.4,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 199.69,
+          "end_minute": 204.88,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 204.88,
+          "end_minute": 206.82,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 227.74,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 224.4,
+          "end_minute": 252.45,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 227.74,
+          "end_minute": 232.93,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 232.93,
+          "end_minute": 234.87,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 255.79,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 252.45,
+          "end_minute": 280.5,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 255.79,
+          "end_minute": 260.98,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 260.98,
+          "end_minute": 262.92,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 283.84,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 280.5,
+          "end_minute": 308.55,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 283.84,
+          "end_minute": 289.03,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 289.03,
+          "end_minute": 290.97,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 311.89,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 308.55,
+          "end_minute": 336.6,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 311.89,
+          "end_minute": 317.08,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 317.08,
+          "end_minute": 319.02,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 339.94,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 336.6,
+          "end_minute": 364.65,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 339.94,
+          "end_minute": 345.13,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 345.13,
+          "end_minute": 347.07,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 367.99,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 364.65,
+          "end_minute": 392.7,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 367.99,
+          "end_minute": 373.18,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 373.18,
+          "end_minute": 375.12,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 396.04,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 392.7,
+          "end_minute": 420.75,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 396.04,
+          "end_minute": 401.23,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 401.23,
+          "end_minute": 403.17,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 424.09,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 420.75,
+          "end_minute": 448.8,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 424.09,
+          "end_minute": 429.28,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 429.28,
+          "end_minute": 431.22,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 452.14,
+          "worker": "尚剑侨",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 448.8,
+          "end_minute": 476.85,
+          "worker": "袁希广",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 452.14,
+          "end_minute": 457.33,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 457.33,
+          "end_minute": 459.27,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "tasks": [
+        {
+          "start_minute": 0.0,
+          "end_minute": 3.34,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 0.0,
+          "end_minute": 28.05,
+          "worker": "尚剑侨",
+          "machines": [
+            "海德曼T45"
+          ],
+          "machine": "海德曼T45",
+          "material": "71230563",
+          "process": "精加工1",
+          "step_index": 2,
+          "quantity": 1,
+          "unit_duration_minutes": 28.05,
+          "duration_minutes": 28.05
+        },
+        {
+          "start_minute": 3.34,
+          "end_minute": 8.53,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 8.53,
+          "end_minute": 10.47,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        },
+        {
+          "start_minute": 28.05,
+          "end_minute": 31.39,
+          "worker": "袁希广",
+          "machines": [
+            "CX-40Y车铣复合"
+          ],
+          "machine": "CX-40Y车铣复合",
+          "material": "71230563",
+          "process": "精加工2",
+          "step_index": 3,
+          "quantity": 1,
+          "unit_duration_minutes": 3.34,
+          "duration_minutes": 3.34
+        },
+        {
+          "start_minute": 31.39,
+          "end_minute": 36.58,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "巡检",
+          "step_index": 4,
+          "quantity": 1,
+          "unit_duration_minutes": 5.19,
+          "duration_minutes": 5.19
+        },
+        {
+          "start_minute": 36.58,
+          "end_minute": 38.52,
+          "worker": "杜青山",
+          "machines": [],
+          "machine": "无",
+          "material": "71230563",
+          "process": "包装",
+          "step_index": 5,
+          "quantity": 1,
+          "unit_duration_minutes": 1.94,
+          "duration_minutes": 1.94
+        }
+      ]
+    }
+  ],
+  "attempt_count": 1
+}

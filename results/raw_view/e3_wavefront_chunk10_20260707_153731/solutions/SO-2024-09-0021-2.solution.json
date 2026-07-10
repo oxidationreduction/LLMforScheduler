@@ -1,0 +1,31 @@
+{
+  "case_id": "SO-2024-09-0021-2",
+  "input_path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2024-09-0021-2.json",
+  "status": "infeasible_proven",
+  "solve_seconds": 0.03642735886387527,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2024-09-0021-2",
+    "path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2024-09-0021-2.json",
+    "product_count": 3,
+    "net_required_total": 343,
+    "step_count": 20,
+    "total_work_minutes": 17594.980000000003,
+    "max_due_day": 12,
+    "worker_count": 12,
+    "worker_day_count": 129,
+    "complexity_score": 22894.980000000003
+  },
+  "errors": [
+    "设备 CMM CONTURA 10/16/6 总工时超过可用容量：6359.140000 > 5760.000000"
+  ],
+  "plan": [],
+  "solver_method": "timed_greedy",
+  "strategy": {
+    "unit_strategy": "chunked_wavefront_10",
+    "worker_strategy": "least_used",
+    "day_strategy": "forward",
+    "chunk_size": 10
+  },
+  "attempt_count": 0
+}

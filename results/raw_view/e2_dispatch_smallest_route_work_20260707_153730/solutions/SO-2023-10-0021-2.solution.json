@@ -1,0 +1,32 @@
+{
+  "case_id": "SO-2023-10-0021-2",
+  "input_path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2023-10-0021-2.json",
+  "status": "infeasible_proven",
+  "solve_seconds": 0.06954978103749454,
+  "objective_value": null,
+  "summary": {
+    "case_id": "SO-2023-10-0021-2",
+    "path": "/wenyu/media-wenyu-data/LLMforScheduler/raw_orders/SO-2023-10-0021-2.json",
+    "product_count": 5,
+    "net_required_total": 1209,
+    "step_count": 35,
+    "total_work_minutes": 57865.88,
+    "max_due_day": 13,
+    "worker_count": 12,
+    "worker_day_count": 143,
+    "complexity_score": 67115.88
+  },
+  "errors": [
+    "设备 CMM CONTURA 10/16/6 总工时超过可用容量：23133.850000 > 6240.000000",
+    "设备 超声波清洗机 总工时超过可用容量：7319.700000 > 6240.000000",
+    "人员集合时间窗容量不足：[孙淑敏, 张福仙, 王培培] 在第 13 天 457.080 分钟前可用 18171.240 分钟，但必须完成 18215.000 分钟，缺口 43.760 分钟"
+  ],
+  "plan": [],
+  "solver_method": "timed_greedy",
+  "strategy": {
+    "unit_strategy": "smallest_route_work",
+    "worker_strategy": "least_used",
+    "day_strategy": "forward"
+  },
+  "attempt_count": 0
+}
