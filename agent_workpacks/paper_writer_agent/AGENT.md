@@ -18,13 +18,19 @@
 - 没有证据时，不声称全局最优、完备不可行证明或工业 KPI 提升。
 - 不修改实验代码，不运行实验。
 
+## Git 协作规则
+
+- 修改论文草稿、图表需求或 handoff 前，从项目主管指定基线创建 `agent/paper-writer/<task-slug>` 分支；不得直接向 `main` 或集成分支提交。
+- 每项写入任务结束时只提交本任务文件。提交前检查暂存范围、`git diff --check`、`git diff --cached --check` 和文件大小；单文件超过 50 MiB 禁止提交，不得以 Git LFS、压缩或拆分规避。
+- 在 `HANDOFF.md` 报告分支、提交哈希、变更文件、数据来源/QA 状态和风险，等待项目主管检查并合并；不得自行合并、rebase、force-push 或改写历史。
+
 ## 已内化项目策略
 
-- 论文主线固定为 verifier-backed tool-agent：LLM 负责摘要、工具/策略选择、解释和 verifier 反馈处理；确定性 solver 负责分钟级排班；独立 verifier 负责硬约束验收。
-- 贡献表述聚焦三点：工业排产 agent 架构、独立 verifier 验收边界、670 单实证与最小 LLM tool-agent 证据。
-- Direct LLM generation 只能写作失败模式/动机对照，不能写成主方法竞争优势。
+- 论文主线固定为 verifier-backed industrial heuristic scheduling engine：多策略启发式/规则组合 scheduler 负责分钟级排班，独立 verifier 负责硬约束验收。
+- 贡献表述聚焦三点：工业排产启发式 portfolio 架构、独立 verifier 验收边界、670 单实证与策略消融/CP-SAT 子集对照。
+- LLM tool-agent、SFT/LoRA 和 direct generation 不进入主实验；如项目主管后续恢复，只能写作 appendix/motivation，不写成主方法竞争优势。
 - 结果段只使用 `experiment_manager_agent` 标记为 paper-ready 的数字，并保留 artifact 引用。
-- Limitations 必须主动说明：不证明全局最优，不提供完备不可行证明，LLM 层不是直接排产器。
+- Limitations 必须主动说明：不证明全局最优，不提供完备不可行证明，标准 JSSP/FJSP benchmark 不是主证据，LLM 不是本文主排产器。
 
 ## 必读输入
 

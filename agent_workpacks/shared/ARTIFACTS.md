@@ -7,7 +7,7 @@
 | 已有全量结果 summary | 既有结果 | `results/raw_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/summary.json` | available | 670 单，576 verify ok，94 infeasible_proven |
 | 已有全量 HTML index | 既有结果 | `results/html_view/all_machine_capacity_dynamic_chunk25_20260626_tl120/index.html` | available | 可视化 case 浏览入口 |
 | 旧版 solver summary | 既有结果 | `results/raw_view/all_machine_capacity_dynamic_20260626_tl120/summary.json` | available | 旧对照，1 个 time_limit |
-| AAAI 2026 实验框架 | dev_framework_agent | `experiments/aaai2026/` | available | split、metrics、LLM tool schema、SFT data、direct baseline validator |
+| AAAI 2026 实验框架 | dev_framework_agent | `experiments/aaai2026/` | available | 主线为 split、metrics、stratified manifest、H-series planning/table drafts；LLM tool schema、SFT data、direct baseline validator 仅保留为暂停的附录候选接口 |
 | AAAI 2026 split manifest | experiment_manager_agent | `experiments/aaai2026/split_manifest.json` | available | 670 单；train 473，dev 64，test 133；2025-only OOD/recent 64 |
 | 现有 timed_greedy 基线 metrics | experiment_manager_agent | `experiments/aaai2026/metrics_timed_greedy_existing.json` | available | 670 单；576 verify ok，94 infeasible_proven，0 unsolved，0 verify invalid |
 | E1 full 670 复现 summary | dev_runner_agent | `results/raw_view/e1_full670_repro_20260703_232018/summary.json` | available | 670 单；576 verify ok，94 infeasible_proven，0 unsolved，0 verify invalid；elapsed 167.628s |
@@ -28,7 +28,10 @@
 | E4 CP-SAT stratified-50 metrics | dev_runner_agent | `results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/metrics.json` | available | coverage 1.0；method_counts `timed_cpsat=39, timed_cpsat_batched=11`；无 `timed_greedy`；elapsed 265.907s |
 | E4 CP-SAT stratified-50 表格候选 | experiment_manager_agent | `experiments/aaai2026/e4_cpsat_stratified50_table_candidate.md` | available | E8 候选记录；E4 artifact QA PASS 已满足；由 `experiments/aaai2026/e0_e4_paper_table_draft.md` 承接为 paper-ready draft |
 | E0-E4 论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/e0_e4_paper_table_draft.md` | available | E0-E3 full-670 与 E4 CP-SAT stratified-50 分区呈现；E4 artifact QA PASS 后生成；禁止 case_count 等价比较 |
-| E5 LLM tool-agent test-133 prompts | dev_runner_agent | `results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl` | available | 仅 prompts；test 133 条；strict JSON tool-call prompts；尚无 responses、parsed tool calls、run summary 或 verifier metrics；未运行 direct LLM schedule generation |
+| 纯启发式重规划策略 | project_manager_agent | `experiments/aaai2026/heuristic_replan_experiment_plan.md` | active | H0-H8 主动轨道；论文主线改为 verifier-backed industrial heuristic scheduling engine；E5/E6/E7 暂停主线 |
+| H-series 启发式论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/h_series_heuristic_table_draft.md` | qa_passed | 复用 E0-E4 QA 通过证据并改写为 H1-H4 启发式主线；2026-07-11 H-series table QA gate PASS；H5/H6 尚未进入表格 |
+| H5/H6 下一阶段任务单 | project_manager_agent | `experiments/aaai2026/h5_h6_next_phase_task_brief.md` | assigned | 交给 experiment_manager_agent：生成 H5 complexity/difficulty metrics 与 H6 verifier case-study artifacts；E5/E6/E7 继续暂停 |
+| E5 LLM tool-agent test-133 prompts | dev_runner_agent | `results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl` | appendix_candidate | 仅 prompts；test 133 条；strict JSON tool-call prompts；尚无 responses、parsed tool calls、run summary 或 verifier metrics；E5 暂停主线，未运行 direct LLM schedule generation |
 
 ## 产物规则
 

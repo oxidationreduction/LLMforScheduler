@@ -1,13 +1,13 @@
 {
   "agent": "dev_runner_agent",
-  "status": "e5_prompts_ready",
-  "current_task": "E5 LLM tool-agent test-133 prompts generated and registered; waiting for model inference agent to produce responses.jsonl.",
+  "status": "llm_track_paused",
+  "current_task": "E5 prompts are preserved as appendix-candidate artifacts, but model inference is paused under the heuristic-first strategy.",
   "owned_paths": [
     "agent_workpacks/dev_runner_agent/",
     "results/raw_view/",
     "results/html_view/"
   ],
   "blockers": [],
-  "last_update": "2026-07-10T23:25:23+08:00",
-  "next_handoff": "E5 prompts ready. Input for model inference agent: results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl. Output expected in same directory as responses.jsonl. Only prompts exist so far; pending parsed tool calls, summary, and verifier metrics. Do not run direct LLM schedule generation or treat any LLM plan as final schedule."
+  "last_update": "2026-07-11T03:15:21+08:00",
+  "next_handoff": "Do not run E5 model inference, E6 SFT/LoRA, or E7 direct LLM generation unless project_manager_agent explicitly restores the LLM route. Next runner work, if assigned, should be H5/H6 lightweight artifact generation or optional H7 CP-SAT 600s/case appendix, always in new directories and tmux for long runs."
 }

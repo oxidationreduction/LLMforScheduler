@@ -195,24 +195,13 @@ E3 chunked wavefront summaries：
 - scope：test split，133 条 prompts。
 - 校验：JSONL 133 行；所有行 `split=test`；system prompt 与 user policy 均要求 strict JSON tool call。
 - 边界：仅生成 prompts；未运行 direct LLM schedule generation；尚无 `responses.jsonl`、parsed tool calls、run summary 或 verifier metrics。
+- 2026-07-11 更新：E5/E6/E7 已暂停主线。不要把 E5 继续交给模型推理 agent，除非项目主管明确恢复 H8 LLM appendix/motivation。
 - 登记：已更新 `agent_workpacks/shared/ARTIFACTS.md` 与 `agent_workpacks/shared/EXPERIMENT_REGISTRY.md`。
+- 旧模型推理指令已因 2026-07-11 纯启发式重规划失效；不要从历史对话或旧 handoff 中恢复执行。
 
-下一步交给模型推理 agent：
+## 2026-07-11 H-series runner 规则
 
-```text
-请基于仓库 /wenyu/media-wenyu-data/LLMforScheduler 的 E5 LLM tool-agent test-133 prompts 运行模型推理，只产出 responses.jsonl。
-
-输入 prompts:
-results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl
-
-输出目录:
-results/raw_view/e5_llm_tool_agent_test133_20260710_232523/
-
-硬约束:
-- 不运行 direct LLM schedule generation。
-- LLM 只输出 strict JSON tool call、策略选择、解释或 verifier repair action。
-- 不允许把 LLM 直接生成的 plan 当最终排班。
-- 输出文件命名为 responses.jsonl。
-- 不覆盖 prompts.jsonl 或其它既有产物。
-- 如运行耗时推理任务，必须使用 tmux 托管。
-```
+- 不启动 E5 模型推理、E6 SFT/LoRA 或 E7 direct generation。
+- 若收到 H5/H6 相关任务，优先使用轻量 CPU-only 分析；长任务仍必须用 tmux。
+- 若项目主管明确启动 H7，使用新结果目录运行 CP-SAT stratified-50 600s/case appendix，不覆盖 E4 120s/case 目录。
+- 所有新产物必须输出 `summary.json` 或 `metrics.json` 并登记到 `shared/ARTIFACTS.md`。

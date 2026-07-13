@@ -2,20 +2,57 @@
 
 ## 当前状态
 
-工作包已初始化。尚未启动任何实验。
+2026-07-11 更新：H-series table QA gate 已通过。项目主线已从 verifier-backed tool-agent 调整为 verifier-backed industrial heuristic scheduling engine。E0-E4 历史证据保留，E5/E6/E7 暂停主线。
 
 ## 下一步
 
-1. 让 `experiment_manager_agent` 先冻结 split、metrics 和实验登记细节。
-2. 让 `dev_framework_agent` 在 `experiments/aaai2026/` 下规划新增代码。
-3. 让 `dev_runner_agent` 在任何长任务前先确定 tmux 安全运行约定。
-4. 让 `paper_writer_agent` 在实验管理 agent 提供表格框架后再写结果段落。
-5. 让 `qa_repro_agent` 在每批结果和每版论文 claim 进入正文前审计。
+1. H-series table QA gate 已由 `qa_repro_agent` 完成，结论 PASS。
+2. 让 `experiment_manager_agent` 规划并交付 H5 complexity/difficulty metrics 和 H6 verifier case study。
+3. 让 `paper_writer_agent` 按 H-series 纯启发式主线重写论文大纲和实验章节。
+4. `dev_runner_agent` 暂停 E5 模型推理、E6 SFT/LoRA 和 E7 direct generation；除非项目主管明确恢复，不启动 GPU/LLM 任务。
+5. H7 CP-SAT 600s/case 只作为可选附录，必须在项目主管明确启动后用新目录和 tmux 运行。
 
 ## 未决问题
 
-- 本地 LLM 推理/SFT 具体使用哪个模型族。
-- 14 天内 baseline 是跑 full 670 还是优先 test-only。
+- H5 分桶特征若部分不可用，必须显式标 `unavailable`，不得临时替换口径。
+- H6 案例选择需要同时覆盖复杂可行、库存抵扣/零任务和容量下界 infeasible。
+- 是否启动 H7 600s CP-SAT 附录版，等待项目主管单独决策。
+
+## H-series table QA gate 通过
+
+更新时间：2026-07-11T04:45:46+08:00
+
+`qa_repro_agent` 已完成 `experiments/aaai2026/h_series_heuristic_table_draft.md` 的 H-series table QA gate，结论：PASS。
+
+项目主管调度结论：
+
+- H1-H3 可作为 full-670 heuristic / strategy ablation 表格证据。
+- H4 只能作为 `CP-SAT stratified-50 baseline, 120s/case`，不得与 H1-H3 做 case-count-equivalent 比较。
+- E5/E6/E7 继续暂停主线，不进入主实验 claim。
+- 下一步由 `experiment_manager_agent` 推进 H5 complexity/difficulty metrics 和 H6 verifier case study。
+- `paper_writer_agent` 可以使用 QA-passed H-series table draft，但正文 claim 必须遵守 QA 边界。
+
+## 2026-07-11 H5/H6 下一阶段已指派
+
+任务单：
+
+- `experiments/aaai2026/h5_h6_next_phase_task_brief.md`
+
+指派给 `experiment_manager_agent`：
+
+1. 生成 `experiments/aaai2026/h5_complexity_difficulty_metrics.json`。
+2. 生成 `experiments/aaai2026/h5_complexity_difficulty_table_draft.md`。
+3. 生成 `experiments/aaai2026/h6_verifier_case_study_manifest.json`。
+4. 生成 `experiments/aaai2026/h6_verifier_case_study_draft.md`。
+5. 登记新产物到 `shared/ARTIFACTS.md`，同步 `shared/EXPERIMENT_REGISTRY.md`。
+6. 完成后交给 `qa_repro_agent` 做 H5/H6 artifact QA gate。
+
+注意：
+
+- H1-H4 已可交给 `paper_writer_agent` 使用。
+- H5/H6 不能在 artifact 和 QA gate 前写入正文结果。
+- `machine_load_ratio` 若不可用，必须显式标 `unavailable`；不得用 manifest 里的 `load_ratio` 冒充。
+- E5/E6/E7 继续暂停主线。
 
 ## E2/E3 结果报告与产物移交
 
@@ -61,7 +98,7 @@ E3 chunked wavefront 消融：
 
 1. `experiment_manager_agent` 基于 E0-E3 生成论文主表草稿和消融表格。
 2. `dev_runner_agent` 可继续 E4 CP-SAT 子集 baseline，按既定范围分层 50 单，120s/case 主表。
-3. `dev_framework_agent` 在不改 verifier 的前提下推进 E5/E6 LLM tool-agent/SFT 相关 harness。
+3. 2026-07-11 后该建议已被 H-series 重规划取代：`dev_framework_agent` 只在需要时补 H5/H6 轻量工具；E5/E6 暂停主线。
 4. `qa_repro_agent` 对 E1-E3 的 artifact 路径、计数和 claim 边界做一次 gate。
 
 ## E4/E5 最小接口实现报告
@@ -96,7 +133,7 @@ E4 manifest 状态：
 
 1. 下一步优先把 E4 正式 120s/case 交给 `dev_runner_agent` 跑，tmux session 建议 `llm_sched_e4_cpsat_strat50`，CPU-only，禁止启动 600s 附录版。
 2. E4 完成后必须通过 QA gate：`coverage_rate=1.0`、无 `timed_greedy`、`verify_invalid_count=0`、非可验证状态均为 `not_applicable`、结果目录未覆盖旧产物。
-3. E5 当前只应先生成 test-133 prompts 或交给模型推理 agent 产出 `responses.jsonl`；runner 已保证 LLM 直排 `plan` 不会被采纳为最终结果。
+3. 2026-07-11 后 E5 已暂停主线；不要交给模型推理 agent 产出 `responses.jsonl`，除非项目主管明确恢复 LLM appendix/motivation 实验。
 4. E4 正式结果产出后，再更新 `shared/EXPERIMENT_REGISTRY.md` 和 `shared/ARTIFACTS.md`；当前接口实现本身可登记为 framework readiness，但不要写成 E4 实验完成。
 
 可直接转交 `dev_runner_agent` 的 E4 正式命令：
@@ -198,3 +235,34 @@ QA 结论：
 - forbidden claims 只出现在禁止清单中，没有出现在正向结论中。
 
 后续可将该底稿交给 `paper_writer_agent` 使用，但正文只能引用已登记 metrics/summary。不得扩写成 LLM 结果、CP-SAT 结果、新算法优越、全局最优、工业 KPI 提升或现实完备不可行 claim。
+
+## 2026-07-11 纯启发式重规划
+
+项目主管结论：主线改为 `verifier-backed industrial heuristic scheduling engine`。LLM direct generation 或 LLM tool-agent 不进入主实验；E5 prompts 作为 appendix/motivation candidate 保留，E6/E7 暂停。
+
+新增/更新的主策略产物：
+
+- `experiments/aaai2026/heuristic_replan_experiment_plan.md`
+- `experiments/aaai2026/h_series_heuristic_table_draft.md`
+- `agent_workpacks/shared/DECISIONS.md`
+- `agent_workpacks/shared/EXPERIMENT_REGISTRY.md`
+- `agent_workpacks/shared/ARTIFACTS.md`
+- `agent_workpacks/shared/RISKS.md`
+
+H-series 映射：
+
+- H1：复用 E0/E1 full-670，论文标签 `portfolio timed heuristic`。
+- H2：复用 E2 full-670 fixed dispatching-rule baselines。
+- H3：复用 E3 full-670 chunked wavefront ablation。
+- H4：复用 E4 `CP-SAT stratified-50 baseline, 120s/case`，必须单独成节。
+- H5：下一步新增 complexity/difficulty bucket analysis。
+- H6：下一步新增 verifier case study。
+- H7：可选 CP-SAT stratified-50 600s/case appendix。
+- H8：可选 LLM appendix/motivation，当前暂停。
+
+直接下一步调度：
+
+1. `qa_repro_agent`：QA gate `experiments/aaai2026/h_series_heuristic_table_draft.md`，确认 H1-H3 full-670、H4 stratified-50、E5/E6/E7 不进入主 claim。
+2. `experiment_manager_agent`：设计 H5/H6 的 artifact schema，并明确是否需要 `dev_framework_agent` 补脚本。
+3. `paper_writer_agent`：将论文结构改为 Introduction、Related Work、Problem Formulation、Verifier-Backed Heuristic Scheduling Framework、Scheduling Engine、Verifier、Experimental Setup、Results、Case Study、Limitations、Conclusion。
+4. `dev_runner_agent`：不要启动 E5 模型推理；只在收到明确任务时运行 H7 或 H5/H6 相关轻量任务。

@@ -2,7 +2,9 @@
 
 ## 当前状态
 
-第一步已完成：split manifest 和现有 timed_greedy 基线 metrics 已冻结，并已登记到共享产物表。
+2026-07-11 更新：E0-E4 已被映射到 H-series 纯启发式主线。`experiments/aaai2026/h_series_heuristic_table_draft.md` 已通过 `qa_repro_agent` H-series table QA gate。
+
+历史第一步已完成：split manifest 和现有 timed_greedy 基线 metrics 已冻结，并已登记到共享产物表。
 
 关键产物：
 
@@ -38,9 +40,10 @@
 
 ## 下一步
 
-- `dev_runner_agent` 启动 E1：用 tmux 复现 full 670 solver。
-- E1 目标核对：576 verify ok、94 infeasible_proven、0 unsolved。
-- 新复现结果必须写入新目录，不覆盖既有主结果目录。
+- 将 QA-passed `experiments/aaai2026/h_series_heuristic_table_draft.md` 交给 `paper_writer_agent` 使用，并保留 QA claim 边界。
+- 设计 H5 complexity/difficulty metrics schema：operation_count、total_work_minutes、machine_load_ratio、worker_day_count；若特征不可用，显式标 `unavailable`。
+- 设计 H6 verifier case-study selection：2 个复杂可行、1 个库存抵扣/零任务、1 个容量下界 infeasible。
+- E5/E6/E7 暂停主线，不进入主表或主实验 claim。
 
 ## E2/E3 结果接收：dispatching-rule baselines 与 chunked wavefront 消融
 
@@ -206,3 +209,78 @@ QA evidence：
 - E0-E3 full-670 table group 保持在一起。
 - E4 放入单独 CP-SAT stratified-50 section。
 - 表格明确警告 E4 不能与 E0-E3 按 case_count 等价比较。
+
+## 2026-07-11 H-series 纯启发式表格底稿
+
+已生成 H-series heuristic-first paper table draft：
+
+- `experiments/aaai2026/h_series_heuristic_table_draft.md`
+
+该底稿复用已 QA 通过的 E0-E4 证据，不新增实验结果：
+
+- H1：E1 reproduced timed_greedy，主表标签 `portfolio timed heuristic`，full 670，576 verify ok / 94 infeasible_proven / 0 unsolved / 0 invalid。
+- H2：E2 fixed dispatching-rule baselines，full 670，固定单一规则留下 28-34 unsolved。
+- H3：E3 chunked wavefront ablation，full 670，chunk5/10/25 分别 4/2/0 unsolved。
+- H4：E4 `CP-SAT stratified-50 baseline, 120s/case`，50-case subset，44 verify ok / 6 infeasible_proven / 0 unsolved / 0 invalid。
+
+交给 QA 的重点：
+
+- H1-H3 是 full-670 deterministic heuristic / strategy ablation。
+- H4 是 CP-SAT stratified-50 subset，不得与 H1-H3 做 case-count-equivalent 比较。
+- E5/E6/E7 不得进入主实验比较。
+- H5/H6 在没有机器可读 metrics 或 case-study artifact 前不得写入正文结果。
+
+下一步由 experiment_manager_agent 负责：
+
+1. 生成 H5 schema 与所需特征可用性检查。
+2. 提出 H6 候选 case list，附 order/solution/verify 或 infeasibility artifact 路径。
+3. 将通过 QA 的 H-series table 和 H5/H6 结果交给 `paper_writer_agent`。
+
+## 2026-07-11 H-series table QA gate 结果
+
+更新时间：2026-07-11T04:45:46+08:00
+
+`qa_repro_agent` 已完成 H-series heuristic-first paper table draft QA gate，结论：PASS。
+
+状态：
+
+- `experiments/aaai2026/h_series_heuristic_table_draft.md` 可交给 `paper_writer_agent` 使用。
+- H1-H3 保持 full-670 heuristic / strategy ablation 口径。
+- H4 保持 `CP-SAT stratified-50 baseline, 120s/case` 口径，不与 H1-H3 做等 case_count 比较。
+- H5/H6 仍需新增机器可读 metrics / case-study artifacts 后才能进入正文结果。
+- E5/E6/E7 继续暂停主线，不进入主实验比较。
+
+下一步由 experiment_manager_agent 负责：
+
+1. 生成 H5 schema 与特征可用性检查。
+2. 提出 H6 候选 case list，附 order/solution/verify 或 infeasibility artifact 路径。
+3. 将 QA-passed H-series table 和后续 H5/H6 结果交给 `paper_writer_agent`。
+
+## 2026-07-11 H5/H6 任务单接收
+
+任务单路径：
+
+- `experiments/aaai2026/h5_h6_next_phase_task_brief.md`
+
+必须产出：
+
+- `experiments/aaai2026/h5_complexity_difficulty_metrics.json`
+- `experiments/aaai2026/h5_complexity_difficulty_table_draft.md`
+- `experiments/aaai2026/h6_verifier_case_study_manifest.json`
+- `experiments/aaai2026/h6_verifier_case_study_draft.md`
+
+H5 注意：
+
+- 先做特征可用性报告。
+- `operation_count`、`total_work_minutes`、`worker_day_count` 可从 E1 summary / split manifest join 检查。
+- `machine_load_ratio` 若没有可靠来源，必须标 `unavailable`。
+- 不得把 `load_ratio` 静默改名为 `machine_load_ratio`。
+
+H6 注意：
+
+- 选择 2 个复杂可行 verifier-ok case。
+- 选择 1 个库存抵扣/零任务/optimal case。
+- 选择 1 个容量下界 infeasible case。
+- 每个 case 必须有真实 order/solution/verify 或 infeasibility artifact 路径。
+
+完成后交给 `qa_repro_agent` 做 H5/H6 QA gate。

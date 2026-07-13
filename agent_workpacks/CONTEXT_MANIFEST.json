@@ -2,7 +2,7 @@
   "project": "LLMforScheduler",
   "created_at": "2026-07-02T18:08:30+08:00",
   "root": "/wenyu/media-wenyu-data/LLMforScheduler",
-  "objective": "AAAI paper and experiments for a verifier-backed factory order scheduling agent",
+  "objective": "AAAI paper and experiments for a verifier-backed industrial heuristic scheduling engine",
   "canonical_sources": {
     "repo_readme": "README.md",
     "task_semantics": "docs/task.md",
@@ -30,11 +30,25 @@
   },
   "aaai2026_framework": {
     "root": "experiments/aaai2026/",
+    "heuristic_replan_plan": "experiments/aaai2026/heuristic_replan_experiment_plan.md",
+    "h_series_table_draft": "experiments/aaai2026/h_series_heuristic_table_draft.md",
+    "h5_h6_task_brief": "experiments/aaai2026/h5_h6_next_phase_task_brief.md",
     "split_manifest_builder": "experiments/aaai2026/build_split_manifest.py",
     "metrics_aggregator": "experiments/aaai2026/aggregate_metrics.py",
-    "llm_tool_schema": "experiments/aaai2026/llm_tool_schema.py",
-    "sft_data_builder": "experiments/aaai2026/build_sft_data.py",
-    "direct_baseline_validator": "experiments/aaai2026/validate_direct_baseline.py"
+    "stratified_manifest_builder": "experiments/aaai2026/build_stratified_manifest.py",
+    "primary_track": "H1-H6 verifier-backed heuristic scheduling experiments",
+    "paused_appendix_interfaces": {
+      "llm_tool_schema": "experiments/aaai2026/llm_tool_schema.py",
+      "llm_tool_runner": "experiments/aaai2026/run_llm_tool_agent.py",
+      "sft_data_builder": "experiments/aaai2026/build_sft_data.py",
+      "direct_baseline_validator": "experiments/aaai2026/validate_direct_baseline.py"
+    },
+    "next_needed_outputs": {
+      "h5_complexity_metrics": "experiments/aaai2026/h5_complexity_difficulty_metrics.json",
+      "h5_table_draft": "experiments/aaai2026/h5_complexity_difficulty_table_draft.md",
+      "h6_case_study_manifest": "experiments/aaai2026/h6_verifier_case_study_manifest.json",
+      "h6_case_study_draft": "experiments/aaai2026/h6_verifier_case_study_draft.md"
+    }
   },
   "agents": {
     "project_manager_agent": "agent_workpacks/project_manager_agent/",
