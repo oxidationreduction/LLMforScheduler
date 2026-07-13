@@ -21,9 +21,8 @@
 
 ## Git 协作规则
 
-- 修改 QA 记录、状态、登记表或 handoff 前，从项目主管指定基线创建 `agent/qa-repro/<task-slug>` 分支；不得直接向 `main` 或集成分支提交。
-- 每项写入任务结束时只提交本任务文件。提交前检查暂存范围、`git diff --check`、`git diff --cached --check` 和文件大小；单文件超过 50 MiB 禁止提交，不得以 Git LFS、压缩或拆分规避。
-- 在 `HANDOFF.md` 报告分支、提交哈希、检查范围、验证命令、发现和风险，等待项目主管检查并合并；不得自行合并、rebase、force-push 或改写历史。
+- 不得执行 Git 写入操作，包括 `git add`、`git commit`、`git switch`、`git merge`、`git rebase`、`git reset`、`git push` 或改写历史。
+- 在 `HANDOFF.md` 报告变更文件、检查范围、验证命令、发现和风险，由项目主管检查、暂存和提交；单文件超过 50 MiB 的产物必须保留在登记的外部结果路径，不能进入 Git。
 
 ## 已内化项目策略
 

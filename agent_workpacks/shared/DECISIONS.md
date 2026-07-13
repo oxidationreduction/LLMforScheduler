@@ -74,10 +74,10 @@ GPU 只用于 LLM 推理或 LoRA/SFT；solver、verifier、OR-Tools 主线主要
 
 论文主表只接收已登记 artifact 且通过 QA gate 的结果。旧结果目录可作为背景说明；若要进入主比较，必须在同一 split、同一 verifier、同一 metrics schema 下重新汇总或复现。
 
-## D9. Agent 分支提交与合并
+## D9. Git 权限集中于项目主管
 
-所有会修改仓库文件的 agent 任务必须从项目主管指定的当前集成基线新建独立任务分支，命名为 `agent/<agent-name>/<task-slug>`。任务完成后，执行 agent 必须只提交本任务改动，并在自己的 `HANDOFF.md` 报告分支名、提交哈希、验证、产物和风险。
+所有 agent 可修改职责范围内文件，但 Git 暂存、提交、分支、合并、推送和历史管理只由 `project_manager_agent` 执行。其它 agent 不得执行 `git add`、`git commit`、`git switch`、`git merge`、`git rebase`、`git reset`、`git push` 或改写历史。
 
-项目主管是唯一的合并决策者：先检查 diff、测试/QA 证据、artifact 登记和 claim 边界，再把通过的任务分支合并到当前集成分支。任何 agent 不得直接提交到 `main` 或集成分支，不得自行合并、rebase、force-push 或改写历史。
+任务 agent 完成文件修改和验证后，在自己的 `HANDOFF.md` 报告变更文件、验证、artifact 和风险。项目主管检查 diff、测试/QA 证据、artifact 登记和 claim 边界后，统一选择并提交本任务改动。
 
-提交硬限制：禁止暂存或提交单个超过 50 MiB 的文件；不得以 Git LFS、压缩或拆分方式规避。例外必须由项目主管取得用户的明确书面批准。每次修改文件的任务结束后都必须产生范围清晰的提交；仅阅读或仅运行且未写入仓库的任务除外。
+提交硬限制：项目主管禁止暂存或提交单个超过 50 MiB 的文件；不得以 Git LFS、压缩或拆分方式规避。例外必须由项目主管取得用户的明确书面批准。

@@ -37,8 +37,8 @@
 - 未经项目主管批准，不得修改 `docs/task.md` 的业务语义。
 - LLM 输出只有能被解析并通过同一 verifier 检查时，才算有效结果；当前主线不依赖 LLM 结果。
 - 论文写手只能使用实验管理 agent 交付的数字，不能直接从未验证日志中取最终结论。
-- 涉及文件修改的任务完成后，执行该任务的 agent 必须在自己的任务分支提交；不得直接向 `main` 或集成分支提交。
-- 禁止暂存或提交单个超过 50 MiB 的文件；不得用 Git LFS、压缩或拆分方式绕过此限制，除非项目主管获得用户的明确书面批准。
+- git 暂存、提交、分支、合并和历史管理只由 `project_manager_agent` 执行；其它 agent 不得自行提交、建分支、合并或改写历史。
+- 项目主管提交时不得纳入单个超过 50 MiB 的文件；不得用 Git LFS、压缩或拆分方式绕过此限制，除非获得用户的明确书面批准。
 
 ## 已冻结项目策略
 
@@ -57,10 +57,8 @@
 4. 默认只更新自己目录下的 `STATE.json` 和 `HANDOFF.md`；只有职责明确归属时才更新共享文件。
 5. 如果被阻塞，在自己的 `HANDOFF.md` 写清 blocker，并通知 `project_manager_agent`。
 
-## Git 协作与提交协议
+## Git 交接协议
 
-1. 项目主管为每项会修改文件的任务指定当前集成基线和唯一分支名，格式为 `agent/<agent-name>/<task-slug>`；任务 agent 从该基线新建分支，不在 `main`、共享集成分支或他人分支上直接修改。
-2. 任务 agent 只暂存本任务文件。提交前必须检查 `git status --short`、`git diff --check`、`git diff --cached --check`，并确认暂存的新增或修改文件均不超过 50 MiB。
-3. 任务 agent 完成修改、必要验证和提交后，在自己的 `HANDOFF.md` 报告分支名、提交哈希、变更文件、验证命令、产物路径及未解决风险；不要自行合并、rebase、force-push、改写历史或删除分支。
-4. `project_manager_agent` 收到报告后检查提交内容、验证证据、artifact 登记和大文件限制；仅通过检查的任务分支才合并到当前集成分支。未通过时退回原 agent 修正并产生新提交。
-5. 纯阅读、仅运行既有实验且不修改仓库文件的任务不要求创建提交；一旦写入代码、文档、登记表、状态或 handoff，即适用本协议。
+1. 所有 agent 可以修改职责范围内文件并在 `HANDOFF.md` 报告变更文件、验证命令、产物路径和未解决风险，但不得执行 `git add`、`git commit`、`git switch`、`git merge`、`git rebase`、`git reset`、`git push` 或修改历史。
+2. `project_manager_agent` 收到 handoff 后检查改动范围、验证证据、artifact 登记和 50 MiB 大文件限制；确认通过后由项目主管统一暂存、提交和维护分支历史。
+3. 纯阅读或未写入仓库的任务无需 Git 交接；一旦写入代码、文档、登记表、状态或 handoff，必须报告给项目主管，由其安排提交。

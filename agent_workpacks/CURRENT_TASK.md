@@ -31,10 +31,9 @@
 
 ## Agent 提交流程
 
-- 所有会修改仓库文件的 agent 任务均在项目主管指定基线之上的独立 `agent/<agent-name>/<task-slug>` 分支完成；每个任务结束时必须提交本任务改动。
-- 禁止直接向 `main` 或当前集成分支提交，也禁止自行合并、rebase、force-push 或改写历史。
-- 禁止提交单个超过 50 MiB 的文件，不得以 Git LFS、压缩或拆分规避；提交前检查暂存范围、`git diff --check` 和暂存文件大小。
-- 任务 agent 在 `HANDOFF.md` 报告 branch、commit、文件、验证、artifact 和风险；项目主管检查后决定是否合并。
+- Git 暂存、提交、分支、合并、推送和历史管理只由 `project_manager_agent` 执行；其它 agent 不得自行提交或切换分支。
+- 任务 agent 在 `HANDOFF.md` 报告文件、验证、artifact 和风险；项目主管检查后统一提交。
+- 项目主管禁止提交单个超过 50 MiB 的文件，不得以 Git LFS、压缩或拆分规避；提交前检查暂存范围、`git diff --check` 和暂存文件大小。
 
 ## 论文定位
 
