@@ -237,6 +237,25 @@ QA 结论：
 - `agent_workpacks/project_manager_agent/HANDOFF.md`
 - `agent_workpacks/experiment_manager_agent/HANDOFF.md`
 
+## 2026-07-13 H5/H6 artifact QA gate 请求
+
+待审计产物：
+
+- `experiments/aaai2026/h5_complexity_difficulty_metrics.json`
+- `experiments/aaai2026/h5_complexity_difficulty_table_draft.md`
+- `experiments/aaai2026/h6_verifier_case_study_manifest.json`
+- `experiments/aaai2026/h6_verifier_case_study_draft.md`
+
+QA 要求：
+
+- H5 JSON 可解析；manifest/E1 summary 为 670 个唯一 case 且无 missing/extra；`operation_count` 与 `machine_load_ratio` 必须标为 solver-semantics derived，`load_ratio` 必须保持 `available_not_a_substitute`。
+- H5 每个 feature bucket 的 case_count 合计为 670；状态/verify/runtime 统计与 case rows 可复算；不得把 QA-pending 数字写成论文主表证据。
+- H6 四个 case 的 order/solution/verify 路径均存在且指向 E1 run；two feasible cases 为 verify `ok`，库存 case 保持 5=5、zero task、verify `ok`。
+- `SO-2025-05-0003-2` 必须保持 `infeasible_proven`、verify `not_applicable` 以及 CMM `10701.610000 > 10080.000000` 容量下界措辞；不得写成 verifier 已验证不可行或现实完备不可行。
+- E5/E6/E7 与任何 LLM 输出不得进入来源、表格或正向 claim。
+
+请将 gate 结论报告给 `project_manager_agent` 与 `experiment_manager_agent`；在 PASS 前 H5/H6 保持 `qa_pending`。
+
 ## 2026-07-09 E4 artifact QA gate 请求
 
 E4 CP-SAT stratified-50 baseline 已完成，需做 artifact QA gate 后再进入论文 E8 表格。

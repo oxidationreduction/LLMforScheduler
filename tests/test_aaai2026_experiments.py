@@ -3,7 +3,16 @@ from __future__ import annotations
 import argparse
 import json
 
+import pytest
+
 from aggregate_metrics import aggregate_run
+from build_h5_complexity_difficulty import (
+    _bucket_assignments,
+    build_h5_payload,
+    check_existing,
+    derive_features,
+    generate_outputs,
+)
 from build_sft_data import build_sft_rows
 from build_split_manifest import build_manifest
 from build_stratified_manifest import build_stratified_manifest
@@ -12,6 +21,84 @@ from llm_tool_schema import parse_text
 from run_llm_tool_agent import execute, prepare
 from run_full_benchmark import run_benchmark
 from validate_direct_baseline import validate
+
+
+def test_h5_derives_inventory_aware_operation_and_machine_metrics(tmp_path, minimal_order, write_order):
+    order_path = write_order(
+        tmp_path,
+        minimal_order(quantity=3, inventory=1, due_day=2, machine_counts={"M1": 2, "M2": 1}),
+    )
+    from schedule_solver import load_order
+
+    features = derive_features(load_order(order_path))
+
+    assert features["operation_count"] == 4
+    assert features["total_work_minutes"] == 30.0
+    assert features["machine_load_ratio"] == pytest.approx(20.0 / (2 * 2 * 480))
+    assert features["worker_day_count"] == 2
+
+
+def test_h5_tertiles_preserve_equal_values():
+    rows = [
+        {"case_id": f"C{index}", "features": {"worker_day_count": value}}
+        for index, value in enumerate([1, 1, 2, 2, 2, 3])
+    ]
+
+    assignments, policy = _bucket_assignments(rows, "worker_day_count")
+
+    assert assignments["C0"] == assignments["C1"] == "low"
+    assert {assignments["C2"], assignments["C3"], assignments["C4"]} == {"medium"}
+    assert assignments["C5"] == "high"
+    assert policy["nominal_bucket_case_counts"] == {"low": 2, "medium": 2, "high": 2}
+
+
+def test_h5_join_rejects_duplicate_and_missing_cases(tmp_path):
+    manifest_path = tmp_path / "manifest.json"
+    summary_path = tmp_path / "summary.json"
+    duplicate_manifest = {"case_count": 2, "cases": [{"case_id": "A"}, {"case_id": "A"}]}
+    summary = {"case_count": 1, "cases": [{"case_id": "A"}]}
+
+    with pytest.raises(ValueError, match="duplicate split_manifest case_id"):
+        build_h5_payload(duplicate_manifest, summary, split_manifest_path=manifest_path, summary_path=summary_path)
+
+    manifest = {"case_count": 1, "cases": [{"case_id": "A", "order_path": "missing.json"}]}
+    missing_summary = {"case_count": 1, "cases": [{"case_id": "B"}]}
+    with pytest.raises(ValueError, match="case-id join mismatch"):
+        build_h5_payload(manifest, missing_summary, split_manifest_path=manifest_path, summary_path=summary_path)
+
+
+def test_h5_generation_refuses_overwrite_and_check_is_read_only(tmp_path, minimal_order, write_json, write_order):
+    order_path = write_order(tmp_path, minimal_order(case_id="SO-2024-08-0001-2"))
+    manifest_path = tmp_path / "manifest.json"
+    summary_path = tmp_path / "summary.json"
+    manifest = {
+        "case_count": 1,
+        "cases": [
+            {
+                "case_id": "SO-2024-08-0001-2",
+                "split": "test",
+                "difficulty_bucket": "easy",
+                "order_path": str(order_path),
+                "load_ratio": 0.1,
+            }
+        ],
+    }
+    summary = {
+        "case_count": 1,
+        "cases": [{"case_id": "SO-2024-08-0001-2", "status": "feasible", "verify_status": "ok", "solve_seconds": 0.1}],
+    }
+    write_json(manifest_path, manifest)
+    write_json(summary_path, summary)
+    payload = build_h5_payload(manifest, summary, split_manifest_path=manifest_path, summary_path=summary_path)
+    out_json, out_md = tmp_path / "h5.json", tmp_path / "h5.md"
+
+    generate_outputs(payload, out_json, out_md)
+    before = (out_json.read_bytes(), out_md.read_bytes())
+    check_existing(payload, out_json, out_md)
+
+    assert before == (out_json.read_bytes(), out_md.read_bytes())
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        generate_outputs(payload, out_json, out_md)
 
 
 def test_split_manifest_is_date_based_and_tags_ood(tmp_path, minimal_order, valid_solution, write_json, write_order, write_solution):

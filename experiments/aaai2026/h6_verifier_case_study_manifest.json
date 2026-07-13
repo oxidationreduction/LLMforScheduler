@@ -1,0 +1,281 @@
+{
+  "schema": "h6_verifier_case_study_manifest/v1",
+  "artifact_id": "H6",
+  "title": "Verifier-backed four-case study for the H-series heuristic-first mainline",
+  "status": "qa_pending",
+  "paper_ready": false,
+  "created_date": "2026-07-13",
+  "scope": {
+    "benchmark": "E1 full-670 reproduction",
+    "method": "timed_greedy",
+    "case_count": 4,
+    "exclusions": [
+      "No E5/E6/E7 artifact is read or used.",
+      "No LLM output is used.",
+      "This is a verifier-backed case study, not an aggregate benchmark claim."
+    ]
+  },
+  "sources": {
+    "e1_summary": "results/raw_view/e1_full670_repro_20260703_232018/summary.json",
+    "split_manifest": "experiments/aaai2026/split_manifest.json",
+    "orders_root": "raw_orders",
+    "path_provenance_rule": "For every case, order_path, solution_path, and verify_path are copied from the E1 full-670 summary row. The split manifest is used only for split, eval_groups, and difficulty_bucket; its legacy solution_path is not used."
+  },
+  "selection_policy": {
+    "categories": [
+      {
+        "category": "complex_feasible",
+        "target_count": 2,
+        "selection_rule": "One feasible case with the largest observed total_work_minutes and complexity_score among E1 feasible rows, and one feasible case with the largest observed task_count and solve_seconds among E1 feasible rows."
+      },
+      {
+        "category": "inventory_deduction_zero_task",
+        "target_count": 1,
+        "selection_rule": "An order whose requested quantity is fully covered by inventory and whose E1 solution is an empty optimal plan verified as ok."
+      },
+      {
+        "category": "capacity_lower_bound_infeasible",
+        "target_count": 1,
+        "selection_rule": "An E1 infeasible_proven row carrying a concrete machine-capacity lower-bound error; verifier status must remain not_applicable."
+      }
+    ],
+    "category_count": {
+      "complex_feasible": 2,
+      "inventory_deduction_zero_task": 1,
+      "capacity_lower_bound_infeasible": 1,
+      "total": 4
+    }
+  },
+  "cases": [
+    {
+      "case_id": "SO-2025-04-0022-2",
+      "category": "complex_feasible",
+      "split": "test",
+      "eval_groups": ["ood_recent"],
+      "difficulty": "hard",
+      "paths": {
+        "order_path": "raw_orders/SO-2025-04-0022-2.json",
+        "solution_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2025-04-0022-2.solution.json",
+        "verify_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2025-04-0022-2.verify.json",
+        "summary_row_source": "results/raw_view/e1_full670_repro_20260703_232018/summary.json#cases[case_id=SO-2025-04-0022-2]"
+      },
+      "status": {
+        "solve_status": "feasible",
+        "verify_status": "ok",
+        "verify_error_count": 0,
+        "machine_error_count": 0
+      },
+      "solver": {
+        "method": "timed_greedy",
+        "strategy": {
+          "unit_strategy": "chunked_wavefront_5",
+          "worker_strategy": "least_used",
+          "day_strategy": "forward",
+          "chunk_size": 5
+        },
+        "attempt_count": 1
+      },
+      "observed_metrics": {
+        "solve_seconds": 2.6055680889403448,
+        "wall_seconds": 2.7164360439637676,
+        "task_count_before_merge": 7046,
+        "task_count_after_merge": 6947,
+        "scheduled_operations": 7046,
+        "product_count": 6,
+        "net_required_total": 1035,
+        "step_count": 40,
+        "total_work_minutes": 46138.880000000005,
+        "max_due_day": 22,
+        "worker_count": 12,
+        "worker_day_count": 242,
+        "complexity_score": 56738.880000000005
+      },
+      "selection": "Hard test/OOD feasible case selected as the maximum observed total_work_minutes and complexity_score among E1 feasible rows.",
+      "evidence": [
+        "The E1 summary row reports feasible and verify_status=ok with zero verify and machine errors.",
+        "The E1 solution reports 7,046 scheduled operations and 6,947 tasks after merge.",
+        "The E1 full-670 feasible-row maximum check identifies this case for total_work_minutes and complexity_score."
+      ],
+      "allowed_claim": "This recorded E1 timed_greedy solution for this selected hard test/OOD order passed the recorded verifier with no reported errors.",
+      "claim_limits": [
+        "Do not claim an optimal schedule.",
+        "Do not extrapolate this case result to all OOD orders or the full benchmark.",
+        "Do not treat this pre-QA artifact as paper-ready."
+      ]
+    },
+    {
+      "case_id": "SO-2022-12-0019-2",
+      "category": "complex_feasible",
+      "split": "train",
+      "eval_groups": [],
+      "difficulty": "hard",
+      "paths": {
+        "order_path": "raw_orders/SO-2022-12-0019-2.json",
+        "solution_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2022-12-0019-2.solution.json",
+        "verify_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2022-12-0019-2.verify.json",
+        "summary_row_source": "results/raw_view/e1_full670_repro_20260703_232018/summary.json#cases[case_id=SO-2022-12-0019-2]"
+      },
+      "status": {
+        "solve_status": "feasible",
+        "verify_status": "ok",
+        "verify_error_count": 0,
+        "machine_error_count": 0
+      },
+      "solver": {
+        "method": "timed_greedy",
+        "strategy": {
+          "unit_strategy": "chunked_wavefront_10",
+          "worker_strategy": "least_used",
+          "day_strategy": "forward",
+          "chunk_size": 10
+        },
+        "attempt_count": 2
+      },
+      "observed_metrics": {
+        "solve_seconds": 15.010928976000287,
+        "wall_seconds": 15.156140292063355,
+        "task_count_before_merge": 9280,
+        "task_count_after_merge": 9129,
+        "scheduled_operations": 9280,
+        "product_count": 5,
+        "net_required_total": 1492,
+        "step_count": 33,
+        "total_work_minutes": 32991.8,
+        "max_due_day": 19,
+        "worker_count": 12,
+        "worker_day_count": 213,
+        "complexity_score": 41741.8
+      },
+      "selection": "Hard train feasible case selected as the maximum observed task_count (9,129 after merge) and solve_seconds (15.010928976000287) among E1 feasible rows.",
+      "evidence": [
+        "The E1 summary row reports feasible and verify_status=ok with zero verify and machine errors.",
+        "The E1 solution reports 9,280 scheduled operations and 9,129 tasks after merge.",
+        "The E1 full-670 feasible-row maximum check identifies this case for task_count and solve_seconds."
+      ],
+      "allowed_claim": "This recorded E1 timed_greedy solution for this selected hard training order passed the recorded verifier with no reported errors.",
+      "claim_limits": [
+        "Do not claim the solve time is a universal upper bound.",
+        "Do not compare this train case as an OOD generalization result.",
+        "Do not treat this pre-QA artifact as paper-ready."
+      ]
+    },
+    {
+      "case_id": "SO-2024-10-0032-2",
+      "category": "inventory_deduction_zero_task",
+      "split": "test",
+      "eval_groups": [],
+      "difficulty": "easy",
+      "paths": {
+        "order_path": "raw_orders/SO-2024-10-0032-2.json",
+        "solution_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2024-10-0032-2.solution.json",
+        "verify_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2024-10-0032-2.verify.json",
+        "summary_row_source": "results/raw_view/e1_full670_repro_20260703_232018/summary.json#cases[case_id=SO-2024-10-0032-2]"
+      },
+      "status": {
+        "solve_status": "optimal",
+        "verify_status": "ok",
+        "verify_error_count": 0,
+        "machine_error_count": 0
+      },
+      "solver": {
+        "method": "timed_greedy",
+        "strategy": null,
+        "attempt_count": null
+      },
+      "observed_metrics": {
+        "solve_seconds": 0.000010336050763726234,
+        "wall_seconds": 0.0015539689920842648,
+        "task_count": 0,
+        "plan_length": 0,
+        "product_count_after_inventory_deduction": 0,
+        "net_required_total": 0,
+        "step_count": 0,
+        "total_work_minutes": 0.0,
+        "max_due_day": 16,
+        "worker_count": 12,
+        "worker_day_count": 180,
+        "complexity_score": 0.0,
+        "requested_quantity": 5,
+        "inventory_quantity": 5
+      },
+      "selection": "Test case selected to document the inventory-deduction path: the order requests five units and records five in inventory, yielding an empty zero-task optimal plan.",
+      "evidence": [
+        "The raw order records requested_quantity=5 and inventory_quantity=5 for product 6566092.",
+        "The E1 solution reports status=optimal, plan=[], task_count=0, and net_required_total=0.",
+        "The E1 verifier reports status=ok, task_count=0, error_count=0, and machine_concurrency_checked=true."
+      ],
+      "allowed_claim": "For this recorded order, the E1 inventory deduction produced a zero-task empty plan that the recorded verifier accepted.",
+      "claim_limits": [
+        "Do not claim inventory semantics were independently revalidated beyond the cited order, solution, and verifier artifacts.",
+        "Do not use this case to claim performance on non-zero-work orders.",
+        "Do not treat this pre-QA artifact as paper-ready."
+      ]
+    },
+    {
+      "case_id": "SO-2025-05-0003-2",
+      "category": "capacity_lower_bound_infeasible",
+      "split": "test",
+      "eval_groups": ["ood_recent"],
+      "difficulty": "hard",
+      "paths": {
+        "order_path": "raw_orders/SO-2025-05-0003-2.json",
+        "solution_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2025-05-0003-2.solution.json",
+        "verify_path": "results/raw_view/e1_full670_repro_20260703_232018/solutions/SO-2025-05-0003-2.verify.json",
+        "summary_row_source": "results/raw_view/e1_full670_repro_20260703_232018/summary.json#cases[case_id=SO-2025-05-0003-2]"
+      },
+      "status": {
+        "solve_status": "infeasible_proven",
+        "verify_status": "not_applicable",
+        "verify_error_count": 0,
+        "machine_error_count": 0
+      },
+      "solver": {
+        "method": "timed_greedy",
+        "strategy": null,
+        "attempt_count": null
+      },
+      "observed_metrics": {
+        "solve_seconds": 0.20397489494644105,
+        "wall_seconds": 0.2057123730191961,
+        "task_count": 0,
+        "product_count": 11,
+        "net_required_total": 1716,
+        "step_count": 65,
+        "total_work_minutes": 46227.48999999999,
+        "max_due_day": 21,
+        "worker_count": 12,
+        "worker_day_count": 232,
+        "complexity_score": 63577.48999999999,
+        "machine_capacity_lower_bound": {
+          "machine": "CMM CONTURA 10/16/6",
+          "required_minutes": 10701.61,
+          "available_minutes": 10080.0,
+          "comparison": "10701.610000 > 10080.000000"
+        }
+      },
+      "selection": "Hard test/OOD case selected because E1 records an infeasible_proven machine-capacity lower-bound error for CMM CONTURA 10/16/6.",
+      "evidence": [
+        "The E1 summary row reports status=infeasible_proven and verify_status=not_applicable.",
+        "The E1 solution error states: 设备 CMM CONTURA 10/16/6 总工时超过可用容量：10701.610000 > 10080.000000.",
+        "No schedule is emitted for this lower-bound infeasibility path; verifier status is intentionally and correctly not_applicable."
+      ],
+      "allowed_claim": "For this recorded order, the E1 artifact reports a CMM capacity lower-bound infeasibility of 10701.610000 > 10080.000000; schedule verification is not applicable because no schedule was produced.",
+      "claim_limits": [
+        "Do not describe not_applicable as verifier success or failure.",
+        "Do not claim this one lower-bound certificate characterizes all infeasible orders.",
+        "Do not treat this pre-QA artifact as paper-ready."
+      ]
+    }
+  ],
+  "qa_request": {
+    "target": "agent_workpacks/qa_repro_agent",
+    "gate": "H5/H6 artifact QA gate",
+    "required_checks": [
+      "Every order, solution, and verify path exists and belongs to the cited E1 full-670 run.",
+      "Every summary_row_source case matches status, verifier status, solver, strategy, and observed metrics.",
+      "The zero-task case has requested quantity and inventory quantity both equal to five, E1 plan=[], and verifier status=ok.",
+      "The infeasible case retains verify_status=not_applicable and the exact CMM comparison 10701.610000 > 10080.000000.",
+      "The draft keeps all allowed-claim and claim-limit boundaries."
+    ]
+  }
+}

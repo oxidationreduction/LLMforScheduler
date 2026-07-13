@@ -284,3 +284,18 @@ H6 注意：
 - 每个 case 必须有真实 order/solution/verify 或 infeasibility artifact 路径。
 
 完成后交给 `qa_repro_agent` 做 H5/H6 QA gate。
+
+## 2026-07-13 H5/H6 artifacts 已生成，等待 QA gate
+
+已生成并登记：
+
+- `experiments/aaai2026/h5_complexity_difficulty_metrics.json`
+- `experiments/aaai2026/h5_complexity_difficulty_table_draft.md`
+- `experiments/aaai2026/h6_verifier_case_study_manifest.json`
+- `experiments/aaai2026/h6_verifier_case_study_draft.md`
+
+H5 只汇总 E1 full-670。`operation_count` 和真正的 `machine_load_ratio` 均由 raw orders 按当前 solver 语义派生；manifest `load_ratio` 仅记录为 `available_not_a_substitute`。H5 join 为 670/670，整体为 576 verify ok、94 infeasible_proven、0 unsolved、0 verify invalid。
+
+H6 固定案例为 `SO-2025-04-0022-2`、`SO-2022-12-0019-2`、`SO-2024-10-0032-2` 和 `SO-2025-05-0003-2`。其中不可行案例的 verify status 明确为 `not_applicable`，证据仅限当前模型下 CMM `10701.610000 > 10080.000000` 的容量下界。
+
+已完成 CPU-only tmux 复核、JSON/path 断言和 H5 最小测试；四个正式 artifact 均为 `qa_pending`，不得写入论文主表。现交由 `qa_repro_agent` 执行 H5/H6 artifact QA gate。

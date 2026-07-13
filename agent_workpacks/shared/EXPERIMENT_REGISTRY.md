@@ -22,8 +22,8 @@
 | H2 | experiment_manager_agent | 固定 dispatching-rule baseline | full 670，复用 E2 | paper_ready | `experiments/aaai2026/metrics_e2_dispatch_baselines_20260707_153730.json`; fixed rules 留下 28-34 unsolved；0 verify invalid；H-series table QA PASS |
 | H3 | experiment_manager_agent | chunked wavefront 消融 | full 670，复用 E3 | paper_ready | `experiments/aaai2026/metrics_e3_wavefront_ablation_20260707_153731.json`; chunk5/10/25 分别 4/2/0 unsolved；chunk25 为 576 ok / 94 infeasible / 0 invalid；H-series table QA PASS |
 | H4 | experiment_manager_agent | CP-SAT 子集 baseline | stratified 50，120s/case，复用 E4 | paper_ready | `results/raw_view/e4_cpsat_stratified50_tl120_20260709_153557/metrics.json`; label 必须为 `CP-SAT stratified-50 baseline, 120s/case`；不得与 full-670 rows 按 case_count 等价比较；H-series table QA PASS |
-| H5 | experiment_manager_agent + dev_framework_agent | 规模/难度分桶分析 | full-670 registered artifacts | assigned | 任务单：`experiments/aaai2026/h5_h6_next_phase_task_brief.md`；输出 `summary.json` 或 `metrics.json`；按 operation_count、total_work_minutes、machine_load_ratio、worker_day_count 分桶；缺失特征必须显式标 `unavailable` |
-| H6 | experiment_manager_agent + qa_repro_agent | verifier case study | 4 个代表 case | assigned | 任务单：`experiments/aaai2026/h5_h6_next_phase_task_brief.md`；2 个复杂可行、1 个库存抵扣/零任务、1 个容量下界 infeasible；每个 case 指向 order/solution/verify 或 infeasibility artifact |
+| H5 | experiment_manager_agent + dev_framework_agent | 规模/难度分桶分析 | E1 full-670 registered artifacts | qa_pending | `experiments/aaai2026/h5_complexity_difficulty_metrics.json`; `experiments/aaai2026/h5_complexity_difficulty_table_draft.md`; operation_count 与 machine_load_ratio 为 solver-semantics derived，total_work_minutes/worker_day_count available，load_ratio 明确不替代 machine_load_ratio；尚待 H5/H6 artifact QA gate |
+| H6 | experiment_manager_agent + qa_repro_agent | verifier case study | 4 个 E1 代表 case | qa_pending | `experiments/aaai2026/h6_verifier_case_study_manifest.json`; `experiments/aaai2026/h6_verifier_case_study_draft.md`; `SO-2025-04-0022-2`, `SO-2022-12-0019-2`, `SO-2024-10-0032-2`, `SO-2025-05-0003-2`; 尚待 H5/H6 artifact QA gate |
 | H7 | dev_runner_agent | 可选 CP-SAT 600s 附录 | stratified 50，600s/case | optional | 仅在项目主管明确启动时运行；必须新目录、tmux、CPU-only |
 | H8 | dev_runner_agent | 可选 LLM appendix/motivation | 小规模，非主表 | paused | 可复用 E5 prompts 或 direct LLM 分层 30；不得进入主实验比较 |
 
@@ -36,6 +36,7 @@
 - `evidence_ready`：已有已登记证据可用于后续表格/QA，但未必已生成 H-series 专用底稿。
 - `in_progress`：当前正在更新或整合。
 - `assigned`：任务单已交付给负责人，但尚未产出正式 artifact。
+- `qa_pending`：正式 artifact 已生成并登记，等待独立 QA gate；不得作为 paper-ready 结果使用。
 - `paper_ready`：表格/数字已通过 QA gate，可在遵守 claim 边界时交给论文写手使用。
 - `optional`：仅在项目主管明确启动时执行。
 - `superseded`：由新的登记项承接，历史记录保留。
