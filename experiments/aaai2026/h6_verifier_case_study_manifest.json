@@ -2,8 +2,8 @@
   "schema": "h6_verifier_case_study_manifest/v1",
   "artifact_id": "H6",
   "title": "Verifier-backed four-case study for the H-series heuristic-first mainline",
-  "status": "qa_pending",
-  "paper_ready": false,
+  "status": "paper_ready",
+  "paper_ready": true,
   "created_date": "2026-07-13",
   "scope": {
     "benchmark": "E1 full-670 reproduction",
@@ -93,14 +93,14 @@
       "selection": "Hard test/OOD feasible case selected as the maximum observed total_work_minutes and complexity_score among E1 feasible rows.",
       "evidence": [
         "The E1 summary row reports feasible and verify_status=ok with zero verify and machine errors.",
-        "The E1 solution reports 7,046 scheduled operations and 6,947 tasks after merge.",
+        "The E1 solution reports 7,046 scheduled operations; the E1 summary row reports 6,947 tasks after merge.",
         "The E1 full-670 feasible-row maximum check identifies this case for total_work_minutes and complexity_score."
       ],
       "allowed_claim": "This recorded E1 timed_greedy solution for this selected hard test/OOD order passed the recorded verifier with no reported errors.",
       "claim_limits": [
         "Do not claim an optimal schedule.",
         "Do not extrapolate this case result to all OOD orders or the full benchmark.",
-        "Do not treat this pre-QA artifact as paper-ready."
+        "Use only with the cited E1 provenance and stated claim limits."
       ]
     },
     {
@@ -149,14 +149,14 @@
       "selection": "Hard train feasible case selected as the maximum observed task_count (9,129 after merge) and solve_seconds (15.010928976000287) among E1 feasible rows.",
       "evidence": [
         "The E1 summary row reports feasible and verify_status=ok with zero verify and machine errors.",
-        "The E1 solution reports 9,280 scheduled operations and 9,129 tasks after merge.",
+        "The E1 solution reports 9,280 scheduled operations; the E1 summary row reports 9,129 tasks after merge.",
         "The E1 full-670 feasible-row maximum check identifies this case for task_count and solve_seconds."
       ],
       "allowed_claim": "This recorded E1 timed_greedy solution for this selected hard training order passed the recorded verifier with no reported errors.",
       "claim_limits": [
         "Do not claim the solve time is a universal upper bound.",
         "Do not compare this train case as an OOD generalization result.",
-        "Do not treat this pre-QA artifact as paper-ready."
+        "Use only with the cited E1 provenance and stated claim limits."
       ]
     },
     {
@@ -201,14 +201,14 @@
       "selection": "Test case selected to document the inventory-deduction path: the order requests five units and records five in inventory, yielding an empty zero-task optimal plan.",
       "evidence": [
         "The raw order records requested_quantity=5 and inventory_quantity=5 for product 6566092.",
-        "The E1 solution reports status=optimal, plan=[], task_count=0, and net_required_total=0.",
+        "The E1 solution reports status=optimal, plan=[], and net_required_total=0; the E1 summary row reports task_count=0.",
         "The E1 verifier reports status=ok, task_count=0, error_count=0, and machine_concurrency_checked=true."
       ],
       "allowed_claim": "For this recorded order, the E1 inventory deduction produced a zero-task empty plan that the recorded verifier accepted.",
       "claim_limits": [
         "Do not claim inventory semantics were independently revalidated beyond the cited order, solution, and verifier artifacts.",
         "Do not use this case to claim performance on non-zero-work orders.",
-        "Do not treat this pre-QA artifact as paper-ready."
+        "Use only with the cited E1 provenance and stated claim limits."
       ]
     },
     {
@@ -263,7 +263,7 @@
       "claim_limits": [
         "Do not describe not_applicable as verifier success or failure.",
         "Do not claim this one lower-bound certificate characterizes all infeasible orders.",
-        "Do not treat this pre-QA artifact as paper-ready."
+        "Use only with the cited E1 provenance and stated claim limits."
       ]
     }
   ],

@@ -205,3 +205,10 @@ E3 chunked wavefront summaries：
 - 若收到 H5/H6 相关任务，优先使用轻量 CPU-only 分析；长任务仍必须用 tmux。
 - 若项目主管明确启动 H7，使用新结果目录运行 CP-SAT stratified-50 600s/case appendix，不覆盖 E4 120s/case 目录。
 - 所有新产物必须输出 `summary.json` 或 `metrics.json` 并登记到 `shared/ARTIFACTS.md`。
+
+## 2026-07-15 H7 完成记录：CP-SAT stratified-50 600s appendix
+
+- tmux：`llm_sched_h7_cpsat600`；CPU-only (`CUDA_VISIBLE_DEVICES=""`)，完成后仅关闭本任务 session。smoke 2 case 通过后已删除临时目录。
+- 结果：`results/raw_view/h7_cpsat_stratified50_tl600_20260715_013325/`；metrics：`experiments/aaai2026/metrics_h7_cpsat_stratified50_tl600_20260715_013325.json`，使用 `experiments/aaai2026/e4_cpsat_stratified50_manifest.json` 聚合。
+- QA-passed 数字：50/50 coverage，42 feasible、2 optimal、6 infeasible_proven，44 verify ok、0 unsolved、0 verify invalid；method_counts 为 `timed_cpsat=39`、`timed_cpsat_batched=11`。
+- 边界：仅作 `CP-SAT stratified-50 baseline, 600s/case appendix`；不得与 E4 120s 或 full-670 结果进行等时限或等范围比较。E5/E6/E7 仍暂停。

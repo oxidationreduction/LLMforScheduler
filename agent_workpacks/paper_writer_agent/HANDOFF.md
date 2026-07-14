@@ -2,6 +2,17 @@
 
 ## 当前状态
 
+2026-07-15 更新：已起草并更新 AAAI `Experiments` 章节：
+`experiments/aaai2026/aaai_experiments_section_draft.md`。H1-H3 保持
+full-670，H4 单列为 `CP-SAT stratified-50 baseline, 120s/case`，不作等
+case-count 比较。H5/H6 artifact QA gate 已 PASS，正文现引用可审计的
+H5 670-case scale/difficulty 分析与 H6 四案例 verifier study；H5 保留
+derived `machine_load_ratio` 和 `load_ratio` non-substitute 边界，H6 保留
+complex-feasible、inventory zero-task 与 capacity lower-bound
+`not_applicable` 边界。H7 仅加入 `CP-SAT stratified-50 baseline,
+600s/case appendix` 段落，不进入主 claim，也不与 E4-120 或 full-670
+直接等价比较。此更新不改变 H5/H6 artifact 的 registry 状态。
+
 2026-07-11 更新：论文主线改为 verifier-backed industrial heuristic scheduling engine。E5/E6/E7 不进入主实验；LLM 相关内容最多作为附录动机候选，当前不写主 claim。
 
 ## 初始大纲
@@ -21,8 +32,9 @@
 ## 等待事项
 
 - `experiments/aaai2026/h_series_heuristic_table_draft.md` 已通过 QA，可用于 H1-H4 正文结果。
-- `experiment_manager_agent` 提供 H5 complexity/difficulty metrics。
-- `experiment_manager_agent` 提供 H6 verifier case-study artifacts。
+- H5/H6 的 artifact QA gate 已 PASS；只能使用已登记 artifact 中的已审计数字和 case-level evidence，不得自行扩展 claim。
+- H5/H6 artifact registry 已同步为 `paper_ready`；只可使用已审计数字和 case-level evidence，不得自行扩展 claim。
+- H7 只可作为 appendix-only 600s/case 段落，不进入主实验 claim，也不得与 E4-120 或 full-670 直接等价比较。
 - 确认后的相关工作引用列表。
 - 图表 artifact 路径。
 
@@ -45,10 +57,25 @@
 
 继续等待：
 
-- H5 complexity/difficulty metrics。
-- H6 verifier case-study artifacts。
+- H5/H6 artifact registry 的 paper-ready 状态同步（由其所有者负责，不在本次写作范围内）。
 
 不得写：
 
-- H5/H6 的具体结果数字。
+- 超出已登记 H5/H6 artifact 的具体结果数字或 case-level evidence。
 - LLM 主方法、LLM 主比较或 LLM 全面优越。
+
+## 2026-07-15 Experiments Draft Handoff
+
+- Draft: `experiments/aaai2026/aaai_experiments_section_draft.md`.
+- Evidence used: paper-ready H1-H4 values from
+  `experiments/aaai2026/h_series_heuristic_table_draft.md`.
+- Preserved boundaries: H1-H3 are full-670 only; H4 is isolated as the
+  CP-SAT stratified-50 baseline at 120s/case; no global-optimality, complete
+  infeasibility, industrial-KPI, or LLM-main-comparison claim is written.
+- H5/H6 QA-PASS writeback: H5 reports audited 670-case empirical-tertile
+  summaries with derived `machine_load_ratio` and non-substitute `load_ratio`;
+  H6 reports the audited four-case E1 verifier study without upgrading
+  feasible, zero-task, or lower-bound evidence into broad claims.
+- H7 is appendix-only: `CP-SAT stratified-50 baseline, 600s/case appendix`
+  reports 50 cases, 44 verifier `ok`, 6 `infeasible_proven`, 0 unsolved, and
+  0 verifier-invalid; it is not directly comparable to E4-120 or full-670.

@@ -29,7 +29,7 @@ LLM 相关实验不进入论文主实验。E5 prompts 可保留为 appendix/moti
 - H4：沿用 E4 `CP-SAT stratified-50 baseline, 120s/case`。
 - H5：新增规模/难度分桶分析，按 operation_count、total_work_minutes、machine_load_ratio、worker_day_count 汇总 verified ok、infeasible_proven、runtime p50/p90/p95/max。
 - H6：新增 verifier case study，选择 2 个复杂可行 case、1 个库存抵扣/零任务 case、1 个容量下界 infeasible case。
-- H7：可选 CP-SAT stratified-50 600s/case 附录。
+- H7：已完成 `CP-SAT stratified-50 baseline, 600s/case appendix`；仅限附录，必须与 H4 120s 和 full-670 主线隔离。
 - H8：可选 LLM appendix/motivation，不进入主方法比较。
 
 不做 RL、GNN、670 单全量 exact CP-SAT、大规模合成数据扩展。外部 JSPLib/FJSPLib/Taillard/DMU benchmark 只作为相关工作或未来工作，除非能快速无损适配库存、人员可用、设备副本和交期验收语义。

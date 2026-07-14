@@ -309,3 +309,15 @@ H6 固定案例为 `SO-2025-04-0022-2`、`SO-2022-12-0019-2`、`SO-2024-10-0032-
 - 验证：CPU-only tmux `llm_sched_h5_h6_20260713` 中执行 H5 无写入复核、`pytest -q -p no:cacheprovider tests/test_aaai2026_experiments.py`（15 passed）、JSON parse、H5 670-case/bucket counts、H6 category/path/status assertions；`git diff --check` 与暂存差异检查通过。
 - 产物：`experiments/aaai2026/h5_complexity_difficulty_metrics.json`、`experiments/aaai2026/h5_complexity_difficulty_table_draft.md`、`experiments/aaai2026/h6_verifier_case_study_manifest.json`、`experiments/aaai2026/h6_verifier_case_study_draft.md`。
 - 未解决风险：H5/H6 均为 `qa_pending`；`operation_count` 和 `machine_load_ratio` 是按既有 solver 语义从 raw orders 派生，必须经独立 QA gate 后才可进入论文主表。未合并、未 rebase、未 force-push、未触碰无关 tmux 或进程。
+
+## 2026-07-15 H6 provenance correction submitted for QA
+
+- 已修正 `h6_verifier_case_study_manifest.json` 中三处 task-count 归因：solution 仅用于 status、scheduled operations 或空 plan；task count 改由 E1 summary row 或 verifier 引用。
+- `h6_verifier_case_study_draft.md` 已同步标明上述来源，避免将 task count 归因给 solution。
+- **H6 状态：** `qa_requested`。该 artifact 仍非 paper-ready，须由 `qa_repro_agent` 独立复核后才可改变状态。
+
+## 2026-07-15 H5/H6 QA PASS 与 H7 appendix
+
+- `qa_repro_agent` 已独立通过 H5/H6 artifact QA。H5 仅描述 E1 full-670 的 complexity/difficulty 分桶；`machine_load_ratio` 仍是 solver-semantics derived，`load_ratio` 仍非替代指标。
+- H6 provenance 更正后通过：solution 仅对应状态、scheduled operations 或空 plan；task count 对应 E1 summary/verifier。四 case 的 claim limits 保持不变。
+- H7 已完成并通过 QA：`CP-SAT stratified-50 baseline, 600s/case appendix`，50 case、44 verify ok、6 infeasible_proven、0 unsolved、0 verify invalid。它不替代或重标 H4 的 120s 结果。

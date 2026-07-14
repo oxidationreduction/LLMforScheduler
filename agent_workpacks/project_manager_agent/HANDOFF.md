@@ -266,3 +266,9 @@ H-series 映射：
 2. `experiment_manager_agent`：设计 H5/H6 的 artifact schema，并明确是否需要 `dev_framework_agent` 补脚本。
 3. `paper_writer_agent`：将论文结构改为 Introduction、Related Work、Problem Formulation、Verifier-Backed Heuristic Scheduling Framework、Scheduling Engine、Verifier、Experimental Setup、Results、Case Study、Limitations、Conclusion。
 4. `dev_runner_agent`：不要启动 E5 模型推理；只在收到明确任务时运行 H7 或 H5/H6 相关轻量任务。
+
+## 2026-07-15 H5-H7 收尾状态
+
+- H5/H6 artifact QA PASS：H5 的 670-case join、特征来源与分桶统计通过；H6 的四 case E1 provenance、task-count 来源、库存零任务和容量下界措辞通过。两项均已升为 `paper_ready`。
+- H7 CP-SAT 600s appendix PASS：`results/raw_view/h7_cpsat_stratified50_tl600_20260715_013325/` 覆盖 E4 stratified-50 的全部 50 case，得到 44 verify ok、6 infeasible_proven、0 unsolved、0 verify invalid。metrics 为 `experiments/aaai2026/metrics_h7_cpsat_stratified50_tl600_20260715_013325.json`。
+- 论文边界：H1-H3 是 full-670；H4 固定为 `CP-SAT stratified-50 baseline, 120s/case`；H7 固定为 `CP-SAT stratified-50 baseline, 600s/case appendix`，不得与 H4 或 full-670 行作等范围/等时限比较。E5/E6/E7 继续暂停。

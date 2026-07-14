@@ -29,13 +29,16 @@
 | E4 CP-SAT stratified-50 表格候选 | experiment_manager_agent | `experiments/aaai2026/e4_cpsat_stratified50_table_candidate.md` | available | E8 候选记录；E4 artifact QA PASS 已满足；由 `experiments/aaai2026/e0_e4_paper_table_draft.md` 承接为 paper-ready draft |
 | E0-E4 论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/e0_e4_paper_table_draft.md` | available | E0-E3 full-670 与 E4 CP-SAT stratified-50 分区呈现；E4 artifact QA PASS 后生成；禁止 case_count 等价比较 |
 | 纯启发式重规划策略 | project_manager_agent | `experiments/aaai2026/heuristic_replan_experiment_plan.md` | active | H0-H8 主动轨道；论文主线改为 verifier-backed industrial heuristic scheduling engine；E5/E6/E7 暂停主线 |
-| H-series 启发式论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/h_series_heuristic_table_draft.md` | qa_passed | 复用 E0-E4 QA 通过证据并改写为 H1-H4 启发式主线；2026-07-11 H-series table QA gate PASS；H5/H6 尚未进入表格 |
-| H5/H6 下一阶段任务单 | project_manager_agent | `experiments/aaai2026/h5_h6_next_phase_task_brief.md` | assigned | 交给 experiment_manager_agent：生成 H5 complexity/difficulty metrics 与 H6 verifier case-study artifacts；E5/E6/E7 继续暂停 |
+| H-series 启发式论文表格底稿 | experiment_manager_agent | `experiments/aaai2026/h_series_heuristic_table_draft.md` | qa_passed | 复用 E0-E4 QA 通过证据并改写为 H1-H4 启发式主线；H5/H6 作为独立 paper-ready 分析与案例研究，不混入该主表 |
+| H5/H6 下一阶段任务单 | project_manager_agent | `experiments/aaai2026/h5_h6_next_phase_task_brief.md` | complete | H5 complexity/difficulty 与 H6 verifier case-study artifacts 已独立 QA PASS；E5/E6/E7 继续暂停 |
 | H5 complexity/difficulty 构建工具 | dev_framework_agent | `experiments/aaai2026/build_h5_complexity_difficulty.py` | available | 只读 full-670 manifest、E1 summary 和 order JSON；支持拒绝覆盖生成及无写入复核；不读取 LLM 产物 |
-| H5 complexity/difficulty metrics | experiment_manager_agent | `experiments/aaai2026/h5_complexity_difficulty_metrics.json` | qa_pending | E1 full-670；operation_count 与 machine_load_ratio 由现有 solver 语义派生，load_ratio 明确为非替代指标 |
-| H5 complexity/difficulty table draft | experiment_manager_agent | `experiments/aaai2026/h5_complexity_difficulty_table_draft.md` | qa_pending | 与 H5 metrics 同源生成；12 个 feature-bucket 行；不得在 QA PASS 前进入论文主表 |
-| H6 verifier case-study manifest | experiment_manager_agent | `experiments/aaai2026/h6_verifier_case_study_manifest.json` | qa_pending | 4 个 E1 anchored cases；solution/verify 路径来自 E1 summary，不使用 split manifest 旧路径 |
-| H6 verifier case-study draft | experiment_manager_agent | `experiments/aaai2026/h6_verifier_case_study_draft.md` | qa_pending | 2 complex feasible、1 inventory zero-task、1 capacity-lower-bound infeasible；claim boundaries 已写明 |
+| H5 complexity/difficulty metrics | experiment_manager_agent | `experiments/aaai2026/h5_complexity_difficulty_metrics.json` | paper_ready | E1 full-670；operation_count 与 machine_load_ratio 由现有 solver 语义派生，load_ratio 明确为非替代指标；2026-07-15 artifact QA PASS |
+| H5 complexity/difficulty table draft | experiment_manager_agent | `experiments/aaai2026/h5_complexity_difficulty_table_draft.md` | paper_ready | 与 H5 metrics 同源生成；12 个 feature-bucket 行；只描述 E1 full-670，不作 H2/H3 比较 |
+| H6 verifier case-study manifest | experiment_manager_agent | `experiments/aaai2026/h6_verifier_case_study_manifest.json` | paper_ready | 4 个 E1 anchored cases；solution/verify 路径来自 E1 summary；2026-07-15 provenance 修正后 artifact QA PASS |
+| H6 verifier case-study draft | experiment_manager_agent | `experiments/aaai2026/h6_verifier_case_study_draft.md` | paper_ready | 2 complex feasible、1 inventory zero-task、1 capacity-lower-bound infeasible；claim boundaries 已写明 |
+| H7 CP-SAT stratified-50 600s summary | dev_runner_agent | `results/raw_view/h7_cpsat_stratified50_tl600_20260715_013325/summary.json` | paper_ready | appendix-only；50 单，44 verify ok，6 infeasible_proven，0 unsolved，0 verify invalid；CPU-only tmux run |
+| H7 CP-SAT stratified-50 600s metrics | dev_runner_agent | `experiments/aaai2026/metrics_h7_cpsat_stratified50_tl600_20260715_013325.json` | paper_ready | 使用 E4 stratified-50 manifest 聚合，coverage 1.0；不得与 E4 120s 或 full-670 结果按时限/范围等价比较 |
+| AAAI experiments chapter draft | paper_writer_agent | `experiments/aaai2026/aaai_experiments_section_draft.md` | available | H1-H7 证据与 claim boundaries 的论文实验章节草稿；H7 仅附录 |
 | E5 LLM tool-agent test-133 prompts | dev_runner_agent | `results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl` | appendix_candidate | 仅 prompts；test 133 条；strict JSON tool-call prompts；尚无 responses、parsed tool calls、run summary 或 verifier metrics；E5 暂停主线，未运行 direct LLM schedule generation |
 
 ## 产物规则

@@ -354,3 +354,19 @@ Claim boundary：
 
 - `agent_workpacks/project_manager_agent/HANDOFF.md`
 - `agent_workpacks/experiment_manager_agent/HANDOFF.md`
+
+## 2026-07-15 H5/H6 artifact QA gate
+
+Gate 结论：PASS。
+
+执行范围：只读审计 `H5` 全量 join/provenance/claim boundary，以及已修复 `H6` 四 case 的 E1 provenance、order/solution/verify 路径、task-count 语义、库存和容量案例措辞。未修改 registry、artifacts、H5/H6 实验文件、E1 结果或论文草稿；未生成或保留临时文件。
+
+H5：`h5_complexity_difficulty_metrics.json` 与表格草稿均可由 `build_h5_complexity_difficulty.py --check-existing-*` 全量重算通过。split manifest 与 E1 summary 为 670 个唯一 case，missing/extra 均为 0；四个 feature bucket 各自完整覆盖 670 case。`operation_count`、`machine_load_ratio` 均明确为 solver-semantics derived，`load_ratio` 保持 `available_not_a_substitute`；claim 限于 E1 full-670、非 H2/H3 比较、未重跑 solver/verifier、QA 通过前不得作为论文结果。
+
+H6：四个 case 的 order、solution、verify 路径存在并逐项对应 E1 full-670 summary row。两条 feasible 证据中的 source scheduled operations / merged plan task count / E1 summary task count（并与 verifier task count 一致）未混淆：`7046 / 6947 / 6947` 与 `9280 / 9129 / 9129`。库存 case 保持 demand `5`、inventory `5`、empty plan、zero task、verifier `ok`；容量 case 保持 `infeasible_proven`、verifier `not_applicable`，且仅表述 CMM `10701.610000 > 10080.000000` 容量下界与“无 schedule 因而不可验证”。四 case 的选择依据、E5/E6/E7 与 LLM 排除、以及非 paper-ready claim limits 均通过。
+
+后续：本 PASS 只完成 `qa_repro_agent` 的 artifact QA gate。项目主管仍须同步 registry/artifacts/paper-ready 状态；在该同步完成前，H5/H6 保持 `qa_pending`，不得据此自行提升论文状态。
+
+## 2026-07-15 项目主管同步确认
+
+项目主管已将 H5/H6 registry、artifact index 和相关 agent state 同步为 `paper_ready`。后续写作可使用该 QA 记录，但必须保留 E1 provenance、`machine_load_ratio` 派生来源、`load_ratio` 非替代边界，以及 H6 的 `not_applicable` 限定。

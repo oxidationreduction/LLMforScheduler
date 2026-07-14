@@ -43,3 +43,9 @@
 - 不把 LLM direct generation 或 LLM tool-agent 写入主方法比较；E5/E6/E7 暂停主线，仅可作为附录动机候选。
 - 不声称全局最优；除非是库存完全抵消后的零任务 case。
 - 不声称不可行证明完备；只能说容量下界可证明的一类不可行。
+
+## 当前执行状态（2026-07-15）
+
+- H1-H6 已达到 `paper_ready`：H1-H3 为 full-670 启发式/策略证据，H4 为独立的 120s stratified-50 CP-SAT baseline，H5 为 E1 full-670 规模/难度分析，H6 为四案例 verifier study。
+- H7 已完成并通过 QA，只可写为 `CP-SAT stratified-50 baseline, 600s/case appendix`；不得与 H4 120s 或 full-670 结果作等范围或等时限比较。
+- E5/E6/E7 继续暂停。论文与所有表格不得将 LLM 写为主方法或主比较。

@@ -8,4 +8,4 @@
 | R4 | CP-SAT 子集可能超出时间预算。 | medium | dev_runner_agent | 限制为分层 50 单、120s/case；600s 只作为可选附录。 | open |
 | R5 | 外部标准 benchmark 缺少库存、人员可用、设备副本和交期验收，强行适配会削弱业务语义。 | medium | experiment_manager_agent | JSPLib/FJSPLib/Taillard/DMU 只作相关工作或未来工作，除非能无损适配。 | open |
 | R6 | 多 agent 可能覆盖或污染已有结果。 | high | project_manager_agent | 新文件/新目录优先；每个产物都登记到 `ARTIFACTS.md`。 | open |
-| R7 | H5/H6 如果只做定性描述，论文证据链可能不够可审计。 | medium | qa_repro_agent | H5 必须产出机器可读 summary/metrics；H6 每个案例必须指向 solution/verify 或 infeasible artifact，并通过 QA gate。 | open |
+| R7 | H5/H6 如果只做定性描述，论文证据链可能不够可审计。 | medium | qa_repro_agent | H5 已有机器可读 metrics，H6 已锚定 solution/verify 或 infeasible artifact；2026-07-15 独立 QA PASS，写作仍须保留来源和 claim 边界。 | mitigated |
