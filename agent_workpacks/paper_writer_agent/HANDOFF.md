@@ -2,6 +2,15 @@
 
 ## 当前状态
 
+2026-07-15 更新：已完成完整中文 AAAI 风格论文初稿：
+`paper/aaai2026_chinese_draft.md`。初稿包含题目、摘要、关键词、引言、
+仅含 `[待补引用]` 占位的相关工作、问题定义、Verifier-backed 框架、启发式
+引擎、独立 verifier、实验设置、H1--H3 主表、独立 H4 表、H5 分桶表、H6
+四案例表、局限性、结论和仅附录的 H7 表。七个“图 X（待绘制）”占位给出了
+目的、建议视觉内容、数据/文件来源和图注，未生成图片。主张边界已保持：H4
+与 H1--H3 full-670 隔离；H7 仅附录；不写全局最优、广泛不可行、工业 KPI 或
+LLM 主方法/主比较。每张表均标明已 QA 通过的来源路径。
+
 2026-07-15 更新：已起草并更新 AAAI `Experiments` 章节：
 `experiments/aaai2026/aaai_experiments_section_draft.md`。H1-H3 保持
 full-670，H4 单列为 `CP-SAT stratified-50 baseline, 120s/case`，不作等

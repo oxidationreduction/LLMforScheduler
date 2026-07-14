@@ -39,6 +39,7 @@
 | H7 CP-SAT stratified-50 600s summary | dev_runner_agent | `results/raw_view/h7_cpsat_stratified50_tl600_20260715_013325/summary.json` | paper_ready | appendix-only；50 单，44 verify ok，6 infeasible_proven，0 unsolved，0 verify invalid；CPU-only tmux run |
 | H7 CP-SAT stratified-50 600s metrics | dev_runner_agent | `experiments/aaai2026/metrics_h7_cpsat_stratified50_tl600_20260715_013325.json` | paper_ready | 使用 E4 stratified-50 manifest 聚合，coverage 1.0；不得与 E4 120s 或 full-670 结果按时限/范围等价比较 |
 | AAAI experiments chapter draft | paper_writer_agent | `experiments/aaai2026/aaai_experiments_section_draft.md` | available | H1-H7 证据与 claim boundaries 的论文实验章节草稿；H7 仅附录 |
+| AAAI 中文全文初稿 | paper_writer_agent | `paper/aaai2026_chinese_draft.md` | available | 完整中文结构、5 张结果表与 7 个待绘制图片占位；相关工作仅保留待补引用，不生成图片 |
 | E5 LLM tool-agent test-133 prompts | dev_runner_agent | `results/raw_view/e5_llm_tool_agent_test133_20260710_232523/prompts.jsonl` | appendix_candidate | 仅 prompts；test 133 条；strict JSON tool-call prompts；尚无 responses、parsed tool calls、run summary 或 verifier metrics；E5 暂停主线，未运行 direct LLM schedule generation |
 
 ## 产物规则
