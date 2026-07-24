@@ -1,0 +1,592 @@
+\documentclass[letterpaper]{article}
+\usepackage[submission]{aaai2027}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}
+\usepackage{caption}
+\frenchspacing
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+
+\pdfinfo{
+/TemplateVersion (2027.1)
+}
+
+\setcounter{secnumdepth}{2}
+
+\title{Verifier-Backed Heuristic Portfolios for Industrial Order Scheduling}
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Industrial order scheduling must jointly respect due dates, product-specific
+process routes, finished-goods inventory, parallel machine capacity, worker
+eligibility, and day-level worker availability.  A scheduler that only reports
+success offers little protection against subtle violations of these coupled
+constraints.  We present a verifier-backed industrial scheduling framework
+that separates candidate construction from schedule acceptance.  The engine
+first deducts inventory and expands net demand into ordered operations.  A
+time-bounded portfolio of dispatching and chunked-wavefront heuristics then
+constructs minute-level candidate schedules, while an independent verifier
+checks quantity, precedence, due dates, worker calendars, daily labor limits,
+required machine sets, and machine concurrency.  On 670 real order-level
+instances, the portfolio produces 576 verifier-accepted schedules and
+identifies 94 instances as infeasible under model-specific capacity lower
+bounds, with no unresolved or verifier-invalid outputs.  Fixed dispatching
+rules leave 28--34 instances unresolved, and smaller wavefront chunks leave
+2--4 unresolved.  Complexity-stratified analysis and four audited cases
+further expose the acceptance boundary.  The framework does not certify
+global optimality or complete real-world infeasibility; it provides an
+auditable contract for deploying heuristic schedules under modeled industrial
+constraints.
+\end{abstract}
+
+\section{Introduction}
+
+Production planners rarely schedule an isolated textbook job shop.  A single
+order instance may combine multiple products and due dates, product-specific
+routes, finished-goods inventory, parallel copies of a machine, and workers
+who are qualified for only some operations and available on only some days.
+The resulting decisions are operational: every accepted task must name a
+worker, reserve all required machines, occupy a minute interval, and preserve
+the route and due-date semantics of the order.  Priority rules remain useful
+in such settings because they make fast, interpretable decisions, but no
+single dispatching rule dominates across manufacturing conditions
+\cite{panwalkar1977survey,blackstone1982survey,pinedo2016scheduling}.
+
+This setting creates two coupled challenges.  First, constructing a feasible
+schedule is combinatorial: local choices about products, workers, days, and
+machines alter the capacity available to all later operations.  Second,
+declaring a schedule feasible is itself a nontrivial systems obligation.  A
+candidate can look plausible while violating cumulative production,
+precedence, worker availability, or concurrent machine capacity.  Treating a
+scheduler's self-reported status as acceptance therefore conflates search with
+validation.
+
+We address these challenges with a verifier-backed industrial heuristic
+scheduling engine.  The candidate generator uses a time-bounded portfolio of
+product-ordering, worker-selection, and chunked-wavefront strategies.  The
+acceptance layer independently reconstructs the modeled constraints from the
+order and checks the emitted task plan.  This separation permits three
+semantically distinct outcomes: a verifier-accepted schedule, an infeasibility
+result supported by a model-specific capacity lower bound, or an unresolved
+search result.  Only the first outcome authorizes execution.
+
+Figure~\ref{fig:overview} summarizes the resulting evidence path.  Input
+normalization and inventory deduction determine net production demand.  The
+portfolio then searches worker and machine calendars, and the verifier gates
+the candidate before it reaches the accepted branch.  Capacity lower bounds
+can terminate an instance before search, but they are not presented as a
+complete infeasibility procedure.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.18in][c]{0.92\columnwidth}{\centering
+Figure placeholder: orders, inventory, process routes, machines, and worker
+calendars $\rightarrow$ net-demand expansion $\rightarrow$ heuristic
+portfolio $\rightarrow$ independent verifier $\rightarrow$ accepted,
+lower-bound infeasible, or unresolved outcome.}}
+\caption{Evidence flow of the verifier-backed scheduler.  Candidate
+construction and acceptance are separate stages: a feasible or zero-task
+optimal candidate enters the accepted branch only after the verifier returns
+\texttt{ok}.  Capacity-lower-bound outcomes contain no schedule to verify.}
+\label{fig:overview}
+\end{figure}
+
+Our contributions are as follows:
+\begin{itemize}
+    \item We formulate an order-level industrial scheduling contract that
+    combines inventory deduction, ordered production routes, parallel machine
+    capacity, worker qualification, worker calendars, and due dates.
+    \item We develop a time-bounded heuristic portfolio and pair it with an
+    independent verifier that gates every candidate schedule against the full
+    modeled constraint set.
+    \item We provide an auditable 670-instance evaluation with fixed-rule and
+    wavefront ablations, complexity buckets, traced case studies, and a
+    separately scoped CP-SAT baseline on a stratified 50-instance cohort.
+\end{itemize}
+
+\section{Related Work}
+
+\subsection{Dispatching Rules and Heuristic Scheduling}
+
+Dispatching rules rank ready operations using information such as due dates,
+processing times, and remaining work.  Their low decision overhead has made
+them a long-standing component of reactive manufacturing systems
+\cite{panwalkar1977survey,blackstone1982survey}.  Scheduling texts and surveys
+also emphasize that rule effectiveness depends on the shop objective and
+instance regime, motivating combinations or adaptive selection rather than a
+universal rule \cite{pinedo2016scheduling}.  Our work follows this operational
+line: the portfolio combines deterministic rules to improve feasible coverage
+under a fixed search budget, and the experiments isolate each rule rather
+than treating the portfolio as a learned policy.
+
+\subsection{Constraint-Based Scheduling and Benchmarks}
+
+Constraint programming represents intervals, resource capacities, and
+precedence relations directly, and mature scheduling solvers support these
+constructs at industrial scale \cite{laborie2018optimizer}.  CP-SAT similarly
+supports discrete scheduling models and is widely used for job-shop
+formulations \cite{ortools}.  Standard benchmark suites have enabled
+controlled comparisons for classical scheduling problems
+\cite{taillard1993benchmarks}.  The instances considered here additionally
+encode finished-goods inventory, worker-day calendars, multi-machine
+operations, and an executable acceptance contract.  We therefore report
+CP-SAT only on a registered stratified subset and avoid equating that subset
+with the full industrial evaluation.
+
+\subsection{Verified Acceptance}
+
+Optimization pipelines commonly separate a produced solution from the code
+that evaluates feasibility and objective values.  We make this separation an
+explicit system boundary.  The scheduler may choose any portfolio strategy,
+but acceptance depends only on a fresh reconstruction of the order semantics
+by the verifier.  This design does not turn a heuristic into an exact method;
+it makes the meaning of an accepted heuristic result testable and auditable.
+
+\section{Problem Formulation}
+
+\subsection{Inputs and Net Demand}
+
+An instance contains a set of dated order lines $I$, products $P$, machine
+types $M$, and workers $W$.  Order line $i\in I$ requests quantity $q_i$ of
+product $p(i)$ by relative day $d_i$.  Product $p$ has initial finished-goods
+inventory $s_p$ and an ordered route
+$R_p=(o_{p,1},\ldots,o_{p,K_p})$.  Operation $o$ has per-unit processing time
+$\tau_o$, a set $M_o$ of simultaneously required machine types, and an
+eligible-worker set $W_o$.  Machine type $m$ has $c_m$ interchangeable copies.
+Worker $w$ is available on days $A_w$ and can work at most 480 minutes per
+available day.
+
+Inventory is consumed before production is scheduled.  For product $p$, the
+net number of units requiring production is
+\begin{equation}
+n_p=\max\left(\sum_{i:p(i)=p}q_i-s_p,0\right).
+\label{eq:net-demand}
+\end{equation}
+Due-date requirements are retained cumulatively after inventory deduction, so
+production completed by each due day must cover the remaining demand due by
+that day.  Equation~\ref{eq:net-demand} therefore removes work already covered
+by stock without discarding the deadlines of the remaining demand.  When all
+$n_p$ are zero, the empty schedule is trivially optimal
+under the current feasibility model; this special case does not imply general
+optimality.
+
+\subsection{Schedule and Hard Constraints}
+
+A task specifies a product and route operation, quantity, day, start and end
+minute, assigned worker, and occupied machine types.  Figure~\ref{fig:task}
+illustrates the semantics.  A task requiring several machine types reserves
+all of them concurrently; the listed machines are not alternatives.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][1.02in][c]{0.92\columnwidth}{\centering
+Figure placeholder: gross demand minus inventory produces net units.  Each
+unit traverses operations $o_1\rightarrow o_2\rightarrow o_3$; each node
+shows its worker, simultaneous machine set, and minute duration.}}
+\caption{Order-to-task semantics.  Finished-goods inventory is deducted before
+route expansion.  Every produced unit follows its product route in order, and
+a multi-machine operation holds all required machine types over the same
+interval.}
+\label{fig:task}
+\end{figure}
+
+An accepted schedule must satisfy five constraint families:
+\begin{enumerate}
+    \item \textbf{Production and due dates.}  Completed final operations meet
+    each product's net cumulative demand no later than the corresponding due
+    day.
+    \item \textbf{Route precedence.}  A downstream operation cannot consume
+    more units than its predecessor has completed, and task duration agrees
+    with operation time and quantity.
+    \item \textbf{Worker qualification and availability.}  Every assigned
+    worker belongs to $W_o$, is available on the task day, has no overlapping
+    tasks, and accumulates at most 480 working minutes that day.
+    \item \textbf{Machine requirements.}  Every task occupies exactly its
+    required machine-type set $M_o$.
+    \item \textbf{Machine concurrency.}  For every type $m$ and minute $t$,
+    the number of overlapping tasks requiring $m$ does not exceed $c_m$.
+\end{enumerate}
+
+The primary objective in this study is accepted feasible coverage under a
+time budget, not makespan or tardiness optimization.  We consequently make no
+quality or global-optimality claim among multiple accepted schedules.
+
+\section{Verifier-Backed Heuristic Portfolio}
+
+\subsection{Prechecks and Result Semantics}
+
+The engine first validates references among routes, machines, and workers.  It
+then evaluates necessary capacity conditions over the due-date horizon.  These
+conditions compare required work with total worker capacity, required
+machine-type minutes with available machine capacity, and work restricted to
+worker subsets with the capacity of those subsets.  If any necessary
+condition fails, the engine returns \texttt{infeasible\_proven} together with
+the violated lower bound.
+
+The label is deliberately model-specific.  A lower-bound violation proves
+that no schedule satisfies the encoded instance under the current capacity
+semantics, but it is not a complete decision procedure and does not represent
+unmodeled factory alternatives.  If all lower bounds pass and search exhausts
+its budget, the result remains \texttt{no\_solution\_found} or
+\texttt{time\_limit}; neither label is converted to infeasibility.
+
+\subsection{Portfolio Candidate Construction}
+
+The candidate generator represents each worker and machine type as a day-level
+minute calendar.  For a selected unit operation, it enumerates eligible
+workers and searches for the earliest interval that jointly satisfies worker
+availability, daily labor capacity, and every required machine capacity.  The
+chosen interval updates all affected calendars before the next operation is
+placed.
+
+The portfolio varies three decision dimensions.  Unit-ordering rules include
+earliest due date, round-robin products, largest route work, and smallest route
+work.  Worker rules favor the least-used worker, the most-used worker, or a
+stable name order, while day search proceeds forward or backward where
+applicable.  Interleaved variants advance ready route states rather than
+finishing one unit at a time.  Chunked-wavefront variants group an
+earliest-due sequence into chunks and repeatedly advance ready operations
+across the units in each chunk.  This limits premature commitment to a single
+long route while retaining deterministic calendar updates.
+
+The timed method orders these configurations using instance scale and machine
+load, then attempts them until a verifier-acceptable candidate is found or the
+budget expires.  Algorithm~\ref{alg:portfolio} shows the acceptance loop.  A
+strategy failure contributes diagnostic evidence but cannot authorize the
+schedule.
+
+\begin{algorithm}[t]
+\caption{Verifier-backed portfolio scheduling}
+\label{alg:portfolio}
+\begin{algorithmic}[1]
+\REQUIRE order instance $x$, time budget $B$
+\STATE normalize $x$ and deduct finished-goods inventory
+\IF{a necessary capacity lower bound is violated}
+    \RETURN \texttt{infeasible\_proven} with the violated bound
+\ENDIF
+\IF{net demand is zero}
+    \STATE verify the empty plan and return it only if verification succeeds
+\ENDIF
+\FOR{strategy $h$ in the instance-conditioned portfolio}
+    \STATE construct candidate schedule $S_h$ within the remaining budget
+    \IF{$S_h$ exists and $\mathrm{Verify}(x,S_h)=\texttt{ok}$}
+        \RETURN accepted schedule $S_h$
+    \ENDIF
+\ENDFOR
+\RETURN unresolved search status and diagnostics
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Independent Verification}
+
+The verifier reads the order and candidate as separate inputs; it does not
+trust cached resource state or the candidate's reported status.  It validates
+task fields, reconstructs inventory-adjusted production requirements, checks
+route progress and due-date completion, and rebuilds worker and machine
+interval usage.  A \texttt{feasible} or zero-task \texttt{optimal} candidate
+counts as accepted only when verification returns \texttt{ok}.  If
+verification fails, the plan is retained for diagnosis but marked invalid and
+must not be executed.  Figure~\ref{fig:verification} makes this gating logic
+explicit.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][0.98in][c]{0.92\columnwidth}{\centering
+Figure placeholder: a strategy emits candidate tasks; independent checks
+reconstruct quantities, precedence, workers, due dates, machine sets, and
+concurrency; only the \texttt{ok} branch reaches execution.}}
+\caption{Candidate-generation and verification trace.  The verifier rebuilds
+constraint state from the original order and emitted tasks.  A scheduler
+status alone never determines acceptance; failed checks retain structured
+errors for diagnosis.}
+\label{fig:verification}
+\end{figure}
+
+\section{Experiments}
+
+\subsection{Data, Baselines, and Metrics}
+
+We evaluate 670 real order-level JSON instances using a frozen manifest.  The
+manifest contains 473 training-period, 64 development-period, and 133 test-
+period instances; a 64-instance 2025-only recent group is contained within the
+test period.  The scheduler does not learn from the training split.  H1--H3
+therefore evaluate all 670 instances and study deterministic strategy
+coverage, rather than test-set generalization of a learned model.
+
+H1 is the portfolio timed heuristic.  H2 runs each fixed unit-ordering rule
+with the common least-used-worker and forward-day choices.  H3 fixes the
+chunked-wavefront mechanism and varies chunk size.  H4 runs OR-Tools CP-SAT on
+a registered stratified 50-instance subset with 120 seconds per instance.  We
+report H4 separately because its scope and budget differ from the full-670
+heuristic experiments.
+
+For each run, we report verifier \texttt{ok}, model-specific
+\texttt{infeasible\_proven}, unresolved, verifier-invalid, and observed
+elapsed time.  A schedule contributes to accepted coverage only after
+verification.  All aggregate rows were recomputed from registered JSON
+artifacts and passed the project's artifact QA gate.  Runtime values describe
+these runs; they are not hardware-normalized algorithmic speedup claims.
+
+\subsection{Full-670 Portfolio and Strategy Ablations}
+
+Table~\ref{tab:full670} reports H1--H3 on the common 670-instance set.  The
+portfolio yields 576 verifier-accepted schedules and 94 capacity-lower-bound
+infeasibility outcomes, with no unresolved or verifier-invalid records.  In
+contrast, the four fixed rules leave 28--34 instances unresolved.  The two
+strongest fixed rules each accept 548 schedules, 28 fewer than the portfolio.
+
+Chunk size also changes coverage.  Sizes 5 and 10 leave four and two instances
+unresolved, respectively, whereas chunk 25 matches the portfolio's aggregate
+status counts.  This result supports strategy complementarity under the
+registered budget; it does not rank the quality of accepted schedules or
+establish global optimality.
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llrrrrrr}
+\toprule
+Setting & H ID & Cases & OK & LB inf. & Unresolved & Invalid & Elapsed (s) \\
+\midrule
+Timed heuristic portfolio & H1 & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 167.628 \\
+Fixed earliest due & H2 & 670 & 546 & 94 & 30 & 0 & 149.063 \\
+Fixed round-robin product & H2 & 670 & 548 & 94 & 28 & 0 & 139.882 \\
+Fixed largest route work & H2 & 670 & 548 & 94 & 28 & 0 & 140.998 \\
+Fixed smallest route work & H2 & 670 & 542 & 94 & 34 & 0 & 147.854 \\
+Wavefront, chunk 5 & H3 & 670 & 572 & 94 & 4 & 0 & 157.910 \\
+Wavefront, chunk 10 & H3 & 670 & 574 & 94 & 2 & 0 & 160.155 \\
+Wavefront, chunk 25 & H3 & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 172.358 \\
+\bottomrule
+\end{tabular}
+\caption{Full-670 accepted-coverage evaluation for the portfolio, fixed-rule,
+and chunked-wavefront settings.  \texttt{OK} denotes verifier-accepted
+schedules; \texttt{LB inf.} denotes model-specific capacity-lower-bound
+infeasibility.  Elapsed time is the observed run record, not a speedup claim.}
+\label{tab:full670}
+\end{table*}
+
+Figure~\ref{fig:coverage} plans the same counts as a common-denominator view,
+making unresolved coverage visible without introducing a schedule-quality
+axis.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][0.90in][c]{0.92\columnwidth}{\centering
+Figure placeholder: stacked bars over a common denominator of 670 show
+verifier-accepted, lower-bound infeasible, and unresolved counts for H1, four
+H2 rules, and three H3 chunk sizes.}}
+\caption{Accepted-coverage composition for H1--H3 on the common full-670
+manifest.  Fixed rules and smaller chunks change search coverage under the
+registered budget; the bars do not encode schedule-quality or optimality
+comparisons.}
+\label{fig:coverage}
+\end{figure}
+
+\subsection{CP-SAT on the Stratified-50 Cohort}
+
+Table~\ref{tab:cpsat120} isolates H4 from the full-670 results.  On its
+stratified 50-instance cohort, CP-SAT records 44 verifier-accepted schedules
+and six capacity-lower-bound infeasibility outcomes, with no unresolved or
+invalid records.  These counts characterize only that subset and its
+120-second per-instance limit; they are not a case-count-equivalent comparison
+with Table~\ref{tab:full670}.
+
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+Cases & OK & LB inf. & Unresolved & Invalid \\
+\midrule
+50 & 44 & 6 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{CP-SAT results on the registered stratified 50-instance cohort at
+120 seconds per instance.  The cohort and budget differ from the full-670
+heuristic evaluation.}
+\label{tab:cpsat120}
+\end{table}
+
+\subsection{Complexity and Difficulty Buckets}
+
+H5 joins all 670 H1 cases to raw-order features and partitions each feature
+into empirical tertiles.  Operation count and machine-load ratio are derived
+using the scheduler's operation and capacity semantics; total work minutes
+and worker-day count are directly available raw-order statistics.  The
+manifest field \texttt{load\_ratio} measures worker capacity and is not used as
+a substitute for machine-load ratio.
+
+Table~\ref{tab:complexity} shows that all 94 lower-bound infeasibility outcomes
+fall in the high tertiles of operation count, total work, and machine load.
+Worker-day buckets distribute those outcomes more broadly.  These are
+descriptive associations within H1, not causal claims about difficulty.  The
+median solve time rises from 0.032 to 0.203 seconds across the operation-count
+tertiles, while every bucket retains zero unresolved and zero invalid outputs.
+Figure~\ref{fig:complexity} specifies the planned visual summary of these
+bucketed counts and medians.
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrr}
+\toprule
+Feature & Provenance & Cases & OK & LB inf. & Solve p50 (s) \\
+\midrule
+Operation count & Derived & 223/223/224 & 223/223/130 & 0/0/94 & 0.032/0.095/0.203 \\
+Total work minutes & Available & 223/223/224 & 223/223/130 & 0/0/94 & 0.034/0.088/0.155 \\
+Machine-load ratio & Derived & 223/223/224 & 223/223/130 & 0/0/94 & 0.040/0.086/0.116 \\
+Worker-day count & Available & 233/214/223 & 192/182/202 & 41/32/21 & 0.065/0.077/0.097 \\
+\bottomrule
+\end{tabular}
+\caption{Empirical-tertile analysis of the H1 full-670 run.  Each cell lists
+low/medium/high buckets.  \texttt{OK} is verifier-accepted, and \texttt{LB inf.}
+is model-specific capacity-lower-bound infeasibility.  The analysis is
+descriptive and does not establish causality.}
+\label{tab:complexity}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][0.92in][c]{0.92\columnwidth}{\centering
+Figure placeholder: four small panels show low, medium, and high tertiles for
+operation count, total work, machine-load ratio, and worker-day count, with
+accepted/lower-bound counts and median runtime.}}
+\caption{Planned visualization of the H5 empirical-tertile analysis.  Machine
+load is derived using scheduler semantics; the worker-capacity field
+\texttt{load\_ratio} is not substituted for it.}
+\label{fig:complexity}
+\end{figure}
+
+\subsection{Audited Verifier Cases}
+
+Table~\ref{tab:cases} traces four H6 cases to their order, candidate solution,
+and verifier records.  The first two cases stress the acceptance path with
+large schedules.  The inventory case tests the zero-task boundary.  The final
+case contains no schedule: \texttt{not\_applicable} means that the verifier had
+nothing to check, rather than that verification passed or failed.
+Figure~\ref{fig:case-study} plans a readable time window for the first complex
+case; the full 7,046-operation candidate is too dense for a paper figure.
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.15\textwidth}p{0.21\textwidth}p{0.42\textwidth}p{0.12\textwidth}}
+\toprule
+Category & Case & Audited evidence & Boundary \\
+\midrule
+Complex feasible & \texttt{SO-2025-04-0022-2} & 46,138.88 work minutes; 7,046 scheduled operations; 6,947 merged tasks. & Feasible; verifier \texttt{ok} \\
+Complex feasible & \texttt{SO-2022-12-0019-2} & 9,280 scheduled operations; 9,129 merged tasks; 15.0109-second solve. & Feasible; verifier \texttt{ok} \\
+Inventory / zero task & \texttt{SO-2024-10-0032-2} & Demand 5 and inventory 5; empty plan and zero verified tasks. & Current-model optimal; verifier \texttt{ok} \\
+Capacity lower bound & \texttt{SO-2025-05-0003-2} & CMM CONTURA 10/16/6 requires 10,701.61 minutes but has 10,080.00 modeled capacity minutes. & \texttt{infeasible\_proven}; verifier \texttt{not\_applicable} \\
+\bottomrule
+\end{tabular}
+\caption{Four audited cases from the H1 run.  Scheduled-operation counts come
+from candidate solutions, whereas merged-task counts come from the H1 summary
+or verifier record.  The lower-bound case emits no schedule.}
+\label{tab:cases}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][0.92in][c]{0.92\columnwidth}{\centering
+Figure placeholder: a readable time window from
+\texttt{SO-2025-04-0022-2}, plotted as worker and machine lanes with precedence
+links and concurrent-capacity boundaries.}}
+\caption{Planned multi-resource trace for one complex verifier-accepted case.
+The figure will expose a readable window of worker and machine occupancy and
+the precedence relations checked by the verifier; it will not represent the
+quality distribution of all schedules.}
+\label{fig:case-study}
+\end{figure}
+
+\section{Limitations and Responsible Use}
+
+The evidence supports feasibility under the encoded constraints, not global
+optimality.  Except for the inventory-covered zero-task case, the framework
+provides no optimality certificate and does not compare makespan, tardiness,
+or operating cost among accepted schedules.  Likewise,
+\texttt{infeasible\_proven} covers necessary capacity lower bounds and selected
+exact-model outcomes; it is not a complete characterization of all
+infeasibility in a changing factory.
+
+The 670 instances provide the study's principal external evidence.  Classical
+job-shop benchmarks omit several modeled semantics, including finished-goods
+inventory, worker-day availability, and simultaneous multi-machine
+requirements, so we do not present them as interchangeable evaluations.
+Actual deployment also requires data-quality controls, maintenance calendars,
+rescheduling for urgent orders, and human approval.  The verifier guarantees
+only the constraints it implements.
+
+\section{Conclusion}
+
+We presented a verifier-backed heuristic scheduling framework that turns
+industrial orders into minute-level candidate plans and accepts them only
+after independent constraint reconstruction.  On 670 order instances, the
+portfolio covers every instance with either a verifier-accepted schedule or a
+model-specific capacity-lower-bound result, while fixed-rule and chunk-size
+ablations expose where strategy choice affects search coverage.
+
+The current study does not optimize schedule quality, prove general global
+optimality, or model dynamic disruptions such as breakdowns and urgent
+insertions.  Extending the acceptance contract to fixed tasks and machine
+outages, and adding verifier-gated repair or local search over accepted
+schedules, are concrete next steps toward production deployment.
+
+\appendix
+\section{Longer CP-SAT Budget on the Registered Cohort}
+
+H7 reruns CP-SAT on the same stratified 50-instance cohort as H4 with a
+600-second per-instance limit.  It records 42 feasible schedules, two
+inventory-covered zero-task optimal schedules, and six capacity-lower-bound
+infeasibility outcomes.  Thus, 44 schedules are verifier \texttt{ok}, with no
+unresolved or invalid outputs.  The actual p50, p95, and maximum solve times
+are 2.320, 19.339, and 38.931 seconds.  Table~\ref{tab:cpsat600} is an
+appendix-only run record; it is neither an equal-budget comparison with H4 nor
+an equal-scope comparison with H1--H3.
+
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+Cases & OK & LB inf. & Unresolved & p50/p95/max (s) \\
+\midrule
+50 & 44 & 6 & 0 & 2.320/19.339/38.931 \\
+\bottomrule
+\end{tabular}
+\caption{Appendix-only CP-SAT record on the registered stratified 50-instance
+cohort at a 600-second per-instance limit.  Runtime cells report observed
+p50/p95/maximum solve seconds.}
+\label{tab:cpsat600}
+\end{table}
+
+Figure~\ref{fig:cpsat-budgets} records the planned side-by-side visualization
+of H4 and H7.  Both runs cover the same cohort and produce the same aggregate
+status counts; the visualization will retain the distinct nominal budgets and
+observed runtime distributions rather than implying budget equivalence.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][0.88in][c]{0.92\columnwidth}{\centering
+Figure placeholder: H4 (120-second limit) and H7 (600-second limit) on the
+same stratified 50-instance cohort, showing status counts and observed runtime
+quantiles with a warning against full-670 comparison.}}
+\caption{Planned comparison of the two CP-SAT run records on the same
+stratified cohort.  The figure will distinguish nominal limits from observed
+solve times and will not compare either subset run directly with the full-670
+heuristic evaluation.}
+\label{fig:cpsat-budgets}
+\end{figure}
+
+\bibliography{aaai2027}
+
+\end{document}
