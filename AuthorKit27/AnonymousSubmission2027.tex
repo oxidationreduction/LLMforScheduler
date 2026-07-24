@@ -41,8 +41,9 @@ instances, the portfolio produces 576 verifier-accepted schedules and
 identifies 94 instances as infeasible under model-specific capacity lower
 bounds, with no unresolved or verifier-invalid outputs.  Fixed dispatching
 rules leave 28--34 instances unresolved, and smaller wavefront chunks leave
-2--4 unresolved.  Complexity-stratified analysis and four audited cases
-further expose the acceptance boundary.  The framework does not certify
+2--4 unresolved.  On the same stratified 50-instance cohort, the portfolio and
+CP-SAT agree on every status, while a 13-test semantic gate suite accepts valid
+plans and rejects corrupted candidates.  The framework does not certify
 global optimality or complete real-world infeasibility; it provides an
 auditable contract for deploying heuristic schedules under modeled industrial
 constraints.
@@ -79,6 +80,15 @@ semantically distinct outcomes: a verifier-accepted schedule, an infeasibility
 result supported by a model-specific capacity lower bound, or an unresolved
 search result.  Only the first outcome authorizes execution.
 
+The technical contribution is not a new dispatching priority or an exact
+optimizer.  It is an executable \emph{acceptance contract} that binds search,
+status semantics, independent constraint reconstruction, and artifact-level
+provenance.  Because every candidate method must cross the same contract, a
+portfolio heuristic and CP-SAT can be compared without trusting either
+solver's self-reported feasibility.  The contract also prevents a failed
+search and a lower-bound certificate from being collapsed into the same
+``infeasible'' label.
+
 Figure~\ref{fig:overview} summarizes the resulting evidence path.  Input
 normalization and inventory deduction determine net production demand.  The
 portfolio then searches worker and machine calendars, and the verifier gates
@@ -102,15 +112,16 @@ optimal candidate enters the accepted branch only after the verifier returns
 
 Our contributions are as follows:
 \begin{itemize}
-    \item We formulate an order-level industrial scheduling contract that
+    \item We formalize an order-level industrial scheduling contract that
     combines inventory deduction, ordered production routes, parallel machine
-    capacity, worker qualification, worker calendars, and due dates.
-    \item We develop a time-bounded heuristic portfolio and pair it with an
-    independent verifier that gates every candidate schedule against the full
-    modeled constraint set.
+    capacity, worker qualification, worker calendars, and due dates, with
+    distinct accepted, lower-bound-infeasible, and unresolved outcomes.
+    \item We instantiate the contract with a time-bounded heuristic portfolio
+    and an independent verifier that rebuilds quantity and resource state from
+    the original order rather than trusting scheduler-internal calendars.
     \item We provide an auditable 670-instance evaluation with fixed-rule and
-    wavefront ablations, complexity buckets, traced case studies, and a
-    separately scoped CP-SAT baseline on a stratified 50-instance cohort.
+    wavefront ablations, a same-cohort CP-SAT comparison, a 13-test semantic
+    gate suite, complexity buckets, and traced boundary cases.
 \end{itemize}
 
 \section{Related Work}
@@ -146,10 +157,15 @@ with the full industrial evaluation.
 
 Optimization pipelines commonly separate a produced solution from the code
 that evaluates feasibility and objective values.  We make this separation an
-explicit system boundary.  The scheduler may choose any portfolio strategy,
-but acceptance depends only on a fresh reconstruction of the order semantics
-by the verifier.  This design does not turn a heuristic into an exact method;
-it makes the meaning of an accepted heuristic result testable and auditable.
+explicit runtime boundary rather than a post hoc reporting convenience.  The
+scheduler may choose any portfolio strategy, but acceptance depends only on a
+fresh reconstruction of the order semantics by the verifier.  Each run also
+preserves the order identifier, candidate status, selected strategy, verifier
+status, error list, and runtime in machine-readable records.  Thus, the
+contribution differs from a new priority rule or a general-purpose constraint
+solver: it is a common execution contract across candidate generators.  This
+design does not turn a heuristic into an exact method; it makes the meaning of
+an accepted heuristic result testable and auditable.
 
 \section{Problem Formulation}
 
@@ -298,6 +314,28 @@ verification fails, the plan is retained for diagnosis but marked invalid and
 must not be executed.  Figure~\ref{fig:verification} makes this gating logic
 explicit.
 
+Formally, for order $x$ and candidate record $c$, the execution decision is
+\begin{equation}
+\operatorname{Accept}(x,c)=
+\mathbb{1}[\operatorname{id}(x)=\operatorname{id}(c)]
+\mathbb{1}[\operatorname{status}(c)\in\{\texttt{feasible},\texttt{optimal}_0\}]
+\mathbb{1}[\operatorname{Verify}(x,c)=\texttt{ok}],
+\label{eq:acceptance}
+\end{equation}
+where \texttt{optimal}$_0$ denotes the inventory-covered zero-task case.  A
+lower-bound-infeasible or unresolved record has acceptance value zero and no
+executable schedule.
+
+The acceptance contract imposes four obligations.  \emph{Input binding}
+associates each candidate with exactly one order identifier.  \emph{Status
+gating} permits verification only for \texttt{feasible} or zero-task
+\texttt{optimal} candidates.  \emph{Semantic reconstruction} derives demand,
+route progress, and resource occupancy from the order and emitted tasks.
+Finally, \emph{artifact completeness} records both candidate and verification
+outcomes, including structured errors.  Consequently, a missing verification
+record, a non-\texttt{ok} result, or a non-feasible solver status cannot enter
+the accepted count.
+
 \begin{figure}[t]
 \centering
 \fbox{\parbox[c][0.98in][c]{0.92\columnwidth}{\centering
@@ -313,32 +351,63 @@ errors for diagnosis.}
 
 \section{Experiments}
 
+\subsection{Research Questions}
+
+The evaluation addresses three questions.  \textbf{RQ1: Coverage.} Does the
+portfolio resolve instances that remain unresolved under a fixed dispatching
+rule or a smaller wavefront chunk?  \textbf{RQ2: Acceptance.} Does the
+independent gate accept valid schedules and reject representative violations
+of status, precedence, simultaneous-machine, and capacity semantics?
+\textbf{RQ3: Scope and scale.} How do status coverage and observed runtime
+change with instance characteristics, and what happens when the portfolio and
+CP-SAT are evaluated on the same registered cohort?
+
 \subsection{Data, Baselines, and Metrics}
 
 We evaluate 670 real order-level JSON instances using a frozen manifest.  The
-manifest contains 473 training-period, 64 development-period, and 133 test-
-period instances; a 64-instance 2025-only recent group is contained within the
-test period.  The scheduler does not learn from the training split.  H1--H3
-therefore evaluate all 670 instances and study deterministic strategy
-coverage, rather than test-set generalization of a learned model.
+manifest contains 473 cases from 2020--2023, 64 from the first half of 2024,
+and 133 from the second half of 2024 through 2025.  The 64 cases from 2025 form
+a recent/OOD tag within the 133-case test period.  The scheduler does not learn
+from the nominal training period; all full-set experiments therefore study
+deterministic strategy coverage rather than learned generalization.  Each
+manifest row binds a case identifier to its split, difficulty tertile, source
+path, and source SHA-256 digest.
 
-H1 is the portfolio timed heuristic.  H2 runs each fixed unit-ordering rule
-with the common least-used-worker and forward-day choices.  H3 fixes the
-chunked-wavefront mechanism and varies chunk size.  H4 runs OR-Tools CP-SAT on
-a registered stratified 50-instance subset with 120 seconds per instance.  We
-report H4 separately because its scope and budget differ from the full-670
-heuristic experiments.
+The portfolio and all fixed-rule runs use a 120-second per-case limit.  Fixed
+rules retain the common least-used-worker and forward-day choices, while the
+wavefront ablation varies only chunk size.  The CP-SAT cohort contains 50 cases
+selected with seed 20260703 by proportional largest-remainder allocation over
+the Cartesian strata of split and difficulty tertile, followed by a stable
+SHA-256 ordering within each stratum.  It contains 35 cases dated 2020--2023,
+five from the first half of 2024, and 10 from the second half of 2024 through
+2025, including four cases from 2025.
+CP-SAT also uses 120 seconds per case, random seed 1, and at most eight CPU
+search workers.
 
 For each run, we report verifier \texttt{ok}, model-specific
 \texttt{infeasible\_proven}, unresolved, verifier-invalid, and observed
 elapsed time.  A schedule contributes to accepted coverage only after
 verification.  All aggregate rows were recomputed from registered JSON
-artifacts and passed the project's artifact QA gate.  Runtime values describe
-these runs; they are not hardware-normalized algorithmic speedup claims.
+artifacts; manifest joins found no duplicate, missing, or unexpected case
+identifiers.  Runtime values describe these runs; they are not
+hardware-normalized algorithmic speedup claims.
+The implementation uses Python 3.13.5 and OR-Tools 9.15.6755.  All reported
+runs are CPU-only.  Hardware metadata was not embedded in the run artifacts,
+so runtime comparisons are treated as descriptive records rather than portable
+performance claims.
+
+Every case emits a solution JSON and, when a schedule exists, a verifier JSON.
+Run summaries include the expected and observed case counts, status counts,
+verification counts, per-case solve time, selected strategy, and artifact
+paths.  Aggregation joins case identifiers against the frozen manifest and
+rejects duplicate, missing, or unexpected cases.  Reproducing the industrial
+results requires access to the same order files; the source hashes make that
+identity check explicit but do not substitute for data access.
 
 \subsection{Full-670 Portfolio and Strategy Ablations}
 
-Table~\ref{tab:full670} reports H1--H3 on the common 670-instance set.  The
+Table~\ref{tab:full670} reports the portfolio and strategy ablations on the
+common 670-instance set.  The
 portfolio yields 576 verifier-accepted schedules and 94 capacity-lower-bound
 infeasibility outcomes, with no unresolved or verifier-invalid records.  In
 contrast, the four fixed rules leave 28--34 instances unresolved.  The two
@@ -353,18 +422,18 @@ establish global optimality.
 \begin{table*}[t]
 \centering
 \setlength{\tabcolsep}{5pt}
-\begin{tabular}{llrrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-Setting & H ID & Cases & OK & LB inf. & Unresolved & Invalid & Elapsed (s) \\
+Setting & Cases & OK & LB inf. & Unresolved & Invalid & Elapsed (s) \\
 \midrule
-Timed heuristic portfolio & H1 & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 167.628 \\
-Fixed earliest due & H2 & 670 & 546 & 94 & 30 & 0 & 149.063 \\
-Fixed round-robin product & H2 & 670 & 548 & 94 & 28 & 0 & 139.882 \\
-Fixed largest route work & H2 & 670 & 548 & 94 & 28 & 0 & 140.998 \\
-Fixed smallest route work & H2 & 670 & 542 & 94 & 34 & 0 & 147.854 \\
-Wavefront, chunk 5 & H3 & 670 & 572 & 94 & 4 & 0 & 157.910 \\
-Wavefront, chunk 10 & H3 & 670 & 574 & 94 & 2 & 0 & 160.155 \\
-Wavefront, chunk 25 & H3 & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 172.358 \\
+Timed heuristic portfolio & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 167.628 \\
+Fixed earliest due & 670 & 546 & 94 & 30 & 0 & 149.063 \\
+Fixed round-robin product & 670 & 548 & 94 & 28 & 0 & 139.882 \\
+Fixed largest route work & 670 & 548 & 94 & 28 & 0 & 140.998 \\
+Fixed smallest route work & 670 & 542 & 94 & 34 & 0 & 147.854 \\
+Wavefront, chunk 5 & 670 & 572 & 94 & 4 & 0 & 157.910 \\
+Wavefront, chunk 10 & 670 & 574 & 94 & 2 & 0 & 160.155 \\
+Wavefront, chunk 25 & 670 & \textbf{576} & 94 & \textbf{0} & 0 & 172.358 \\
 \bottomrule
 \end{tabular}
 \caption{Full-670 accepted-coverage evaluation for the portfolio, fixed-rule,
@@ -382,43 +451,79 @@ axis.
 \centering
 \fbox{\parbox[c][0.90in][c]{0.92\columnwidth}{\centering
 Figure placeholder: stacked bars over a common denominator of 670 show
-verifier-accepted, lower-bound infeasible, and unresolved counts for H1, four
-H2 rules, and three H3 chunk sizes.}}
-\caption{Accepted-coverage composition for H1--H3 on the common full-670
+verifier-accepted, lower-bound infeasible, and unresolved counts for the
+portfolio, four fixed rules, and three chunk sizes.}}
+\caption{Accepted-coverage composition on the common full-670
 manifest.  Fixed rules and smaller chunks change search coverage under the
 registered budget; the bars do not encode schedule-quality or optimality
 comparisons.}
 \label{fig:coverage}
 \end{figure}
 
-\subsection{CP-SAT on the Stratified-50 Cohort}
+\subsection{Same-Cohort Portfolio and CP-SAT Comparison}
 
-Table~\ref{tab:cpsat120} isolates H4 from the full-670 results.  On its
-stratified 50-instance cohort, CP-SAT records 44 verifier-accepted schedules
-and six capacity-lower-bound infeasibility outcomes, with no unresolved or
-invalid records.  These counts characterize only that subset and its
-120-second per-instance limit; they are not a case-count-equivalent comparison
-with Table~\ref{tab:full670}.
+Table~\ref{tab:cpsat120} projects the full-set portfolio records onto the exact
+50 cases used by CP-SAT.  The two methods agree case-by-case on all 50 statuses:
+42 feasible, two zero-task optimal, and six capacity-lower-bound infeasible.
+Both therefore have 44 verifier-accepted schedules and no unresolved or invalid
+records on this cohort.  The portfolio's observed p50/p95/maximum solve times
+are 0.079/0.320/0.723 seconds, compared with
+2.395/19.366/38.795 seconds for CP-SAT.  These records compare search behavior
+on identical cases and limits; they do not compare schedule quality or provide
+a hardware-portable speedup claim.
 
 \begin{table}[t]
 \centering
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Cases & OK & LB inf. & Unresolved & Invalid \\
+Method & Cases & OK & LB inf. & Unresolved & p50/p95/max (s) \\
 \midrule
-50 & 44 & 6 & 0 & 0 \\
+Portfolio & 50 & 44 & 6 & 0 & 0.079/0.320/0.723 \\
+CP-SAT & 50 & 44 & 6 & 0 & 2.395/19.366/38.795 \\
 \bottomrule
 \end{tabular}
-\caption{CP-SAT results on the registered stratified 50-instance cohort at
-120 seconds per instance.  The cohort and budget differ from the full-670
-heuristic evaluation.}
+\caption{Same-cohort results at a 120-second per-case limit.  Both methods
+produce identical case-level statuses and zero verifier-invalid outputs on the
+registered stratified cohort.  Runtime quantiles are descriptive run records.}
 \label{tab:cpsat120}
+\end{table}
+
+\subsection{Acceptance-Gate Challenge Tests}
+
+To test the verifier contribution directly, we execute 13 focused deterministic
+tests over the solver/checker boundary.  The suite covers valid two-step
+schedules, inventory deduction and zero-task plans, static unknown-machine
+rejection, fixed-strategy isolation, CP-SAT/greedy path isolation, non-feasible
+status gating, and three deliberately corrupted schedules.  All 13 tests pass.
+Table~\ref{tab:gate-tests} lists the mutations most directly tied to schedule
+acceptance.  These tests are executable specification checks, not statistical
+evidence of factory-wide reliability.
+
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.36\columnwidth}p{0.25\columnwidth}p{0.20\columnwidth}}
+\toprule
+Candidate condition & Required outcome & Observed \\
+\midrule
+Valid two-step route & \texttt{ok} & Pass \\
+Non-feasible solver status & Reject before acceptance & Pass \\
+Missing simultaneous machine & \texttt{invalid} & Pass \\
+Downstream operation starts early & \texttt{invalid} & Pass \\
+Machine-capacity overlap & \texttt{invalid} & Pass \\
+\bottomrule
+\end{tabular}
+\caption{Representative acceptance-gate challenge tests.  The complete focused
+suite contains 13 deterministic tests; each test asserts its required status
+or structured error condition.}
+\label{tab:gate-tests}
 \end{table}
 
 \subsection{Complexity and Difficulty Buckets}
 
-H5 joins all 670 H1 cases to raw-order features and partitions each feature
+The complexity analysis joins all 670 portfolio cases to raw-order features
+and partitions each feature
 into empirical tertiles.  Operation count and machine-load ratio are derived
 using the scheduler's operation and capacity semantics; total work minutes
 and worker-day count are directly available raw-order statistics.  The
@@ -428,7 +533,8 @@ a substitute for machine-load ratio.
 Table~\ref{tab:complexity} shows that all 94 lower-bound infeasibility outcomes
 fall in the high tertiles of operation count, total work, and machine load.
 Worker-day buckets distribute those outcomes more broadly.  These are
-descriptive associations within H1, not causal claims about difficulty.  The
+descriptive associations within the portfolio run, not causal claims about
+difficulty.  The
 median solve time rises from 0.032 to 0.203 seconds across the operation-count
 tertiles, while every bucket retains zero unresolved and zero invalid outputs.
 Figure~\ref{fig:complexity} specifies the planned visual summary of these
@@ -447,7 +553,7 @@ Machine-load ratio & Derived & 223/223/224 & 223/223/130 & 0/0/94 & 0.040/0.086/
 Worker-day count & Available & 233/214/223 & 192/182/202 & 41/32/21 & 0.065/0.077/0.097 \\
 \bottomrule
 \end{tabular}
-\caption{Empirical-tertile analysis of the H1 full-670 run.  Each cell lists
+\caption{Empirical-tertile analysis of the full-670 portfolio run.  Each cell lists
 low/medium/high buckets.  \texttt{OK} is verifier-accepted, and \texttt{LB inf.}
 is model-specific capacity-lower-bound infeasibility.  The analysis is
 descriptive and does not establish causality.}
@@ -460,7 +566,7 @@ descriptive and does not establish causality.}
 Figure placeholder: four small panels show low, medium, and high tertiles for
 operation count, total work, machine-load ratio, and worker-day count, with
 accepted/lower-bound counts and median runtime.}}
-\caption{Planned visualization of the H5 empirical-tertile analysis.  Machine
+\caption{Planned visualization of the full-670 empirical-tertile analysis.  Machine
 load is derived using scheduler semantics; the worker-capacity field
 \texttt{load\_ratio} is not substituted for it.}
 \label{fig:complexity}
@@ -468,7 +574,7 @@ load is derived using scheduler semantics; the worker-capacity field
 
 \subsection{Audited Verifier Cases}
 
-Table~\ref{tab:cases} traces four H6 cases to their order, candidate solution,
+Table~\ref{tab:cases} traces four cases to their order, candidate solution,
 and verifier records.  The first two cases stress the acceptance path with
 large schedules.  The inventory case tests the zero-task boundary.  The final
 case contains no schedule: \texttt{not\_applicable} means that the verifier had
@@ -489,9 +595,9 @@ Inventory / zero task & \texttt{SO-2024-10-0032-2} & Demand 5 and inventory 5; e
 Capacity lower bound & \texttt{SO-2025-05-0003-2} & CMM CONTURA 10/16/6 requires 10,701.61 minutes but has 10,080.00 modeled capacity minutes. & \texttt{infeasible\_proven}; verifier \texttt{not\_applicable} \\
 \bottomrule
 \end{tabular}
-\caption{Four audited cases from the H1 run.  Scheduled-operation counts come
-from candidate solutions, whereas merged-task counts come from the H1 summary
-or verifier record.  The lower-bound case emits no schedule.}
+\caption{Four audited cases from the full-670 portfolio run.  Scheduled-operation counts come
+from candidate solutions, whereas merged-task counts come from the registered
+full-run summary or verifier record.  The lower-bound case emits no schedule.}
 \label{tab:cases}
 \end{table*}
 
@@ -530,10 +636,17 @@ only the constraints it implements.
 
 We presented a verifier-backed heuristic scheduling framework that turns
 industrial orders into minute-level candidate plans and accepts them only
-after independent constraint reconstruction.  On 670 order instances, the
-portfolio covers every instance with either a verifier-accepted schedule or a
-model-specific capacity-lower-bound result, while fixed-rule and chunk-size
-ablations expose where strategy choice affects search coverage.
+after independent constraint reconstruction.  Its central contribution is an
+executable acceptance predicate that binds each candidate to its input,
+separates search status from execution authority, and records structured
+verification evidence.  On 670 order instances, the portfolio covers every
+instance with either a verifier-accepted schedule or a model-specific
+capacity-lower-bound result, while fixed-rule and chunk-size ablations expose
+where strategy choice affects search coverage.  On a common stratified
+50-instance cohort, the portfolio and CP-SAT agree on every case-level status;
+13 focused gate tests further show that valid candidates are accepted and
+representative status, precedence, simultaneous-machine, and capacity
+violations are rejected.
 
 The current study does not optimize schedule quality, prove general global
 optimality, or model dynamic disruptions such as breakdowns and urgent
@@ -544,14 +657,15 @@ schedules, are concrete next steps toward production deployment.
 \appendix
 \section{Longer CP-SAT Budget on the Registered Cohort}
 
-H7 reruns CP-SAT on the same stratified 50-instance cohort as H4 with a
+The longer-budget run repeats CP-SAT on the same stratified 50-instance cohort
+as the main same-cohort comparison with a
 600-second per-instance limit.  It records 42 feasible schedules, two
 inventory-covered zero-task optimal schedules, and six capacity-lower-bound
 infeasibility outcomes.  Thus, 44 schedules are verifier \texttt{ok}, with no
 unresolved or invalid outputs.  The actual p50, p95, and maximum solve times
 are 2.320, 19.339, and 38.931 seconds.  Table~\ref{tab:cpsat600} is an
-appendix-only run record; it is neither an equal-budget comparison with H4 nor
-an equal-scope comparison with H1--H3.
+appendix-only run record; it is neither an equal-budget comparison with the
+120-second run nor an equal-scope comparison with the full-670 evaluation.
 
 \begin{table}[t]
 \centering
@@ -570,14 +684,15 @@ p50/p95/maximum solve seconds.}
 \end{table}
 
 Figure~\ref{fig:cpsat-budgets} records the planned side-by-side visualization
-of H4 and H7.  Both runs cover the same cohort and produce the same aggregate
-status counts; the visualization will retain the distinct nominal budgets and
-observed runtime distributions rather than implying budget equivalence.
+of the 120- and 600-second CP-SAT runs.  Both runs cover the same cohort and
+produce the same aggregate status counts; the visualization will retain the
+distinct nominal budgets and observed runtime distributions rather than
+implying budget equivalence.
 
 \begin{figure}[t]
 \centering
 \fbox{\parbox[c][0.88in][c]{0.92\columnwidth}{\centering
-Figure placeholder: H4 (120-second limit) and H7 (600-second limit) on the
+Figure placeholder: CP-SAT at 120- and 600-second limits on the
 same stratified 50-instance cohort, showing status counts and observed runtime
 quantiles with a warning against full-670 comparison.}}
 \caption{Planned comparison of the two CP-SAT run records on the same
