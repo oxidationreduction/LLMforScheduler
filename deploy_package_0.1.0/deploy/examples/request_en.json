@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "case_id": "english-small-case",
+  "problem": {
+    "orders": [
+      {
+        "product_id": "P1",
+        "quantity": 1,
+        "due_day": 1
+      }
+    ],
+    "processes": {
+      "P1": [
+        {
+          "step_index": 1,
+          "name": "cut",
+          "equipment": [
+            "M1"
+          ],
+          "duration_minutes": 10,
+          "eligible_workers": [
+            "W1"
+          ]
+        }
+      ]
+    },
+    "inventory": {
+      "P1": 0
+    },
+    "machines": [
+      {
+        "name": "M1",
+        "count": 1
+      }
+    ],
+    "worker_availability": {
+      "W1": [
+        1
+      ]
+    }
+  },
+  "options": {
+    "time_limit_seconds": 120
+  }
+}
